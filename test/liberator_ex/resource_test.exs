@@ -444,4 +444,45 @@ defmodule LiberatorEx.ResourceTest do
     assert conn.status == 304
     assert Jason.decode!(conn.resp_body) == []
   end
+
+  test "returns 200 if method is delete" do
+    LiberatorEx.MockResource
+    |> expect(:method_delete?, fn _ -> true end)
+    |> expect(:delete!, fn _ -> :ok end)
+
+    conn = conn(:delete, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 202 if method is delete but delete is not immediately enacted" do
+    LiberatorEx.MockResource
+    |> expect(:method_delete?, fn _ -> true end)
+    |> expect(:delete!, fn _ -> nil end)
+    |> expect(:delete_enacted?, fn _ -> false end)
+
+    conn = conn(:delete, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 202
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 204 if method is delete and no content is returned" do
+    LiberatorEx.MockResource
+    |> expect(:method_delete?, fn _ -> true end)
+    |> expect(:delete!, fn _ -> nil end)
+    |> expect(:respond_with_entity?, fn _ -> false end)
+
+    conn = conn(:delete, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 204
+    assert Jason.decode!(conn.resp_body) == []
+  end
 end

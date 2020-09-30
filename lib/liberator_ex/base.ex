@@ -202,12 +202,50 @@ defmodule LiberatorEx.Base do
     false
   end
 
+  def delete_enacted?(_conn) do
+    true
+  end
+
+  def respond_with_entity?(_conn) do
+    true
+  end
+
+
+  def delete!(_conn) do
+    :ok
+  end
+
+  def put!(_conn) do
+    :ok
+  end
+
+  def patch!(_conn) do
+    :ok
+  end
+
+  def post!(_conn) do
+    :ok
+  end
+
+
   def handle_ok(conn) do
     send_resp(conn, 200, Jason.encode!([]))
   end
 
   def handle_options(conn) do
     send_resp(conn, 200, Jason.encode!([]))
+  end
+
+  def handle_accepted(conn) do
+    send_resp(conn, 202, Jason.encode!([]))
+  end
+
+  def handle_no_content(conn) do
+    send_resp(conn, 204, Jason.encode!([]))
+  end
+
+  def handle_multiple_representations(conn) do
+    send_resp(conn, 300, Jason.encode!([]))
   end
 
   def handle_moved_permanently(conn) do

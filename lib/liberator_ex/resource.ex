@@ -51,13 +51,22 @@ defmodule LiberatorEx.Resource do
   @callback if_unmodified_since_valid_date?(Plug.Conn.t) :: true | false
   @callback unmodified_since?(Plug.Conn.t) :: true | false
   @callback method_delete?(Plug.Conn.t) :: true | false
+  @callback delete_enacted?(Plug.Conn.t) :: true | false
   @callback method_patch?(Plug.Conn.t) :: true | false
   @callback post_to_existing?(Plug.Conn.t) :: true | false
   @callback put_to_existing?(Plug.Conn.t) :: true | false
+  @callback respond_with_entity?(Plug.Conn.t) :: true | false
   @callback multiple_representations?(Plug.Conn.t) :: true | false
+
+  @callback delete!(Plug.Conn.t) :: :ok
+  @callback put!(Plug.Conn.t) :: :ok
+  @callback patch!(Plug.Conn.t) :: :ok
+  @callback post!(Plug.Conn.t) :: :ok
 
   @callback handle_ok(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_options(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_accepted(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_no_content(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_moved_permanently(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_not_modified(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_moved_temporarily(Plug.Conn.t) :: Plug.Conn.t
@@ -133,6 +142,23 @@ defmodule LiberatorEx.Resource do
               end
             handler_module.if_modified_since_exists?(conn) and handler_module.if_modified_since_valid_date?(conn) and not handler_module.modified_since?(conn) ->
               handler_module.handle_not_modified(conn)
+            handler_module.method_delete?(conn) ->
+              handler_module.delete!(conn)
+              if handler_module.delete_enacted?(conn) do
+                if handler_module.respond_with_entity?(conn) do
+                  if handler_module.multiple_representations?(conn) do
+                    handler_module.handle_multiple_representations(conn)
+                  else
+                    handler_module.handle_ok(conn)
+                  end
+                else
+                  handler_module.handle_no_content(conn)
+                end
+              else
+                handler_module.handle_accepted(conn)
+              end
+            handler_module.method_patch?(conn) ->
+              handler_module.patch!(conn)
             true ->
               handler_module.handle_ok(conn)
           end
