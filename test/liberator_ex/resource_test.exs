@@ -315,4 +315,61 @@ defmodule LiberatorEx.ResourceTest do
     assert conn.status == 410
     assert Jason.decode!(conn.resp_body) == []
   end
+
+  test "returns 301 when put to a different url but entity doesn't exist" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
+    |> expect(:method_put?, fn _ -> true end)
+    |> expect(:put_to_different_url?, fn _ -> true end)
+
+    conn = conn(:put, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 301
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 501 when put to a different url but entity doesn't exist and can't put to missing" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
+    |> expect(:method_put?, fn _ -> true end)
+    |> expect(:can_put_to_missing?, fn _ -> false end)
+
+    conn = conn(:put, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 501
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 412 when entity doesn't exist but if_match_star_exists_for_missing is true" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> true end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 412
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 412 if If-Match <etag> doesn't match an etag" do
+    LiberatorEx.MockResource
+    |> expect(:if_match_exists?, fn _ -> true end)
+    |> expect(:if_match_star?, fn _ -> false end)
+    |> expect(:etag_matches_for_if_match?, fn _ -> false end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 412
+    assert Jason.decode!(conn.resp_body) == []
+  end
 end

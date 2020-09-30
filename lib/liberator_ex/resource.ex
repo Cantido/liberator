@@ -33,6 +33,22 @@ defmodule LiberatorEx.Resource do
   @callback moved_temporarily?(Plug.Conn.t) :: true | false
   @callback post_to_gone?(Plug.Conn.t) :: true | false
   @callback can_post_to_gone?(Plug.Conn.t) :: true | false
+  @callback method_put?(Plug.Conn.t) :: true | false
+  @callback put_to_different_url?(Plug.Conn.t) :: true | false
+  @callback can_put_to_missing?(Plug.Conn.t) :: true | false
+  @callback if_match_star?(Plug.Conn.t) :: true | false
+  @callback if_none_match_exists?(Plug.Conn.t) :: true | false
+  @callback etag_matches_for_if_match?(Plug.Conn.t) :: true | false
+  @callback if_modified_since_exists?(Plug.Conn.t) :: true | false
+  @callback if_unmodified_since_exists?(Plug.Conn.t) :: true | false
+  @callback method_delete?(Plug.Conn.t) :: true | false
+  @callback method_patch?(Plug.Conn.t) :: true | false
+  @callback post_to_existing?(Plug.Conn.t) :: true | false
+  @callback put_to_existing?(Plug.Conn.t) :: true | false
+  @callback multiple_representations?(Plug.Conn.t) :: true | false
+  @callback if_match_exists?(Plug.Conn.t) :: true | false
+  @callback if_match_star?(Plug.Conn.t) :: true | false
+  @callback etag_matches_for_if_match?(Plug.Conn.t) :: true | false
 
   @callback handle_ok(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_options(Plug.Conn.t) :: Plug.Conn.t
@@ -45,6 +61,7 @@ defmodule LiberatorEx.Resource do
   @callback handle_method_not_allowed(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_not_acceptable(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_gone(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_precondition_failed(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_request_entity_too_large(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_uri_too_long(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_unsupported_media_type(Plug.Conn.t) :: Plug.Conn.t
@@ -96,13 +113,26 @@ defmodule LiberatorEx.Resource do
         handler_module.handle_unprocessable_entity(conn)
       true ->
         if handler_module.exists?(conn) do
-          handler_module.handle_ok(conn)
+          if handler_module.if_match_exists?(conn) and not handler_module.if_match_star?(conn) and not handler_module.etag_matches_for_if_match?(conn) do
+            handler_module.handle_precondition_failed(conn)
+          else
+            # TODO
+            handler_module.handle_ok(conn)
+          end
         else
           if handler_module.if_match_star_exists_for_missing?(conn) do
-            # TODO
+            handler_module.handle_precondition_failed(conn)
           else
             if handler_module.method_put?(conn) do
-              # TODO
+              if handler_module.put_to_different_url?(conn) do
+                handler_module.handle_moved_permanently(conn)
+              else
+                if handler_module.can_put_to_missing?(conn) do
+                  # TODO
+                else
+                  handler_module.handle_not_implemented(conn)
+                end
+              end
             else
               if handler_module.existed?(conn) do
                 if handler_module.moved_permanently?(conn) do

@@ -122,6 +122,58 @@ defmodule LiberatorEx.Base do
     false
   end
 
+  def put_to_different_url?(_conn) do
+    false
+  end
+
+  def can_put_to_missing?(_conn) do
+    false
+  end
+
+  def if_match_exists?(_conn) do
+    false
+  end
+
+  def if_match_star?(_conn) do
+    false
+  end
+
+  def if_none_match_exists?(_conn) do
+    false
+  end
+
+  def etag_matches_for_if_match?(_conn) do
+    false
+  end
+
+  def if_modified_since_exists?(_conn) do
+    false
+  end
+
+  def if_unmodified_since_exists?(_conn) do
+    false
+  end
+
+  def method_delete?(_conn) do
+    false
+  end
+
+  def method_patch?(_conn) do
+    false
+  end
+
+  def post_to_existing?(_conn) do
+    false
+  end
+
+  def put_to_existing?(_conn) do
+    false
+  end
+
+  def multiple_representations?(_conn) do
+    false
+  end
+
   def handle_ok(conn) do
     send_resp(conn, 200, Jason.encode!([]))
   end
@@ -164,6 +216,10 @@ defmodule LiberatorEx.Base do
 
   def handle_gone(conn) do
     send_resp(conn, 410, Jason.encode!([]))
+  end
+
+  def handle_precondition_failed(conn) do
+    send_resp(conn, 412, Jason.encode!([]))
   end
 
   def handle_request_entity_too_large(conn) do
