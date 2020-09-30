@@ -45,6 +45,8 @@ defmodule LiberatorEx.Resource do
   @callback if_match_star_exists_for_missing?(Plug.Conn.t) :: true | false
   @callback etag_matches_for_if_match?(Plug.Conn.t) :: true | false
   @callback if_modified_since_exists?(Plug.Conn.t) :: true | false
+  @callback if_modified_since_valid_date?(Plug.Conn.t) :: true | false
+  @callback modified_since?(Plug.Conn.t) :: true | false
   @callback if_unmodified_since_exists?(Plug.Conn.t) :: true | false
   @callback if_unmodified_since_valid_date?(Plug.Conn.t) :: true | false
   @callback unmodified_since?(Plug.Conn.t) :: true | false
@@ -129,7 +131,8 @@ defmodule LiberatorEx.Resource do
               else
                 handler_module.handle_precondition_failed(conn)
               end
-
+            handler_module.if_modified_since_exists?(conn) and handler_module.if_modified_since_valid_date?(conn) and not handler_module.modified_since?(conn) ->
+              handler_module.handle_not_modified(conn)
             true ->
               handler_module.handle_ok(conn)
           end

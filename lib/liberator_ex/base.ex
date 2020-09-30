@@ -162,6 +162,14 @@ defmodule LiberatorEx.Base do
     false
   end
 
+  def if_modified_since_valid_date?(_conn) do
+    true
+  end
+
+  def modified_since?(_conn) do
+    false
+  end
+
   def if_unmodified_since_exists?(_conn) do
     false
   end
