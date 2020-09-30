@@ -24,7 +24,6 @@ defmodule LiberatorEx.Resource do
   @callback encoding_available?(Plug.Conn.t) :: true | false
   @callback processable?(Plug.Conn.t) :: true | false
   @callback exists?(Plug.Conn.t) :: true | false
-  @callback if_match_star_exists_for_missing?(Plug.Conn.t) :: true | false
   @callback method_put?(Plug.Conn.t) :: true | false
   @callback existed?(Plug.Conn.t) :: true | false
   @callback post_to_missing?(Plug.Conn.t) :: true | false
@@ -36,23 +35,29 @@ defmodule LiberatorEx.Resource do
   @callback method_put?(Plug.Conn.t) :: true | false
   @callback put_to_different_url?(Plug.Conn.t) :: true | false
   @callback can_put_to_missing?(Plug.Conn.t) :: true | false
-  @callback if_match_star?(Plug.Conn.t) :: true | false
   @callback if_none_match_exists?(Plug.Conn.t) :: true | false
+  @callback if_none_match_star?(Plug.Conn.t) :: true | false
+  @callback etag_matches_for_if_none?(Plug.Conn.t) :: true | false
+  @callback if_none_match?(Plug.Conn.t) :: true | false
+  @callback if_match_exists?(Plug.Conn.t) :: true | false
+  @callback if_match_star?(Plug.Conn.t) :: true | false
+  @callback etag_matches_for_if_match?(Plug.Conn.t) :: true | false
+  @callback if_match_star_exists_for_missing?(Plug.Conn.t) :: true | false
   @callback etag_matches_for_if_match?(Plug.Conn.t) :: true | false
   @callback if_modified_since_exists?(Plug.Conn.t) :: true | false
   @callback if_unmodified_since_exists?(Plug.Conn.t) :: true | false
+  @callback if_unmodified_since_valid_date?(Plug.Conn.t) :: true | false
+  @callback unmodified_since?(Plug.Conn.t) :: true | false
   @callback method_delete?(Plug.Conn.t) :: true | false
   @callback method_patch?(Plug.Conn.t) :: true | false
   @callback post_to_existing?(Plug.Conn.t) :: true | false
   @callback put_to_existing?(Plug.Conn.t) :: true | false
   @callback multiple_representations?(Plug.Conn.t) :: true | false
-  @callback if_match_exists?(Plug.Conn.t) :: true | false
-  @callback if_match_star?(Plug.Conn.t) :: true | false
-  @callback etag_matches_for_if_match?(Plug.Conn.t) :: true | false
 
   @callback handle_ok(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_options(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_moved_permanently(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_not_modified(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_moved_temporarily(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_malformed(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_unauthorized(Plug.Conn.t) :: Plug.Conn.t
@@ -113,11 +118,20 @@ defmodule LiberatorEx.Resource do
         handler_module.handle_unprocessable_entity(conn)
       true ->
         if handler_module.exists?(conn) do
-          if handler_module.if_match_exists?(conn) and not handler_module.if_match_star?(conn) and not handler_module.etag_matches_for_if_match?(conn) do
-            handler_module.handle_precondition_failed(conn)
-          else
-            # TODO
-            handler_module.handle_ok(conn)
+          cond do
+            handler_module.if_match_exists?(conn) and not handler_module.if_match_star?(conn) and not handler_module.etag_matches_for_if_match?(conn) ->
+              handler_module.handle_precondition_failed(conn)
+            handler_module.if_unmodified_since_exists?(conn) and handler_module.if_unmodified_since_valid_date?(conn) and handler_module.unmodified_since?(conn) ->
+              handler_module.handle_precondition_failed(conn)
+            handler_module.if_none_match_exists?(conn) and (handler_module.if_none_match_star?(conn) or handler_module.etag_matches_for_if_none?(conn)) ->
+              if handler_module.if_none_match?(conn) do
+                handler_module.handle_not_modified(conn)
+              else
+                handler_module.handle_precondition_failed(conn)
+              end
+
+            true ->
+              handler_module.handle_ok(conn)
           end
         else
           if handler_module.if_match_star_exists_for_missing?(conn) do

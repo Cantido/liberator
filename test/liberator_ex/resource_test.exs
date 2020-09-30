@@ -372,4 +372,48 @@ defmodule LiberatorEx.ResourceTest do
     assert conn.status == 412
     assert Jason.decode!(conn.resp_body) == []
   end
+
+  test "returns 412 if If-Unmodified-Since <date> and entity has not been modified since" do
+    LiberatorEx.MockResource
+    |> expect(:if_unmodified_since_exists?, fn _ -> true end)
+    |> expect(:if_unmodified_since_valid_date?, fn _ -> true end)
+    |> expect(:unmodified_since?, fn _ -> true end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 412
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 412 if If-None-Match <etag> etag does match" do
+    LiberatorEx.MockResource
+    |> expect(:if_none_match_exists?, fn _ -> true end)
+    |> expect(:if_none_match_star?, fn _ -> false end)
+    |> expect(:etag_matches_for_if_none?, fn _ -> true end)
+    |> expect(:if_none_match?, fn _ -> false end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 412
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 304 if If-None-Match <etag> etag does't match" do
+    LiberatorEx.MockResource
+    |> expect(:if_none_match_exists?, fn _ -> true end)
+    |> expect(:if_none_match_star?, fn _ -> false end)
+    |> expect(:etag_matches_for_if_none?, fn _ -> true end)
+    |> expect(:if_none_match?, fn _ -> true end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 304
+    assert Jason.decode!(conn.resp_body) == []
+  end
 end

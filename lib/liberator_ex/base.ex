@@ -142,6 +142,18 @@ defmodule LiberatorEx.Base do
     false
   end
 
+  def if_none_match_star?(_conn) do
+    false
+  end
+
+  def etag_matches_for_if_none?(_conn) do
+    false
+  end
+
+  def if_none_match?(_conn) do
+    false
+  end
+
   def etag_matches_for_if_match?(_conn) do
     false
   end
@@ -152,6 +164,14 @@ defmodule LiberatorEx.Base do
 
   def if_unmodified_since_exists?(_conn) do
     false
+  end
+
+  def if_unmodified_since_valid_date?(_conn) do
+    true
+  end
+
+  def unmodified_since?(_conn) do
+    true
   end
 
   def method_delete?(_conn) do
@@ -184,6 +204,10 @@ defmodule LiberatorEx.Base do
 
   def handle_moved_permanently(conn) do
     send_resp(conn, 301, Jason.encode!([]))
+  end
+
+  def handle_not_modified(conn) do
+    send_resp(conn, 304, Jason.encode!([]))
   end
 
   def handle_moved_temporarily(conn) do
