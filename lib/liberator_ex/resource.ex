@@ -23,14 +23,28 @@ defmodule LiberatorEx.Resource do
   @callback accept_encoding_exists?(Plug.Conn.t) :: true | false
   @callback encoding_available?(Plug.Conn.t) :: true | false
   @callback processable?(Plug.Conn.t) :: true | false
+  @callback exists?(Plug.Conn.t) :: true | false
+  @callback if_match_star_exists_for_missing?(Plug.Conn.t) :: true | false
+  @callback method_put?(Plug.Conn.t) :: true | false
+  @callback existed?(Plug.Conn.t) :: true | false
+  @callback post_to_missing?(Plug.Conn.t) :: true | false
+  @callback can_post_to_missing?(Plug.Conn.t) :: true | false
+  @callback moved_permanently?(Plug.Conn.t) :: true | false
+  @callback moved_temporarily?(Plug.Conn.t) :: true | false
+  @callback post_to_gone?(Plug.Conn.t) :: true | false
+  @callback can_post_to_gone?(Plug.Conn.t) :: true | false
 
   @callback handle_ok(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_options(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_moved_permanently(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_moved_temporarily(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_malformed(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_unauthorized(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_forbidden(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_not_found(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_method_not_allowed(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_not_acceptable(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_gone(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_request_entity_too_large(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_uri_too_long(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_unsupported_media_type(Plug.Conn.t) :: Plug.Conn.t
@@ -81,7 +95,47 @@ defmodule LiberatorEx.Resource do
       not handler_module.processable?(conn) ->
         handler_module.handle_unprocessable_entity(conn)
       true ->
-        handler_module.handle_ok(conn)
+        if handler_module.exists?(conn) do
+          handler_module.handle_ok(conn)
+        else
+          if handler_module.if_match_star_exists_for_missing?(conn) do
+            # TODO
+          else
+            if handler_module.method_put?(conn) do
+              # TODO
+            else
+              if handler_module.existed?(conn) do
+                if handler_module.moved_permanently?(conn) do
+                  handler_module.handle_moved_permanently(conn)
+                else
+                  if handler_module.moved_temporarily?(conn) do
+                    handler_module.handle_moved_temporarily(conn)
+                  else
+                    if handler_module.post_to_gone?(conn) do
+                      if handler_module.can_post_to_gone?(conn) do
+                        # TODO
+                      else
+                        handler_module.handle_gone(conn)
+                      end
+                    else
+                      handler_module.handle_gone(conn)
+                    end
+                  end
+                end
+              else
+                if handler_module.post_to_missing?(conn) do
+                  if handler_module.can_post_to_missing?(conn) do
+                    # TODO
+                  else
+                    handler_module.handle_not_found(conn)
+                  end
+                else
+                  handler_module.handle_not_found(conn)
+                end
+              end
+            end
+          end
+        end
     end
   end
 end

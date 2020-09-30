@@ -159,7 +159,7 @@ defmodule LiberatorEx.ResourceTest do
     |> expect(:accept_exists?, fn _ -> true end)
     |> expect(:media_type_available?, fn _ -> false end)
 
-    conn = conn(:options, "/")
+    conn = conn(:get, "/")
     conn = Resource.call(conn, @opts)
 
     assert conn.state == :sent
@@ -172,7 +172,7 @@ defmodule LiberatorEx.ResourceTest do
     |> expect(:accept_language_exists?, fn _ -> true end)
     |> expect(:language_available?, fn _ -> false end)
 
-    conn = conn(:options, "/")
+    conn = conn(:get, "/")
     conn = Resource.call(conn, @opts)
 
     assert conn.state == :sent
@@ -185,7 +185,7 @@ defmodule LiberatorEx.ResourceTest do
     |> expect(:accept_charset_exists?, fn _ -> true end)
     |> expect(:charset_available?, fn _ -> false end)
 
-    conn = conn(:options, "/")
+    conn = conn(:get, "/")
     conn = Resource.call(conn, @opts)
 
     assert conn.state == :sent
@@ -198,7 +198,7 @@ defmodule LiberatorEx.ResourceTest do
     |> expect(:accept_encoding_exists?, fn _ -> true end)
     |> expect(:encoding_available?, fn _ -> false end)
 
-    conn = conn(:options, "/")
+    conn = conn(:get, "/")
     conn = Resource.call(conn, @opts)
 
     assert conn.state == :sent
@@ -210,11 +210,109 @@ defmodule LiberatorEx.ResourceTest do
     LiberatorEx.MockResource
     |> expect(:processable?, fn _ -> false end)
 
-    conn = conn(:options, "/")
+    conn = conn(:get, "/")
     conn = Resource.call(conn, @opts)
 
     assert conn.state == :sent
     assert conn.status == 422
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 404 if entity does not exist" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
+    |> expect(:method_put?, fn _ -> false end)
+    |> expect(:existed?, fn _ -> false end)
+    |> expect(:post_to_missing?, fn _ -> false end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 404
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 404 if entity does not exist and can't post to missing" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
+    |> expect(:method_put?, fn _ -> false end)
+    |> expect(:existed?, fn _ -> false end)
+    |> expect(:post_to_missing?, fn _ -> true end)
+    |> expect(:can_post_to_missing?, fn _ -> false end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 404
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 301" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
+    |> expect(:method_put?, fn _ -> false end)
+    |> expect(:existed?, fn _ -> true end)
+    |> expect(:moved_permanently?, fn _ -> true end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 301
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 307" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
+    |> expect(:method_put?, fn _ -> false end)
+    |> expect(:existed?, fn _ -> true end)
+    |> expect(:moved_temporarily?, fn _ -> true end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 307
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 410" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
+    |> expect(:method_put?, fn _ -> false end)
+    |> expect(:existed?, fn _ -> true end)
+    |> expect(:post_to_gone?, fn _ -> false end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 410
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 410 when can't post to gone" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
+    |> expect(:method_put?, fn _ -> false end)
+    |> expect(:existed?, fn _ -> true end)
+    |> expect(:post_to_gone?, fn _ -> true end)
+    |> expect(:can_post_to_gone?, fn _ -> false end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 410
     assert Jason.decode!(conn.resp_body) == []
   end
 end

@@ -82,12 +82,60 @@ defmodule LiberatorEx.Base do
     true
   end
 
+  def exists?(_conn) do
+    true
+  end
+
+  def if_match_star_exists_for_missing?(_conn) do
+    false
+  end
+
+  def method_put?(_conn) do
+    false
+  end
+
+  def existed?(_conn) do
+    false
+  end
+
+  def post_to_missing?(_conn) do
+    false
+  end
+
+  def can_post_to_missing?(_conn) do
+    false
+  end
+
+  def moved_permanently?(_conn) do
+    false
+  end
+
+  def moved_temporarily?(_conn) do
+    false
+  end
+
+  def post_to_gone?(_conn) do
+    false
+  end
+
+  def can_post_to_gone?(_conn) do
+    false
+  end
+
   def handle_ok(conn) do
     send_resp(conn, 200, Jason.encode!([]))
   end
 
   def handle_options(conn) do
     send_resp(conn, 200, Jason.encode!([]))
+  end
+
+  def handle_moved_permanently(conn) do
+    send_resp(conn, 301, Jason.encode!([]))
+  end
+
+  def handle_moved_temporarily(conn) do
+    send_resp(conn, 307, Jason.encode!([]))
   end
 
   def handle_malformed(conn) do
@@ -102,12 +150,20 @@ defmodule LiberatorEx.Base do
     send_resp(conn, 403, Jason.encode!([]))
   end
 
+  def handle_not_found(conn) do
+    send_resp(conn, 404, Jason.encode!([]))
+  end
+
   def handle_method_not_allowed(conn) do
     send_resp(conn, 405, Jason.encode!([]))
   end
 
   def handle_not_acceptable(conn) do
     send_resp(conn, 406, Jason.encode!([]))
+  end
+
+  def handle_gone(conn) do
+    send_resp(conn, 410, Jason.encode!([]))
   end
 
   def handle_request_entity_too_large(conn) do
