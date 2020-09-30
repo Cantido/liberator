@@ -46,6 +46,42 @@ defmodule LiberatorEx.Base do
     false
   end
 
+  def accept_exists?(_conn) do
+    true
+  end
+
+  def media_type_available?(_conn) do
+    true
+  end
+
+  def accept_language_exists?(_conn) do
+    true
+  end
+
+  def language_available?(_conn) do
+    true
+  end
+
+  def accept_charset_exists?(_conn) do
+    true
+  end
+
+  def charset_available?(_conn) do
+    true
+  end
+
+  def accept_encoding_exists?(_conn) do
+    true
+  end
+
+  def encoding_available?(_conn) do
+    true
+  end
+
+  def processable?(_conn) do
+    true
+  end
+
   def handle_ok(conn) do
     send_resp(conn, 200, Jason.encode!([]))
   end
@@ -70,6 +106,10 @@ defmodule LiberatorEx.Base do
     send_resp(conn, 405, Jason.encode!([]))
   end
 
+  def handle_not_acceptable(conn) do
+    send_resp(conn, 406, Jason.encode!([]))
+  end
+
   def handle_request_entity_too_large(conn) do
     send_resp(conn, 413, Jason.encode!([]))
   end
@@ -80,6 +120,10 @@ defmodule LiberatorEx.Base do
 
   def handle_unsupported_media_type(conn) do
     send_resp(conn, 415, Jason.encode!([]))
+  end
+
+  def handle_unprocessable_entity(conn) do
+    send_resp(conn, 422, Jason.encode!([]))
   end
 
   def handle_not_implemented(conn) do

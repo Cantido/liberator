@@ -153,4 +153,68 @@ defmodule LiberatorEx.ResourceTest do
     assert conn.status == 200
     assert Jason.decode!(conn.resp_body) == []
   end
+
+  test "returns 406 when accept_exists? returns true but media_type_available? returns false" do
+    LiberatorEx.MockResource
+    |> expect(:accept_exists?, fn _ -> true end)
+    |> expect(:media_type_available?, fn _ -> false end)
+
+    conn = conn(:options, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 406
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 406 when accept_language_exists? returns true but language_available? returns false" do
+    LiberatorEx.MockResource
+    |> expect(:accept_language_exists?, fn _ -> true end)
+    |> expect(:language_available?, fn _ -> false end)
+
+    conn = conn(:options, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 406
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 406 when accept_charset_exists? returns true but charset_available? returns false" do
+    LiberatorEx.MockResource
+    |> expect(:accept_charset_exists?, fn _ -> true end)
+    |> expect(:charset_available?, fn _ -> false end)
+
+    conn = conn(:options, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 406
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 406 when accept_encoding_exists? returns true but encoding_available? returns false" do
+    LiberatorEx.MockResource
+    |> expect(:accept_encoding_exists?, fn _ -> true end)
+    |> expect(:encoding_available?, fn _ -> false end)
+
+    conn = conn(:options, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 406
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 422 when processable? returns false" do
+    LiberatorEx.MockResource
+    |> expect(:processable?, fn _ -> false end)
+
+    conn = conn(:options, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 422
+    assert Jason.decode!(conn.resp_body) == []
+  end
 end
