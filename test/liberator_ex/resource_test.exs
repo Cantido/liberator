@@ -141,4 +141,16 @@ defmodule LiberatorEx.ResourceTest do
     assert conn.status == 413
     assert Jason.decode!(conn.resp_body) == []
   end
+
+  test "returns 200-options when is_options? returns true" do
+    LiberatorEx.MockResource
+    |> expect(:is_options?, fn _ -> true end)
+
+    conn = conn(:options, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert Jason.decode!(conn.resp_body) == []
+  end
 end
