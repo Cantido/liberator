@@ -485,4 +485,45 @@ defmodule LiberatorEx.ResourceTest do
     assert conn.status == 204
     assert Jason.decode!(conn.resp_body) == []
   end
+
+  test "returns 200 if method is patch" do
+    LiberatorEx.MockResource
+    |> expect(:method_delete?, fn _ -> true end)
+    |> expect(:patch!, fn _ -> nil end)
+
+    conn = conn(:patch, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 202 if method is patch and patch is not immediately enacted" do
+    LiberatorEx.MockResource
+    |> expect(:method_patch?, fn _ -> true end)
+    |> expect(:patch!, fn _ -> nil end)
+    |> expect(:patch_enacted?, fn _ -> false end)
+
+    conn = conn(:patch, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 202
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 204 if method is patch and no content is returned" do
+    LiberatorEx.MockResource
+    |> expect(:method_patch?, fn _ -> true end)
+    |> expect(:patch!, fn _ -> nil end)
+    |> expect(:respond_with_entity?, fn _ -> false end)
+
+    conn = conn(:patch, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 204
+    assert Jason.decode!(conn.resp_body) == []
+  end
 end

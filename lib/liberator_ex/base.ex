@@ -206,6 +206,10 @@ defmodule LiberatorEx.Base do
     true
   end
 
+  def patch_enacted?(_conn) do
+    true
+  end
+
   def respond_with_entity?(_conn) do
     true
   end

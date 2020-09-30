@@ -53,6 +53,7 @@ defmodule LiberatorEx.Resource do
   @callback method_delete?(Plug.Conn.t) :: true | false
   @callback delete_enacted?(Plug.Conn.t) :: true | false
   @callback method_patch?(Plug.Conn.t) :: true | false
+  @callback patch_enacted?(Plug.Conn.t) :: true | false
   @callback post_to_existing?(Plug.Conn.t) :: true | false
   @callback put_to_existing?(Plug.Conn.t) :: true | false
   @callback respond_with_entity?(Plug.Conn.t) :: true | false
@@ -145,20 +146,17 @@ defmodule LiberatorEx.Resource do
             handler_module.method_delete?(conn) ->
               handler_module.delete!(conn)
               if handler_module.delete_enacted?(conn) do
-                if handler_module.respond_with_entity?(conn) do
-                  if handler_module.multiple_representations?(conn) do
-                    handler_module.handle_multiple_representations(conn)
-                  else
-                    handler_module.handle_ok(conn)
-                  end
-                else
-                  handler_module.handle_no_content(conn)
-                end
+                finish_response(handler_module, conn)
               else
                 handler_module.handle_accepted(conn)
               end
             handler_module.method_patch?(conn) ->
               handler_module.patch!(conn)
+              if handler_module.patch_enacted?(conn) do
+                finish_response(handler_module, conn)
+              else
+                handler_module.handle_accepted(conn)
+              end
             true ->
               handler_module.handle_ok(conn)
           end
@@ -209,6 +207,18 @@ defmodule LiberatorEx.Resource do
             end
           end
         end
+    end
+  end
+
+  defp finish_response(handler_module, conn) do
+    if handler_module.respond_with_entity?(conn) do
+      if handler_module.multiple_representations?(conn) do
+        handler_module.handle_multiple_representations(conn)
+      else
+        handler_module.handle_ok(conn)
+      end
+    else
+      handler_module.handle_no_content(conn)
     end
   end
 end
