@@ -19,7 +19,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 200
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "OK"
   end
 
   test "returns 503 when service_available? returns false" do
@@ -31,7 +31,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 503
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Service Unavailable"
   end
 
   test "returns 501 when known_method? returns false" do
@@ -43,7 +43,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 501
-    assert Jason.decode!(conn.resp_body) == []
+    assert  conn.resp_body == "Unknown Method"
   end
 
   test "returns 414 when uri_too_long? returns true" do
@@ -55,7 +55,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 414
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "URI Too Long"
   end
 
   test "returns 405 when method_allowed? returns false" do
@@ -67,7 +67,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 405
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Method Not Allowed"
   end
 
   test "returns 400 when malformed? returns true" do
@@ -79,7 +79,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 400
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Malformed"
   end
 
   test "returns 401 when authorized? returns false" do
@@ -91,7 +91,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 401
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Unauthorized"
   end
 
   test "returns 403 when allowed? returns false" do
@@ -103,7 +103,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 403
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Forbidden"
   end
 
   test "returns 501 when valid_content_header? returns false" do
@@ -115,7 +115,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 501
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Not Implemented"
   end
 
   test "returns 415 when known_content_type? returns false" do
@@ -127,7 +127,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 415
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Unsupported Media Type"
   end
 
   test "returns 413 when valid_entity_length? returns false" do
@@ -139,10 +139,10 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 413
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Request Entity Too Large"
   end
 
-  test "returns 200-options when is_options? returns true" do
+  test "returns 200-options for an options request" do
     LiberatorEx.MockResource
     |> expect(:is_options?, fn _ -> true end)
 
@@ -151,7 +151,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 200
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Options"
   end
 
   test "returns 406 when accept_exists? returns true but media_type_available? returns false" do
@@ -164,7 +164,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 406
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Not Acceptable"
   end
 
   test "returns 406 when accept_language_exists? returns true but language_available? returns false" do
@@ -177,7 +177,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 406
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Not Acceptable"
   end
 
   test "returns 406 when accept_charset_exists? returns true but charset_available? returns false" do
@@ -190,7 +190,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 406
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Not Acceptable"
   end
 
   test "returns 406 when accept_encoding_exists? returns true but encoding_available? returns false" do
@@ -203,7 +203,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 406
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Not Acceptable"
   end
 
   test "returns 422 when processable? returns false" do
@@ -215,7 +215,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 422
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Unprocessable Entity"
   end
 
   test "returns 404 if entity does not exist" do
@@ -231,7 +231,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 404
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Not Found"
   end
 
   test "returns 404 if entity does not exist and can't post to missing" do
@@ -248,7 +248,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 404
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Not Found"
   end
 
   test "returns 303 if entity does not exist and we can post to missing, and have want a post redirect" do
@@ -267,7 +267,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 303
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "See Other"
   end
 
   test "returns 201 if entity does not exist and we can post to missing, and create a new resource" do
@@ -286,7 +286,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 201
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Created"
   end
 
   test "returns 202 if entity does not exist and we can post to missing, and post is not immediately enacted" do
@@ -304,7 +304,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 202
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Accepted"
   end
 
   test "returns 204 if entity does not exist and we can post to missing, the entity isn't new and we won't respond with entities" do
@@ -325,7 +325,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 204
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "No Content"
   end
 
   test "returns 300 if entity does not exist and we can post to missing, the entity isn't new and we have multiple entity representations" do
@@ -347,7 +347,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 300
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Multiple Representations"
   end
 
   test "returns 200 if entity does not exist and we can post to missing, the entity isn't new" do
@@ -369,7 +369,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 200
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "OK"
   end
 
   test "returns 301" do
@@ -385,7 +385,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 301
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Moved Permanently"
   end
 
   test "returns 307" do
@@ -401,7 +401,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 307
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Moved Temporarily"
   end
 
   test "returns 410 if the resource is gone" do
@@ -417,7 +417,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 410
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Gone"
   end
 
   test "returns 410 when can't post to gone" do
@@ -434,7 +434,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 410
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Gone"
   end
 
   test "returns 201 when resource is gone but we can post to it" do
@@ -454,7 +454,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 201
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Created"
   end
 
   test "returns 301 when put to a different url but entity doesn't exist" do
@@ -469,7 +469,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 301
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Moved Permanently"
   end
 
   test "returns 501 when put to a different url but entity doesn't exist and can't put to missing" do
@@ -484,7 +484,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 501
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Not Implemented"
   end
 
   test "returns 409 when put to a different url but entity doesn't exist, and we can put to missing, but there's a conflict" do
@@ -500,7 +500,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 409
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Conflict"
   end
 
   test "returns 412 when entity doesn't exist but if_match_star_exists_for_missing is true" do
@@ -513,7 +513,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 412
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Precondition Failed"
   end
 
   test "returns 412 if If-Match <etag> doesn't match an etag" do
@@ -527,7 +527,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 412
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Precondition Failed"
   end
 
   test "returns 412 if If-Unmodified-Since <date> and entity has not been modified since" do
@@ -541,7 +541,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 412
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Precondition Failed"
   end
 
   test "returns 412 if If-None-Match <etag> etag does match" do
@@ -556,7 +556,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 412
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Precondition Failed"
   end
 
   test "returns 412 if If-None-Match * etag does match" do
@@ -570,7 +570,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 412
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Precondition Failed"
   end
 
   test "returns 304 if If-None-Match <etag> etag does't match" do
@@ -585,7 +585,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 304
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Not Modified"
   end
 
   test "returns 304 if If-Modified-Since <date> and resource has not been modified" do
@@ -599,7 +599,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 304
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Not Modified"
   end
 
   test "returns 200 if method is delete" do
@@ -612,7 +612,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 200
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "OK"
   end
 
   test "returns 202 if method is delete but delete is not immediately enacted" do
@@ -626,7 +626,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 202
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Accepted"
   end
 
   test "returns 204 if method is delete and no content is returned" do
@@ -640,7 +640,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 204
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "No Content"
   end
 
   test "returns 200 if method is patch" do
@@ -653,7 +653,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 200
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "OK"
   end
 
   test "returns 202 if method is patch and patch is not immediately enacted" do
@@ -667,7 +667,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 202
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Accepted"
   end
 
   test "returns 204 if method is patch and no content is returned" do
@@ -681,7 +681,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 204
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "No Content"
   end
 
   test "returns 409 if post-to-existing has a conflict" do
@@ -694,7 +694,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 409
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Conflict"
   end
 
   test "returns 409 if put-to-existing has a conflict" do
@@ -707,7 +707,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 409
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Conflict"
   end
 
   test "returns 303 if post with post-redirect enabled" do
@@ -730,7 +730,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 303
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "See Other"
   end
 
   test "returns 201 if post when resource is created" do
@@ -754,7 +754,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 201
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Created"
   end
 
   test "returns 204 if post when resource is not new and we want no entity response" do
@@ -779,7 +779,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 204
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "No Content"
   end
 
   test "returns 200 if post when resource is not new and we want an entity response with one representation" do
@@ -805,7 +805,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 200
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "OK"
   end
 
   test "returns 300 if post when resource is not new and we want an entity response with multiple representations" do
@@ -831,7 +831,7 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 300
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Multiple Representations"
   end
 
   test "returns 201 if put when resource is new" do
@@ -854,6 +854,6 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 201
-    assert Jason.decode!(conn.resp_body) == []
+    assert conn.resp_body == "Created"
   end
 end

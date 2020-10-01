@@ -81,106 +81,106 @@ defmodule LiberatorEx.Base do
 
 
   def handle_ok(conn) do
-    send_resp(conn, 200, Jason.encode!([]))
+    send_resp(conn, 200, "OK")
   end
 
   def handle_options(conn) do
-    send_resp(conn, 200, Jason.encode!([]))
+    send_resp(conn, 200, "Options")
   end
 
   def handle_created(conn) do
-    send_resp(conn, 201, Jason.encode!([]))
+    send_resp(conn, 201, "Created")
   end
 
   def handle_accepted(conn) do
-    send_resp(conn, 202, Jason.encode!([]))
+    send_resp(conn, 202, "Accepted")
   end
 
   def handle_no_content(conn) do
-    send_resp(conn, 204, Jason.encode!([]))
+    send_resp(conn, 204, "No Content")
   end
 
   def handle_multiple_representations(conn) do
-    send_resp(conn, 300, Jason.encode!([]))
+    send_resp(conn, 300, "Multiple Representations")
   end
 
   def handle_moved_permanently(conn) do
-    send_resp(conn, 301, Jason.encode!([]))
+    send_resp(conn, 301, "Moved Permanently")
   end
 
   def handle_see_other(conn) do
-    send_resp(conn, 303, Jason.encode!([]))
+    send_resp(conn, 303, "See Other")
   end
 
   def handle_not_modified(conn) do
-    send_resp(conn, 304, Jason.encode!([]))
+    send_resp(conn, 304, "Not Modified")
   end
 
   def handle_moved_temporarily(conn) do
-    send_resp(conn, 307, Jason.encode!([]))
+    send_resp(conn, 307, "Moved Temporarily")
   end
 
   def handle_malformed(conn) do
-    send_resp(conn, 400, Jason.encode!([]))
+    send_resp(conn, 400, "Malformed")
   end
 
   def handle_unauthorized(conn) do
-    send_resp(conn, 401, Jason.encode!([]))
+    send_resp(conn, 401, "Unauthorized")
   end
 
   def handle_forbidden(conn) do
-    send_resp(conn, 403, Jason.encode!([]))
+    send_resp(conn, 403, "Forbidden")
   end
 
   def handle_not_found(conn) do
-    send_resp(conn, 404, Jason.encode!([]))
+    send_resp(conn, 404, "Not Found")
   end
 
   def handle_method_not_allowed(conn) do
-    send_resp(conn, 405, Jason.encode!([]))
+    send_resp(conn, 405, "Method Not Allowed")
   end
 
   def handle_not_acceptable(conn) do
-    send_resp(conn, 406, Jason.encode!([]))
+    send_resp(conn, 406, "Not Acceptable")
   end
 
   def handle_conflict(conn) do
-    send_resp(conn, 409, Jason.encode!([]))
+    send_resp(conn, 409, "Conflict")
   end
 
   def handle_gone(conn) do
-    send_resp(conn, 410, Jason.encode!([]))
+    send_resp(conn, 410, "Gone")
   end
 
   def handle_precondition_failed(conn) do
-    send_resp(conn, 412, Jason.encode!([]))
+    send_resp(conn, 412, "Precondition Failed")
   end
 
   def handle_request_entity_too_large(conn) do
-    send_resp(conn, 413, Jason.encode!([]))
+    send_resp(conn, 413, "Request Entity Too Large")
   end
 
   def handle_uri_too_long(conn) do
-    send_resp(conn, 414, Jason.encode!([]))
+    send_resp(conn, 414, "URI Too Long")
   end
 
   def handle_unsupported_media_type(conn) do
-    send_resp(conn, 415, Jason.encode!([]))
+    send_resp(conn, 415, "Unsupported Media Type")
   end
 
   def handle_unprocessable_entity(conn) do
-    send_resp(conn, 422, Jason.encode!([]))
+    send_resp(conn, 422, "Unprocessable Entity")
   end
 
   def handle_not_implemented(conn) do
-    send_resp(conn, 501, Jason.encode!([]))
+    send_resp(conn, 501, "Not Implemented")
   end
 
   def handle_unknown_method(conn) do
-    send_resp(conn, 501, Jason.encode!([]))
+    send_resp(conn, 501, "Unknown Method")
   end
 
   def handle_service_unavailable(conn) do
-    send_resp(conn, 503, Jason.encode!([]))
+    send_resp(conn, 503, "Service Unavailable")
   end
 end
