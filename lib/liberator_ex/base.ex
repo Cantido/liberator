@@ -27,7 +27,13 @@ defmodule LiberatorEx.Base do
   def valid_content_header?(_conn), do: true
   def known_content_type?(_conn), do: true
   def valid_entity_length?(_conn), do: true
-  def is_options?(_conn), do: false
+
+  def is_options?(conn), do: conn.method == "OPTIONS"
+  def method_put?(conn), do: conn.method == "PUT"
+  def method_post?(conn), do: conn.method == "POST"
+  def method_delete?(conn), do: conn.method == "DELETE"
+  def method_patch?(conn), do: conn.method == "PATCH"
+
   def accept_exists?(_conn), do: true
   def media_type_available?(conn) do
     requested_media_type = get_req_header(conn, "accept") |> Enum.at(0)
@@ -40,17 +46,20 @@ defmodule LiberatorEx.Base do
   def accept_encoding_exists?(_conn), do: true
   def encoding_available?(_conn), do: true
   def processable?(_conn), do: true
+  
   def exists?(_conn), do: true
-  def if_match_star_exists_for_missing?(_conn), do: false
-  def method_put?(_conn), do: false
-  def method_post?(_conn), do: false
   def existed?(_conn), do: false
-  def post_to_missing?(_conn), do: true
-  def can_post_to_missing?(_conn), do: true
   def moved_permanently?(_conn), do: false
   def moved_temporarily?(_conn), do: false
+
+  def if_match_star_exists_for_missing?(_conn), do: false
+  def post_to_missing?(_conn), do: true
+  def can_post_to_missing?(_conn), do: true
   def post_to_gone?(_conn), do: false
   def can_post_to_gone?(_conn), do: false
+  def put_to_existing?(_conn), do: false
+  def post_to_existing?(_conn), do: false
+
   def put_to_different_url?(_conn), do: false
   def can_put_to_missing?(_conn), do: false
   def if_match_exists?(_conn), do: false
@@ -63,29 +72,30 @@ defmodule LiberatorEx.Base do
   def if_modified_since_exists?(_conn), do: false
   def if_modified_since_valid_date?(_conn), do: true
   def modified_since?(conn) do
-    modified_since_header =
-      get_req_header(conn, "if-modified-since")
-      |> Enum.at(0)
-      |> Timex.parse!("%a, %d20 %b %Y %H:%M:%S GMT", :strftime)
-
-    Timex.before?(modified_since_header, last_modified(conn))
+    conn
+    |> get_req_header("if-modified-since")
+    |> Enum.at(0)
+    |> Timex.parse!("%a, %d20 %b %Y %H:%M:%S GMT", :strftime)
+    |> Timex.before?(last_modified(conn))
   end
   def if_unmodified_since_exists?(_conn), do: false
   def if_unmodified_since_valid_date?(_conn), do: true
-  def unmodified_since?(_conn), do: true
-  def method_delete?(_conn), do: false
-  def method_patch?(_conn), do: false
-  def post_to_existing?(_conn), do: false
+  def unmodified_since?(conn) do
+    conn
+    |> get_req_header("if-unmodified-since")
+    |> Enum.at(0)
+    |> Timex.parse!("%a, %d20 %b %Y %H:%M:%S GMT", :strftime)
+    |> Timex.after?(last_modified(conn))
+  end
   def post_redirect?(_conn), do: false
   def post_enacted?(_conn), do: false
-  def put_to_existing?(_conn), do: false
   def put_enacted?(_conn), do: true
-  def multiple_representations?(_conn), do: false
   def delete_enacted?(_conn), do: true
   def patch_enacted?(_conn), do: true
   def respond_with_entity?(_conn), do: true
   def conflict?(_conn), do: false
   def new?(_conn), do: true
+  def multiple_representations?(_conn), do: false
 
 
   def delete!(_conn) do
