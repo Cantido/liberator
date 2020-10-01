@@ -19,6 +19,10 @@ defmodule LiberatorEx.Base do
     DateTime.utc_now()
   end
 
+  def etag(_conn) do
+    nil
+  end
+
   def service_available?(_conn), do: true
   def known_method?(_conn), do: true
   def uri_too_long?(_conn), do: false
@@ -81,11 +85,28 @@ defmodule LiberatorEx.Base do
   def if_match_star?(conn) do
     get_req_header(conn, "if-match") |> Enum.any?(&(&1 == "*"))
   end
-  def if_none_match_exists?(_conn), do: false
-  def if_none_match_star?(_conn), do: false
-  def etag_matches_for_if_none?(_conn), do: false
+  def if_none_match_exists?(conn) do
+    get_req_header(conn, "if-none-match") |> Enum.any?()
+  end
+  def if_none_match_star?(conn) do
+    get_req_header(conn, "if-none-match") |> Enum.any?(&(&1 == "*"))
+  end
   def if_none_match?(_conn), do: false
-  def etag_matches_for_if_match?(_conn), do: false
+  def etag_matches_for_if_match?(conn) do
+    if etag = etag(conn) do
+      etag == get_req_header(conn, "if-match") |> Enum.at(0)
+    else
+      false
+    end
+  end
+  def etag_matches_for_if_none?(conn) do
+    if etag = etag(conn) do
+      etag == get_req_header(conn, "if-none-match") |> Enum.at(0)
+    else
+      false
+    end
+  end
+
   def if_modified_since_exists?(conn) do
     get_req_header(conn, "if-modified-since") |> Enum.any?()
   end
@@ -126,6 +147,7 @@ defmodule LiberatorEx.Base do
     |> Timex.parse!("%a, %d20 %b %Y %H:%M:%S GMT", :strftime)
     |> Timex.after?(last_modified(conn))
   end
+
   def post_redirect?(_conn), do: false
   def post_enacted?(_conn), do: true
   def put_enacted?(_conn), do: true

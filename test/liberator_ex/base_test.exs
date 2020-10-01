@@ -310,4 +310,46 @@ defmodule LiberatorEx.BaseTest do
       assert not Base.if_match_star?(conn)
     end
   end
+
+  describe "if_none_match_exists?" do
+    test "returns true if the if-none-match header is present" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("if-none-match", "asdf")
+
+      assert Base.if_none_match_exists?(conn)
+    end
+    test "returns false if the if-none-match header is not present" do
+      assert not Base.if_none_match_exists?(conn(:get, "/"))
+    end
+  end
+
+  describe "if_none_match_star?" do
+    test "returns true if the if-none-match header is *" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("if-none-match", "*")
+
+      assert Base.if_none_match_star?(conn)
+    end
+    test "returns false if the if-none-match header is not *" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("if-none-match", "asdf")
+
+      assert not Base.if_none_match_star?(conn)
+    end
+  end
+
+  describe "etag_matches_for_if_match?" do
+    test "returns false by default" do
+      assert not Base.etag_matches_for_if_match?(conn(:get, "/"))
+    end
+  end
+
+  describe "etag_matches_for_if_none?" do
+    test "returns false by default" do
+      assert not Base.etag_matches_for_if_none?(conn(:get, "/"))
+    end
+  end
 end
