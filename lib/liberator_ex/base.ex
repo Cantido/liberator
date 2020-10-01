@@ -3,6 +3,8 @@ defmodule LiberatorEx.Base do
   use Timex
   @behaviour LiberatorEx.Resource
 
+  defoverridable LiberatorEx.Resource
+
   def allowed_methods(_conn) do
     ["GET", "HEAD", "PUT", "POST", "DELETE", "OPTIONS", "TRACE", "PATCH"]
   end
