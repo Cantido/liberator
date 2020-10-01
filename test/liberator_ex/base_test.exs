@@ -101,9 +101,55 @@ defmodule LiberatorEx.BaseTest do
 
       assert Base.accept_exists?(conn)
     end
-      test "returns false if the accept header is not present" do
-        assert not Base.accept_exists?(conn(:get, "/"))
-      end
+    test "returns true if the accept header is */*" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept", "*/*")
+
+      assert Base.accept_exists?(conn)
+    end
+    test "returns false if the accept header is not present" do
+      assert not Base.accept_exists?(conn(:get, "/"))
+    end
+  end
+
+  describe "accept_language_exists?/1" do
+    test "returns true if the accept-language header is present" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept-language", "en")
+
+      assert Base.accept_language_exists?(conn)
+    end
+    test "returns false if the accept-language header is not present" do
+      assert not Base.accept_language_exists?(conn(:get, "/"))
+    end
+  end
+
+  describe "accept_charset_exists?/1" do
+    test "returns true if the accept-charset header is present" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept-charset", "en")
+
+      assert Base.accept_charset_exists?(conn)
+    end
+    test "returns false if the accept-charset header is not present" do
+      assert not Base.accept_charset_exists?(conn(:get, "/"))
+    end
+  end
+
+  describe "accept_encoding_exists?/1" do
+    test "returns true if the accept-encoding header is present" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept-encoding", "en")
+
+      assert Base.accept_encoding_exists?(conn)
+    end
+    test "returns false if the accept-encoding header is not present" do
+      assert not Base.accept_encoding_exists?(conn(:get, "/"))
+    end
   end
 
   describe "media_type_available?/1" do
@@ -112,6 +158,19 @@ defmodule LiberatorEx.BaseTest do
     end
     test "disallows text/nonexistent-media-type" do
       assert not Base.media_type_available?(conn(:get, "/") |> put_req_header("accept", "text/nonexistent-media-type"))
+    end
+  end
+
+  describe "if_modified_since_exists?" do
+    test "returns true if the if-modified-since header is present" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("if-modified-since", "*")
+
+      assert Base.if_modified_since_exists?(conn)
+    end
+    test "returns false if the if-modified-since header is not present" do
+      assert not Base.if_modified_since_exists?(conn(:get, "/"))
     end
   end
 
@@ -142,6 +201,59 @@ defmodule LiberatorEx.BaseTest do
     end
   end
 
+  describe "if_modified_since_valid_date?" do
+    test "returns true if if_modified_since header contains a valid date" do
+      {:ok, time_str} =
+        Timex.now()
+        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d20 %b %Y %H:%M:%S GMT")
+      conn =
+        conn(:get, "/")
+        |> put_req_header("if-modified-since", time_str)
+
+      assert Base.if_modified_since_valid_date?(conn)
+    end
+    test "returns false if if_modified_since header contains an invalid date" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("if-modified-since", "asdf")
+
+      assert not Base.if_modified_since_valid_date?(conn)
+    end
+  end
+
+  describe "if_unmodified_since_exists?" do
+    test "returns true if the if-unmodified-since header is present" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("if-unmodified-since", "*")
+
+      assert Base.if_unmodified_since_exists?(conn)
+    end
+    test "returns false if the if-unmodified-since header is not present" do
+      assert not Base.if_unmodified_since_exists?(conn(:get, "/"))
+    end
+  end
+
+  describe "if_unmodified_since_valid_date?" do
+    test "returns true if if_unmodified_since header contains a valid date" do
+      {:ok, time_str} =
+        Timex.now()
+        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d20 %b %Y %H:%M:%S GMT")
+      conn =
+        conn(:get, "/")
+        |> put_req_header("if-unmodified-since", time_str)
+
+      assert Base.if_unmodified_since_valid_date?(conn)
+    end
+    test "returns false if if_unmodified_since header contains an invalid date" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("if-unmodified-since", "asdf")
+
+      assert not Base.if_unmodified_since_valid_date?(conn)
+    end
+  end
+
   describe "unmodified_since?" do
     test "returns false if last modification date is after modification_since" do
       {:ok, time_str} =
@@ -169,4 +281,33 @@ defmodule LiberatorEx.BaseTest do
     end
   end
 
+  describe "if_match_exists?" do
+    test "returns true if the if-match header is present" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("if-match", "*")
+
+      assert Base.if_match_exists?(conn)
+    end
+    test "returns false if the if-match header is not present" do
+      assert not Base.if_match_exists?(conn(:get, "/"))
+    end
+  end
+
+  describe "if_match_star?" do
+    test "returns true if the if-match * header is present" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("if-match", "*")
+
+      assert Base.if_match_star?(conn)
+    end
+    test "returns false if the if-match * header is not present" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("if-match", "abcdefg")
+
+      assert not Base.if_match_star?(conn)
+    end
+  end
 end

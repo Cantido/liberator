@@ -11,6 +11,10 @@ defmodule LiberatorEx.Base do
     ["text/plain"]
   end
 
+  def available_languages(_conn) do
+    ["en"]
+  end
+
   def last_modified(_conn) do
     DateTime.utc_now()
   end
@@ -37,18 +41,25 @@ defmodule LiberatorEx.Base do
   def accept_exists?(conn) do
     get_req_header(conn, "accept") |> Enum.any?()
   end
+  def accept_language_exists?(conn) do
+    get_req_header(conn, "accept-language") |> Enum.any?()
+  end
+  def accept_charset_exists?(conn) do
+    get_req_header(conn, "accept-charset") |> Enum.any?()
+  end
+  def accept_encoding_exists?(conn) do
+    get_req_header(conn, "accept-encoding") |> Enum.any?()
+  end
+
   def media_type_available?(conn) do
     requested_media_type = get_req_header(conn, "accept") |> Enum.at(0)
-    requested_media_type in available_media_types(conn)
+    (requested_media_type in available_media_types(conn)) or requested_media_type == "*/*"
   end
-  def accept_language_exists?(_conn), do: true
   def language_available?(_conn), do: true
-  def accept_charset_exists?(_conn), do: true
   def charset_available?(_conn), do: true
-  def accept_encoding_exists?(_conn), do: true
   def encoding_available?(_conn), do: true
-  def processable?(_conn), do: true
 
+  def processable?(_conn), do: true
   def exists?(_conn), do: true
   def existed?(_conn), do: false
   def moved_permanently?(_conn), do: false
@@ -64,15 +75,30 @@ defmodule LiberatorEx.Base do
   def can_put_to_missing?(_conn), do: false
   def put_to_different_url?(_conn), do: false
 
-  def if_match_exists?(_conn), do: false
-  def if_match_star?(_conn), do: false
+  def if_match_exists?(conn) do
+    get_req_header(conn, "if-match") |> Enum.any?()
+  end
+  def if_match_star?(conn) do
+    get_req_header(conn, "if-match") |> Enum.any?(&(&1 == "*"))
+  end
   def if_none_match_exists?(_conn), do: false
   def if_none_match_star?(_conn), do: false
   def etag_matches_for_if_none?(_conn), do: false
   def if_none_match?(_conn), do: false
   def etag_matches_for_if_match?(_conn), do: false
-  def if_modified_since_exists?(_conn), do: false
-  def if_modified_since_valid_date?(_conn), do: true
+  def if_modified_since_exists?(conn) do
+    get_req_header(conn, "if-modified-since") |> Enum.any?()
+  end
+  def if_modified_since_valid_date?(conn) do
+    conn
+    |> get_req_header("if-modified-since")
+    |> Enum.at(0)
+    |> Timex.parse("%a, %d20 %b %Y %H:%M:%S GMT", :strftime)
+    |> case do
+      {:ok, _time} -> true
+      _ -> false
+    end
+  end
   def modified_since?(conn) do
     conn
     |> get_req_header("if-modified-since")
@@ -80,8 +106,19 @@ defmodule LiberatorEx.Base do
     |> Timex.parse!("%a, %d20 %b %Y %H:%M:%S GMT", :strftime)
     |> Timex.before?(last_modified(conn))
   end
-  def if_unmodified_since_exists?(_conn), do: false
-  def if_unmodified_since_valid_date?(_conn), do: true
+  def if_unmodified_since_exists?(conn) do
+    get_req_header(conn, "if-unmodified-since") |> Enum.any?()
+  end
+  def if_unmodified_since_valid_date?(conn) do
+    conn
+    |> get_req_header("if-unmodified-since")
+    |> Enum.at(0)
+    |> Timex.parse("%a, %d20 %b %Y %H:%M:%S GMT", :strftime)
+    |> case do
+      {:ok, _time} -> true
+      _ -> false
+    end
+  end
   def unmodified_since?(conn) do
     conn
     |> get_req_header("if-unmodified-since")
@@ -90,7 +127,7 @@ defmodule LiberatorEx.Base do
     |> Timex.after?(last_modified(conn))
   end
   def post_redirect?(_conn), do: false
-  def post_enacted?(_conn), do: false
+  def post_enacted?(_conn), do: true
   def put_enacted?(_conn), do: true
   def delete_enacted?(_conn), do: true
   def patch_enacted?(_conn), do: true
