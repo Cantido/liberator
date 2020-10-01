@@ -166,18 +166,18 @@ defmodule Liberator.Resource do
       use Timex
       @behaviour Liberator.Resource
 
-      plug :check_service_available, builder_opts()
-      plug :check_known_method, builder_opts()
-      plug :check_uri_too_long, builder_opts()
-      plug :check_method_allowed, builder_opts()
-      plug :check_malformed, builder_opts()
-      plug :check_authorized, builder_opts()
-      plug :check_allowed, builder_opts()
-      plug :check_valid_content_header, builder_opts()
-      plug :check_known_content_type, builder_opts()
-      plug :check_valid_entity_length, builder_opts()
-      plug :check_is_options, builder_opts()
-      plug :evaluate, builder_opts()
+      plug :check_service_available
+      plug :check_known_method
+      plug :check_uri_too_long
+      plug :check_method_allowed
+      plug :check_malformed
+      plug :check_authorized
+      plug :check_allowed
+      plug :check_valid_content_header
+      plug :check_known_content_type
+      plug :check_valid_entity_length
+      plug :check_is_options
+      plug :evaluate
 
       defp check_service_available(conn, _opts) do
         if result = service_available?(conn) do
