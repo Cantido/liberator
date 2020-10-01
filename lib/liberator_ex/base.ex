@@ -2,10 +2,20 @@ defmodule LiberatorEx.Base do
   import Plug.Conn
   @behaviour LiberatorEx.Resource
 
+  def allowed_methods(_conn) do
+    ["GET", "HEAD", "PUT", "POST", "DELETE", "OPTIONS", "TRACE", "PATCH"]
+  end
+
+  def available_media_types(_conn) do
+    ["text/plain"]
+  end
+
   def service_available?(_conn), do: true
   def known_method?(_conn), do: true
   def uri_too_long?(_conn), do: false
-  def method_allowed?(_conn), do: true
+  def method_allowed?(conn) do
+    conn.method in allowed_methods(conn)
+  end
   def malformed?(_conn), do: false
   def authorized?(_conn), do: true
   def allowed?(_conn), do: true
@@ -14,7 +24,10 @@ defmodule LiberatorEx.Base do
   def valid_entity_length?(_conn), do: true
   def is_options?(_conn), do: false
   def accept_exists?(_conn), do: true
-  def media_type_available?(_conn), do: true
+  def media_type_available?(conn) do
+    requested_media_type = get_req_header(conn, "accept") |> Enum.at(0)
+    requested_media_type in available_media_types(conn)
+  end
   def accept_language_exists?(_conn), do: true
   def language_available?(_conn), do: true
   def accept_charset_exists?(_conn), do: true
