@@ -4,6 +4,11 @@ defmodule LiberatorEx.Resource do
   Documentation for LiberatorEx.Resource.
   """
 
+  @callback allowed_methods(Plug.Conn.t) :: list()
+  @callback available_media_types(Plug.Conn.t) :: list()
+  @callback available_languages(Plug.Conn.t) :: list()
+  @callback last_modified(Plug.Conn.t) :: String.t
+  @callback etag(Plug.Conn.t) :: String.t
 
   @callback service_available?(Plug.Conn.t) :: true | false
   @callback known_method?(Plug.Conn.t) :: true | false
@@ -99,304 +104,673 @@ defmodule LiberatorEx.Resource do
   @callback handle_not_implemented(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_service_unavailable(Plug.Conn.t) :: Plug.Conn.t
 
-  plug :service_available?, builder_opts()
-  plug :known_method?, builder_opts()
-  plug :uri_too_long?, builder_opts()
-  plug :method_allowed?, builder_opts()
-  plug :malformed?, builder_opts()
-  plug :authorized?, builder_opts()
-  plug :allowed?, builder_opts()
-  plug :valid_content_header?, builder_opts()
-  plug :known_content_type?, builder_opts()
-  plug :valid_entity_length?, builder_opts()
-  plug :is_options?, builder_opts()
-  plug :evaluate, builder_opts()
+  defmacro __using__(_opts) do
+    quote do
+      use Plug.Builder
+      use Timex
+      @behaviour LiberatorEx.Resource
 
-  defp service_available?(conn, opts) do
-    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
-    if result = handler_module.service_available?(conn) do
-      merge_map_assigns(conn, result)
-    else
-      conn
-      |> handler_module.handle_service_unavailable()
-      |> halt()
-    end
-  end
+      plug :check_service_available, builder_opts()
+      plug :check_known_method, builder_opts()
+      plug :check_uri_too_long, builder_opts()
+      plug :check_method_allowed, builder_opts()
+      plug :check_malformed, builder_opts()
+      plug :check_authorized, builder_opts()
+      plug :check_allowed, builder_opts()
+      plug :check_valid_content_header, builder_opts()
+      plug :check_known_content_type, builder_opts()
+      plug :check_valid_entity_length, builder_opts()
+      plug :check_is_options, builder_opts()
+      plug :evaluate, builder_opts()
 
-  defp known_method?(conn, opts) do
-    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
-    if result = handler_module.known_method?(conn) do
-      merge_map_assigns(conn, result)
-    else
-      conn
-      |> handler_module.handle_unknown_method()
-      |> halt()
-    end
-  end
-
-  defp uri_too_long?(conn, opts) do
-    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
-    if result = handler_module.uri_too_long?(conn) do
-      conn
-      |> merge_map_assigns(result)
-      |> handler_module.handle_uri_too_long()
-      |> halt()
-    else
-      conn
-    end
-  end
-
-  defp method_allowed?(conn, opts) do
-    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
-    if result = handler_module.method_allowed?(conn) do
-      merge_map_assigns(conn, result)
-    else
-      conn
-      |> handler_module.handle_method_not_allowed()
-      |> halt()
-    end
-  end
-
-  defp malformed?(conn, opts) do
-    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
-    if result = handler_module.malformed?(conn) do
-      conn
-      |> merge_map_assigns(result)
-      |> handler_module.handle_malformed()
-      |> halt()
-    else
-      conn
-    end
-  end
-
-  defp authorized?(conn, opts) do
-    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
-    if result = handler_module.authorized?(conn) do
-      merge_map_assigns(conn, result)
-    else
-      conn
-      |> handler_module.handle_unauthorized()
-      |> halt()
-    end
-  end
-
-  defp allowed?(conn, opts) do
-    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
-    if result = handler_module.allowed?(conn) do
-      merge_map_assigns(conn, result)
-    else
-      conn
-      |> handler_module.handle_forbidden()
-      |> halt()
-    end
-  end
-
-  defp valid_content_header?(conn, opts) do
-    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
-    if result = handler_module.valid_content_header?(conn) do
-      merge_map_assigns(conn, result)
-    else
-      conn
-      |> handler_module.handle_not_implemented()
-      |> halt()
-    end
-  end
-
-  defp known_content_type?(conn, opts) do
-    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
-    if result = handler_module.known_content_type?(conn) do
-      merge_map_assigns(conn, result)
-    else
-      conn
-      |> handler_module.handle_unsupported_media_type()
-      |> halt()
-    end
-  end
-
-  defp valid_entity_length?(conn, opts) do
-    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
-    if result = handler_module.valid_entity_length?(conn) do
-      merge_map_assigns(conn, result)
-    else
-      conn
-      |> handler_module.handle_request_entity_too_large()
-      |> halt()
-    end
-  end
-
-  defp is_options?(conn, opts) do
-    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
-    if result = handler_module.is_options?(conn) do
-      conn
-      |> merge_map_assigns(result)
-      |> handler_module.handle_options()
-      |> halt()
-    else
-      conn
-    end
-  end
-
-  defp merge_map_assigns(conn, result) do
-    if is_map(result) do
-      merge_assigns(conn, Enum.to_list(result))
-    else
-      conn
-    end
-  end
-
-  defp evaluate(conn, opts) do
-    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
-
-    cond do
-      handler_module.accept_exists?(conn) and not handler_module.media_type_available?(conn) ->
-        handler_module.handle_not_acceptable(conn)
-      handler_module.accept_language_exists?(conn) and not handler_module.language_available?(conn) ->
-        handler_module.handle_not_acceptable(conn)
-      handler_module.accept_charset_exists?(conn) and not handler_module.charset_available?(conn) ->
-        handler_module.handle_not_acceptable(conn)
-      handler_module.accept_encoding_exists?(conn) and not handler_module.encoding_available?(conn) ->
-        handler_module.handle_not_acceptable(conn)
-      not handler_module.processable?(conn) ->
-        handler_module.handle_unprocessable_entity(conn)
-      true ->
-        if handler_module.exists?(conn) do
-          cond do
-            handler_module.if_match_exists?(conn) and not handler_module.if_match_star?(conn) and not handler_module.etag_matches_for_if_match?(conn) ->
-              handler_module.handle_precondition_failed(conn)
-            handler_module.if_unmodified_since_exists?(conn) and handler_module.if_unmodified_since_valid_date?(conn) and handler_module.unmodified_since?(conn) ->
-              handler_module.handle_precondition_failed(conn)
-            handler_module.if_none_match_exists?(conn) and (handler_module.if_none_match_star?(conn) or handler_module.etag_matches_for_if_none?(conn)) ->
-              if handler_module.if_none_match?(conn) do
-                handler_module.handle_not_modified(conn)
-              else
-                handler_module.handle_precondition_failed(conn)
-              end
-            handler_module.if_modified_since_exists?(conn) and handler_module.if_modified_since_valid_date?(conn) and not handler_module.modified_since?(conn) ->
-              handler_module.handle_not_modified(conn)
-            handler_module.method_delete?(conn) ->
-              handler_module.delete!(conn)
-              if handler_module.delete_enacted?(conn) do
-                finish_response(handler_module, conn)
-              else
-                handler_module.handle_accepted(conn)
-              end
-            handler_module.method_patch?(conn) ->
-              handler_module.patch!(conn)
-              if handler_module.patch_enacted?(conn) do
-                finish_response(handler_module, conn)
-              else
-                handler_module.handle_accepted(conn)
-              end
-            handler_module.post_to_existing?(conn) ->
-              from_conflict(handler_module, conn)
-            handler_module.put_to_existing?(conn) ->
-              from_conflict(handler_module, conn)
-            true ->
-              handler_module.handle_ok(conn)
-          end
+      defp check_service_available(conn, _opts) do
+        if result = service_available?(conn) do
+          merge_map_assigns(conn, result)
         else
-          if handler_module.if_match_star_exists_for_missing?(conn) do
-            handler_module.handle_precondition_failed(conn)
-          else
-            if handler_module.method_put?(conn) do
-              if handler_module.put_to_different_url?(conn) do
-                handler_module.handle_moved_permanently(conn)
-              else
-                if handler_module.can_put_to_missing?(conn) do
-                  from_conflict(handler_module, conn)
-                else
-                  handler_module.handle_not_implemented(conn)
-                end
+          conn
+          |> handle_service_unavailable()
+          |> halt()
+        end
+      end
+
+      defp check_known_method(conn, _opts) do
+        if result = known_method?(conn) do
+          merge_map_assigns(conn, result)
+        else
+          conn
+          |> handle_unknown_method()
+          |> halt()
+        end
+      end
+
+      defp check_uri_too_long(conn, _opts) do
+        if result = uri_too_long?(conn) do
+          conn
+          |> merge_map_assigns(result)
+          |> handle_uri_too_long()
+          |> halt()
+        else
+          conn
+        end
+      end
+
+      defp check_method_allowed(conn, _opts) do
+        if result = method_allowed?(conn) do
+          merge_map_assigns(conn, result)
+        else
+          conn
+          |> handle_method_not_allowed()
+          |> halt()
+        end
+      end
+
+      defp check_malformed(conn, _opts) do
+        if result = malformed?(conn) do
+          conn
+          |> merge_map_assigns(result)
+          |> handle_malformed()
+          |> halt()
+        else
+          conn
+        end
+      end
+
+      defp check_authorized(conn, _opts) do
+        if result = authorized?(conn) do
+          merge_map_assigns(conn, result)
+        else
+          conn
+          |> handle_unauthorized()
+          |> halt()
+        end
+      end
+
+      defp check_allowed(conn, _opts) do
+        if result = allowed?(conn) do
+          merge_map_assigns(conn, result)
+        else
+          conn
+          |> handle_forbidden()
+          |> halt()
+        end
+      end
+
+      defp check_valid_content_header(conn, _opts) do
+        if result = valid_content_header?(conn) do
+          merge_map_assigns(conn, result)
+        else
+          conn
+          |> handle_not_implemented()
+          |> halt()
+        end
+      end
+
+      defp check_known_content_type(conn, _opts) do
+        if result = known_content_type?(conn) do
+          merge_map_assigns(conn, result)
+        else
+          conn
+          |> handle_unsupported_media_type()
+          |> halt()
+        end
+      end
+
+      defp check_valid_entity_length(conn, _opts) do
+        if result = valid_entity_length?(conn) do
+          merge_map_assigns(conn, result)
+        else
+          conn
+          |> handle_request_entity_too_large()
+          |> halt()
+        end
+      end
+
+      defp check_is_options(conn, _opts) do
+        if result = is_options?(conn) do
+          conn
+          |> merge_map_assigns(result)
+          |> handle_options()
+          |> halt()
+        else
+          conn
+        end
+      end
+
+      defp merge_map_assigns(conn, result) do
+        if is_map(result) do
+          merge_assigns(conn, Enum.to_list(result))
+        else
+          conn
+        end
+      end
+
+      defp evaluate(conn, _opts) do
+        cond do
+          accept_exists?(conn) and not media_type_available?(conn) ->
+            handle_not_acceptable(conn)
+          accept_language_exists?(conn) and not language_available?(conn) ->
+            handle_not_acceptable(conn)
+          accept_charset_exists?(conn) and not charset_available?(conn) ->
+            handle_not_acceptable(conn)
+          accept_encoding_exists?(conn) and not encoding_available?(conn) ->
+            handle_not_acceptable(conn)
+          not processable?(conn) ->
+            handle_unprocessable_entity(conn)
+          true ->
+            if exists?(conn) do
+              cond do
+                if_match_exists?(conn) and not if_match_star?(conn) and not etag_matches_for_if_match?(conn) ->
+                  handle_precondition_failed(conn)
+                if_unmodified_since_exists?(conn) and if_unmodified_since_valid_date?(conn) and unmodified_since?(conn) ->
+                  handle_precondition_failed(conn)
+                if_none_match_exists?(conn) and (if_none_match_star?(conn) or etag_matches_for_if_none?(conn)) ->
+                  if if_none_match?(conn) do
+                    handle_not_modified(conn)
+                  else
+                    handle_precondition_failed(conn)
+                  end
+                if_modified_since_exists?(conn) and if_modified_since_valid_date?(conn) and not modified_since?(conn) ->
+                  handle_not_modified(conn)
+                method_delete?(conn) ->
+                  delete!(conn)
+                  if delete_enacted?(conn) do
+                    finish_response(conn)
+                  else
+                    handle_accepted(conn)
+                  end
+                method_patch?(conn) ->
+                  patch!(conn)
+                  if patch_enacted?(conn) do
+                    finish_response(conn)
+                  else
+                    handle_accepted(conn)
+                  end
+                post_to_existing?(conn) ->
+                  from_conflict(conn)
+                put_to_existing?(conn) ->
+                  from_conflict(conn)
+                true ->
+                  handle_ok(conn)
               end
             else
-              if handler_module.existed?(conn) do
-                if handler_module.moved_permanently?(conn) do
-                  handler_module.handle_moved_permanently(conn)
-                else
-                  if handler_module.moved_temporarily?(conn) do
-                    handler_module.handle_moved_temporarily(conn)
+              if if_match_star_exists_for_missing?(conn) do
+                handle_precondition_failed(conn)
+              else
+                if method_put?(conn) do
+                  if put_to_different_url?(conn) do
+                    handle_moved_permanently(conn)
                   else
-                    if handler_module.post_to_gone?(conn) do
-                      if handler_module.can_post_to_gone?(conn) do
-                        from_post(handler_module, conn)
+                    if can_put_to_missing?(conn) do
+                      from_conflict(conn)
+                    else
+                      handle_not_implemented(conn)
+                    end
+                  end
+                else
+                  if existed?(conn) do
+                    if moved_permanently?(conn) do
+                      handle_moved_permanently(conn)
+                    else
+                      if moved_temporarily?(conn) do
+                        handle_moved_temporarily(conn)
                       else
-                        handler_module.handle_gone(conn)
+                        if post_to_gone?(conn) do
+                          if can_post_to_gone?(conn) do
+                            from_post(conn)
+                          else
+                            handle_gone(conn)
+                          end
+                        else
+                          handle_gone(conn)
+                        end
+                      end
+                    end
+                  else
+                    if post_to_missing?(conn) do
+                      if can_post_to_missing?(conn) do
+                        from_post(conn)
+                      else
+                        handle_not_found(conn)
                       end
                     else
-                      handler_module.handle_gone(conn)
+                      handle_not_found(conn)
                     end
                   end
                 end
-              else
-                if handler_module.post_to_missing?(conn) do
-                  if handler_module.can_post_to_missing?(conn) do
-                    from_post(handler_module, conn)
-                  else
-                    handler_module.handle_not_found(conn)
-                  end
-                else
-                  handler_module.handle_not_found(conn)
-                end
               end
             end
+        end
+      end
+
+      defp from_conflict(conn) do
+        if conflict?(conn) do
+          handle_conflict(conn)
+        else
+          if method_post?(conn) do
+            from_post(conn)
+          else
+            from_put(conn)
           end
         end
-    end
-  end
-
-  defp from_conflict(handler_module, conn) do
-    if handler_module.conflict?(conn) do
-      handler_module.handle_conflict(conn)
-    else
-      if handler_module.method_post?(conn) do
-        from_post(handler_module, conn)
-      else
-        from_put(handler_module, conn)
       end
-    end
-  end
 
-  defp from_post(handler_module, conn) do
-    handler_module.post!(conn)
+      defp from_post(conn) do
+        post!(conn)
 
-    if handler_module.post_enacted?(conn) do
-      if handler_module.post_redirect?(conn) do
-        handler_module.handle_see_other(conn)
-      else
-        if handler_module.new?(conn) do
-          handler_module.handle_created(conn)
+        if post_enacted?(conn) do
+          if post_redirect?(conn) do
+            handle_see_other(conn)
+          else
+            if new?(conn) do
+              handle_created(conn)
+            else
+              finish_response(conn)
+            end
+          end
         else
-          finish_response(handler_module, conn)
+          handle_accepted(conn)
         end
       end
-    else
-      handler_module.handle_accepted(conn)
-    end
-  end
 
-  defp from_put(handler_module, conn) do
-    handler_module.put!(conn)
+      defp from_put(conn) do
+        put!(conn)
 
-    if handler_module.put_enacted?(conn) do
-      if handler_module.new?(conn) do
-        handler_module.handle_created(conn)
-      else
-        finish_response(handler_module, conn)
+        if put_enacted?(conn) do
+          if new?(conn) do
+            handle_created(conn)
+          else
+            finish_response(conn)
+          end
+        else
+          handle_accepted(conn)
+        end
       end
-    else
-      handler_module.handle_accepted(conn)
-    end
-  end
 
-  defp finish_response(handler_module, conn) do
-    if handler_module.respond_with_entity?(conn) do
-      if handler_module.multiple_representations?(conn) do
-        handler_module.handle_multiple_representations(conn)
-      else
-        handler_module.handle_ok(conn)
+      defp finish_response(conn) do
+        if respond_with_entity?(conn) do
+          if multiple_representations?(conn) do
+            handle_multiple_representations(conn)
+          else
+            handle_ok(conn)
+          end
+        else
+          handle_no_content(conn)
+        end
       end
-    else
-      handler_module.handle_no_content(conn)
+
+      @impl true
+      def allowed_methods(_conn) do
+        ["GET", "HEAD", "PUT", "POST", "DELETE", "OPTIONS", "TRACE", "PATCH"]
+      end
+
+      @impl true
+      def available_media_types(_conn) do
+        ["text/plain"]
+      end
+
+      @impl true
+      def available_languages(_conn) do
+        ["en"]
+      end
+
+      @impl true
+      def last_modified(_conn) do
+        DateTime.utc_now()
+      end
+
+      @impl true
+      def etag(_conn) do
+        nil
+      end
+
+      @impl true
+      def service_available?(_conn), do: true
+      @impl true
+      def known_method?(_conn), do: true
+      @impl true
+      def uri_too_long?(_conn), do: false
+      @impl true
+      def method_allowed?(conn) do
+        conn.method in allowed_methods(conn)
+      end
+      @impl true
+      def malformed?(_conn), do: false
+      @impl true
+      def authorized?(_conn), do: true
+      @impl true
+      def allowed?(_conn), do: true
+      @impl true
+      def valid_content_header?(_conn), do: true
+      @impl true
+      def known_content_type?(_conn), do: true
+      @impl true
+      def valid_entity_length?(_conn), do: true
+      @impl true
+
+      @impl true
+      def is_options?(conn), do: conn.method == "OPTIONS"
+      @impl true
+      def method_put?(conn), do: conn.method == "PUT"
+      @impl true
+      def method_post?(conn), do: conn.method == "POST"
+      @impl true
+      def method_delete?(conn), do: conn.method == "DELETE"
+      @impl true
+      def method_patch?(conn), do: conn.method == "PATCH"
+
+      @impl true
+      def accept_exists?(conn) do
+        get_req_header(conn, "accept") |> Enum.any?()
+      end
+      @impl true
+      def accept_language_exists?(conn) do
+        get_req_header(conn, "accept-language") |> Enum.any?()
+      end
+      @impl true
+      def accept_charset_exists?(conn) do
+        get_req_header(conn, "accept-charset") |> Enum.any?()
+      end
+      @impl true
+      def accept_encoding_exists?(conn) do
+        get_req_header(conn, "accept-encoding") |> Enum.any?()
+      end
+
+      @impl true
+      def media_type_available?(conn) do
+        requested_media_type = get_req_header(conn, "accept") |> Enum.at(0)
+        (requested_media_type in available_media_types(conn)) or requested_media_type == "*/*"
+      end
+      @impl true
+      def language_available?(_conn), do: true
+      @impl true
+      def charset_available?(_conn), do: true
+      @impl true
+      def encoding_available?(_conn), do: true
+
+      @impl true
+      def processable?(_conn), do: true
+      @impl true
+      def exists?(_conn), do: true
+      @impl true
+      def existed?(_conn), do: false
+      @impl true
+      def moved_permanently?(_conn), do: false
+      @impl true
+      def moved_temporarily?(_conn), do: false
+
+      @impl true
+      def if_match_star_exists_for_missing?(_conn), do: false
+      @impl true
+      def post_to_missing?(_conn), do: true
+      @impl true
+      def post_to_existing?(_conn), do: false
+      @impl true
+      def post_to_gone?(_conn), do: false
+      @impl true
+      def can_post_to_missing?(_conn), do: true
+      @impl true
+      def can_post_to_gone?(_conn), do: false
+      @impl true
+      def put_to_existing?(_conn), do: false
+      @impl true
+      def can_put_to_missing?(_conn), do: false
+      @impl true
+      def put_to_different_url?(_conn), do: false
+
+      @impl true
+      def if_match_exists?(conn) do
+        get_req_header(conn, "if-match") |> Enum.any?()
+      end
+      @impl true
+      def if_match_star?(conn) do
+        get_req_header(conn, "if-match") |> Enum.any?(&(&1 == "*"))
+      end
+      @impl true
+      def if_none_match_exists?(conn) do
+        get_req_header(conn, "if-none-match") |> Enum.any?()
+      end
+      @impl true
+      def if_none_match_star?(conn) do
+        get_req_header(conn, "if-none-match") |> Enum.any?(&(&1 == "*"))
+      end
+      @impl true
+      def if_none_match?(_conn), do: false
+      @impl true
+      def etag_matches_for_if_match?(conn) do
+        if etag = etag(conn) do
+          etag == get_req_header(conn, "if-match") |> Enum.at(0)
+        else
+          false
+        end
+      end
+      @impl true
+      def etag_matches_for_if_none?(conn) do
+        if etag = etag(conn) do
+          etag == get_req_header(conn, "if-none-match") |> Enum.at(0)
+        else
+          false
+        end
+      end
+
+      @impl true
+      def if_modified_since_exists?(conn) do
+        get_req_header(conn, "if-modified-since") |> Enum.any?()
+      end
+      @impl true
+      def if_modified_since_valid_date?(conn) do
+        conn
+        |> get_req_header("if-modified-since")
+        |> Enum.at(0)
+        |> Timex.parse("%a, %d20 %b %Y %H:%M:%S GMT", :strftime)
+        |> case do
+          {:ok, _time} -> true
+          _ -> false
+        end
+      end
+      @impl true
+      def modified_since?(conn) do
+        conn
+        |> get_req_header("if-modified-since")
+        |> Enum.at(0)
+        |> Timex.parse!("%a, %d20 %b %Y %H:%M:%S GMT", :strftime)
+        |> Timex.before?(last_modified(conn))
+      end
+      @impl true
+      def if_unmodified_since_exists?(conn) do
+        get_req_header(conn, "if-unmodified-since") |> Enum.any?()
+      end
+      @impl true
+      def if_unmodified_since_valid_date?(conn) do
+        conn
+        |> get_req_header("if-unmodified-since")
+        |> Enum.at(0)
+        |> Timex.parse("%a, %d20 %b %Y %H:%M:%S GMT", :strftime)
+        |> case do
+          {:ok, _time} -> true
+          _ -> false
+        end
+      end
+      @impl true
+      def unmodified_since?(conn) do
+        conn
+        |> get_req_header("if-unmodified-since")
+        |> Enum.at(0)
+        |> Timex.parse!("%a, %d20 %b %Y %H:%M:%S GMT", :strftime)
+        |> Timex.after?(last_modified(conn))
+      end
+
+      @impl true
+      def post_redirect?(_conn), do: false
+      @impl true
+      def post_enacted?(_conn), do: true
+      @impl true
+      def put_enacted?(_conn), do: true
+      @impl true
+      def delete_enacted?(_conn), do: true
+      @impl true
+      def patch_enacted?(_conn), do: true
+      @impl true
+      def respond_with_entity?(_conn), do: true
+      @impl true
+      def conflict?(_conn), do: false
+      @impl true
+      def new?(_conn), do: true
+      @impl true
+      def multiple_representations?(_conn), do: false
+
+
+      @impl true
+      def delete!(_conn) do
+        nil
+      end
+
+      @impl true
+      def put!(_conn) do
+        nil
+      end
+
+      @impl true
+      def patch!(_conn) do
+        nil
+      end
+
+      @impl true
+      def post!(_conn) do
+        nil
+      end
+
+
+      @impl true
+      def handle_ok(conn) do
+        send_resp(conn, 200, "OK")
+      end
+
+      @impl true
+      def handle_options(conn) do
+        send_resp(conn, 200, "Options")
+      end
+
+      @impl true
+      def handle_created(conn) do
+        send_resp(conn, 201, "Created")
+      end
+
+      @impl true
+      def handle_accepted(conn) do
+        send_resp(conn, 202, "Accepted")
+      end
+
+      @impl true
+      def handle_no_content(conn) do
+        send_resp(conn, 204, "No Content")
+      end
+
+      @impl true
+      def handle_multiple_representations(conn) do
+        send_resp(conn, 300, "Multiple Representations")
+      end
+
+      @impl true
+      def handle_moved_permanently(conn) do
+        send_resp(conn, 301, "Moved Permanently")
+      end
+
+      @impl true
+      def handle_see_other(conn) do
+        send_resp(conn, 303, "See Other")
+      end
+
+      @impl true
+      def handle_not_modified(conn) do
+        send_resp(conn, 304, "Not Modified")
+      end
+
+      @impl true
+      def handle_moved_temporarily(conn) do
+        send_resp(conn, 307, "Moved Temporarily")
+      end
+
+      @impl true
+      def handle_malformed(conn) do
+        send_resp(conn, 400, "Malformed")
+      end
+
+      @impl true
+      def handle_unauthorized(conn) do
+        send_resp(conn, 401, "Unauthorized")
+      end
+
+      @impl true
+      def handle_forbidden(conn) do
+        send_resp(conn, 403, "Forbidden")
+      end
+
+      @impl true
+      def handle_not_found(conn) do
+        send_resp(conn, 404, "Not Found")
+      end
+
+      @impl true
+      def handle_method_not_allowed(conn) do
+        send_resp(conn, 405, "Method Not Allowed")
+      end
+
+      @impl true
+      def handle_not_acceptable(conn) do
+        send_resp(conn, 406, "Not Acceptable")
+      end
+
+      @impl true
+      def handle_conflict(conn) do
+        send_resp(conn, 409, "Conflict")
+      end
+
+      @impl true
+      def handle_gone(conn) do
+        send_resp(conn, 410, "Gone")
+      end
+
+      @impl true
+      def handle_precondition_failed(conn) do
+        send_resp(conn, 412, "Precondition Failed")
+      end
+
+      @impl true
+      def handle_request_entity_too_large(conn) do
+        send_resp(conn, 413, "Request Entity Too Large")
+      end
+
+      @impl true
+      def handle_uri_too_long(conn) do
+        send_resp(conn, 414, "URI Too Long")
+      end
+
+      @impl true
+      def handle_unsupported_media_type(conn) do
+        send_resp(conn, 415, "Unsupported Media Type")
+      end
+
+      @impl true
+      def handle_unprocessable_entity(conn) do
+        send_resp(conn, 422, "Unprocessable Entity")
+      end
+
+      @impl true
+      def handle_not_implemented(conn) do
+        send_resp(conn, 501, "Not Implemented")
+      end
+
+      @impl true
+      def handle_unknown_method(conn) do
+        send_resp(conn, 501, "Unknown Method")
+      end
+
+      @impl true
+      def handle_service_unavailable(conn) do
+        send_resp(conn, 503, "Service Unavailable")
+      end
+
+      defoverridable LiberatorEx.Resource
     end
   end
 end
