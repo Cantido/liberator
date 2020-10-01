@@ -2,241 +2,65 @@ defmodule LiberatorEx.Base do
   import Plug.Conn
   @behaviour LiberatorEx.Resource
 
-  def service_available?(_conn) do
-    true
-  end
-
-  def known_method?(_conn) do
-    true
-  end
-
-  def uri_too_long?(_conn) do
-    false
-  end
-
-  def method_allowed?(_conn) do
-    true
-  end
-
-  def malformed?(_conn) do
-    false
-  end
-
-  def authorized?(_conn) do
-    true
-  end
-
-  def allowed?(_conn) do
-    true
-  end
-
-  def valid_content_header?(_conn) do
-    true
-  end
-
-  def known_content_type?(_conn) do
-    true
-  end
-
-  def valid_entity_length?(_conn) do
-    true
-  end
-
-  def is_options?(_conn) do
-    false
-  end
-
-  def accept_exists?(_conn) do
-    true
-  end
-
-  def media_type_available?(_conn) do
-    true
-  end
-
-  def accept_language_exists?(_conn) do
-    true
-  end
-
-  def language_available?(_conn) do
-    true
-  end
-
-  def accept_charset_exists?(_conn) do
-    true
-  end
-
-  def charset_available?(_conn) do
-    true
-  end
-
-  def accept_encoding_exists?(_conn) do
-    true
-  end
-
-  def encoding_available?(_conn) do
-    true
-  end
-
-  def processable?(_conn) do
-    true
-  end
-
-  def exists?(_conn) do
-    true
-  end
-
-  def if_match_star_exists_for_missing?(_conn) do
-    false
-  end
-
-  def method_put?(_conn) do
-    false
-  end
-
-  def method_post?(_conn) do
-    false
-  end
-
-  def existed?(_conn) do
-    false
-  end
-
-  def post_to_missing?(_conn) do
-    true
-  end
-
-  def can_post_to_missing?(_conn) do
-    true
-  end
-
-  def moved_permanently?(_conn) do
-    false
-  end
-
-  def moved_temporarily?(_conn) do
-    false
-  end
-
-  def post_to_gone?(_conn) do
-    false
-  end
-
-  def can_post_to_gone?(_conn) do
-    false
-  end
-
-  def put_to_different_url?(_conn) do
-    false
-  end
-
-  def can_put_to_missing?(_conn) do
-    false
-  end
-
-  def if_match_exists?(_conn) do
-    false
-  end
-
-  def if_match_star?(_conn) do
-    false
-  end
-
-  def if_none_match_exists?(_conn) do
-    false
-  end
-
-  def if_none_match_star?(_conn) do
-    false
-  end
-
-  def etag_matches_for_if_none?(_conn) do
-    false
-  end
-
-  def if_none_match?(_conn) do
-    false
-  end
-
-  def etag_matches_for_if_match?(_conn) do
-    false
-  end
-
-  def if_modified_since_exists?(_conn) do
-    false
-  end
-
-  def if_modified_since_valid_date?(_conn) do
-    true
-  end
-
-  def modified_since?(_conn) do
-    false
-  end
-
-  def if_unmodified_since_exists?(_conn) do
-    false
-  end
-
-  def if_unmodified_since_valid_date?(_conn) do
-    true
-  end
-
-  def unmodified_since?(_conn) do
-    true
-  end
-
-  def method_delete?(_conn) do
-    false
-  end
-
-  def method_patch?(_conn) do
-    false
-  end
-
-  def post_to_existing?(_conn) do
-    false
-  end
-
-  def post_redirect?(_conn) do
-    false
-  end
-
-  def post_enacted?(_conn) do
-    false
-  end
-
-  def put_to_existing?(_conn) do
-    false
-  end
-
-  def put_enacted?(_conn) do
-    true
-  end
-
-  def multiple_representations?(_conn) do
-    false
-  end
-
-  def delete_enacted?(_conn) do
-    true
-  end
-
-  def patch_enacted?(_conn) do
-    true
-  end
-
-  def respond_with_entity?(_conn) do
-    true
-  end
-
-  def conflict?(_conn) do
-    false
-  end
-
-  def new?(_conn) do
-    true
-  end
+  def service_available?(_conn), do: true
+  def known_method?(_conn), do: true
+  def uri_too_long?(_conn), do: false
+  def method_allowed?(_conn), do: true
+  def malformed?(_conn), do: false
+  def authorized?(_conn), do: true
+  def allowed?(_conn), do: true
+  def valid_content_header?(_conn), do: true
+  def known_content_type?(_conn), do: true
+  def valid_entity_length?(_conn), do: true
+  def is_options?(_conn), do: false
+  def accept_exists?(_conn), do: true
+  def media_type_available?(_conn), do: true
+  def accept_language_exists?(_conn), do: true
+  def language_available?(_conn), do: true
+  def accept_charset_exists?(_conn), do: true
+  def charset_available?(_conn), do: true
+  def accept_encoding_exists?(_conn), do: true
+  def encoding_available?(_conn), do: true
+  def processable?(_conn), do: true
+  def exists?(_conn), do: true
+  def if_match_star_exists_for_missing?(_conn), do: false
+  def method_put?(_conn), do: false
+  def method_post?(_conn), do: false
+  def existed?(_conn), do: false
+  def post_to_missing?(_conn), do: true
+  def can_post_to_missing?(_conn), do: true
+  def moved_permanently?(_conn), do: false
+  def moved_temporarily?(_conn), do: false
+  def post_to_gone?(_conn), do: false
+  def can_post_to_gone?(_conn), do: false
+  def put_to_different_url?(_conn), do: false
+  def can_put_to_missing?(_conn), do: false
+  def if_match_exists?(_conn), do: false
+  def if_match_star?(_conn), do: false
+  def if_none_match_exists?(_conn), do: false
+  def if_none_match_star?(_conn), do: false
+  def etag_matches_for_if_none?(_conn), do: false
+  def if_none_match?(_conn), do: false
+  def etag_matches_for_if_match?(_conn), do: false
+  def if_modified_since_exists?(_conn), do: false
+  def if_modified_since_valid_date?(_conn), do: true
+  def modified_since?(_conn), do: false
+  def if_unmodified_since_exists?(_conn), do: false
+  def if_unmodified_since_valid_date?(_conn), do: true
+  def unmodified_since?(_conn), do: true
+  def method_delete?(_conn), do: false
+  def method_patch?(_conn), do: false
+  def post_to_existing?(_conn), do: false
+  def post_redirect?(_conn), do: false
+  def post_enacted?(_conn), do: false
+  def put_to_existing?(_conn), do: false
+  def put_enacted?(_conn), do: true
+  def multiple_representations?(_conn), do: false
+  def delete_enacted?(_conn), do: true
+  def patch_enacted?(_conn), do: true
+  def respond_with_entity?(_conn), do: true
+  def conflict?(_conn), do: false
+  def new?(_conn), do: true
 
 
   def delete!(_conn) do
