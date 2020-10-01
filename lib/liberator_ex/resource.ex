@@ -1,7 +1,9 @@
 defmodule LiberatorEx.Resource do
+  use Plug.Builder
   @moduledoc """
   Documentation for LiberatorEx.Resource.
   """
+
 
   @callback service_available?(Plug.Conn.t) :: true | false
   @callback known_method?(Plug.Conn.t) :: true | false
@@ -97,37 +99,155 @@ defmodule LiberatorEx.Resource do
   @callback handle_not_implemented(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_service_unavailable(Plug.Conn.t) :: Plug.Conn.t
 
-  def init(options) do
-    # initialize options
-    options
+  plug :service_available?, builder_opts()
+  plug :known_method?, builder_opts()
+  plug :uri_too_long?, builder_opts()
+  plug :method_allowed?, builder_opts()
+  plug :malformed?, builder_opts()
+  plug :authorized?, builder_opts()
+  plug :allowed?, builder_opts()
+  plug :valid_content_header?, builder_opts()
+  plug :known_content_type?, builder_opts()
+  plug :valid_entity_length?, builder_opts()
+  plug :is_options?, builder_opts()
+  plug :evaluate, builder_opts()
+
+  defp service_available?(conn, opts) do
+    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
+    if result = handler_module.service_available?(conn) do
+      merge_map_assigns(conn, result)
+    else
+      conn
+      |> handler_module.handle_service_unavailable()
+      |> halt()
+    end
   end
 
-  def call(conn, opts) do
+  defp known_method?(conn, opts) do
+    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
+    if result = handler_module.known_method?(conn) do
+      merge_map_assigns(conn, result)
+    else
+      conn
+      |> handler_module.handle_unknown_method()
+      |> halt()
+    end
+  end
+
+  defp uri_too_long?(conn, opts) do
+    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
+    if result = handler_module.uri_too_long?(conn) do
+      conn
+      |> merge_map_assigns(result)
+      |> handler_module.handle_uri_too_long()
+      |> halt()
+    else
+      conn
+    end
+  end
+
+  defp method_allowed?(conn, opts) do
+    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
+    if result = handler_module.method_allowed?(conn) do
+      merge_map_assigns(conn, result)
+    else
+      conn
+      |> handler_module.handle_method_not_allowed()
+      |> halt()
+    end
+  end
+
+  defp malformed?(conn, opts) do
+    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
+    if result = handler_module.malformed?(conn) do
+      conn
+      |> merge_map_assigns(result)
+      |> handler_module.handle_malformed()
+      |> halt()
+    else
+      conn
+    end
+  end
+
+  defp authorized?(conn, opts) do
+    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
+    if result = handler_module.authorized?(conn) do
+      merge_map_assigns(conn, result)
+    else
+      conn
+      |> handler_module.handle_unauthorized()
+      |> halt()
+    end
+  end
+
+  defp allowed?(conn, opts) do
+    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
+    if result = handler_module.allowed?(conn) do
+      merge_map_assigns(conn, result)
+    else
+      conn
+      |> handler_module.handle_forbidden()
+      |> halt()
+    end
+  end
+
+  defp valid_content_header?(conn, opts) do
+    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
+    if result = handler_module.valid_content_header?(conn) do
+      merge_map_assigns(conn, result)
+    else
+      conn
+      |> handler_module.handle_not_implemented()
+      |> halt()
+    end
+  end
+
+  defp known_content_type?(conn, opts) do
+    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
+    if result = handler_module.known_content_type?(conn) do
+      merge_map_assigns(conn, result)
+    else
+      conn
+      |> handler_module.handle_unsupported_media_type()
+      |> halt()
+    end
+  end
+
+  defp valid_entity_length?(conn, opts) do
+    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
+    if result = handler_module.valid_entity_length?(conn) do
+      merge_map_assigns(conn, result)
+    else
+      conn
+      |> handler_module.handle_request_entity_too_large()
+      |> halt()
+    end
+  end
+
+  defp is_options?(conn, opts) do
+    handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
+    if result = handler_module.is_options?(conn) do
+      conn
+      |> merge_map_assigns(result)
+      |> handler_module.handle_options()
+      |> halt()
+    else
+      conn
+    end
+  end
+
+  defp merge_map_assigns(conn, result) do
+    if is_map(result) do
+      merge_assigns(conn, Enum.to_list(result))
+    else
+      conn
+    end
+  end
+
+  defp evaluate(conn, opts) do
     handler_module = Keyword.get(opts, :handler, LiberatorEx.Base)
 
     cond do
-      not handler_module.service_available?(conn) ->
-        handler_module.handle_service_unavailable(conn)
-      not handler_module.known_method?(conn) ->
-        handler_module.handle_unknown_method(conn)
-      handler_module.uri_too_long?(conn) ->
-        handler_module.handle_uri_too_long(conn)
-      not handler_module.method_allowed?(conn) ->
-        handler_module.handle_method_not_allowed(conn)
-      handler_module.malformed?(conn) ->
-        handler_module.handle_malformed(conn)
-      not handler_module.authorized?(conn) ->
-        handler_module.handle_unauthorized(conn)
-      not handler_module.allowed?(conn) ->
-        handler_module.handle_forbidden(conn)
-      not handler_module.valid_content_header?(conn) ->
-        handler_module.handle_not_implemented(conn)
-      not handler_module.known_content_type?(conn) ->
-        handler_module.handle_unsupported_media_type(conn)
-      not handler_module.valid_entity_length?(conn) ->
-        handler_module.handle_request_entity_too_large(conn)
-      handler_module.is_options?(conn) ->
-        handler_module.handle_options(conn)
       handler_module.accept_exists?(conn) and not handler_module.media_type_available?(conn) ->
         handler_module.handle_not_acceptable(conn)
       handler_module.accept_language_exists?(conn) and not handler_module.language_available?(conn) ->

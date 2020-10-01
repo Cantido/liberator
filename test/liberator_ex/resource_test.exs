@@ -10,10 +10,9 @@ defmodule LiberatorEx.ResourceTest do
   setup do
     Mox.stub_with(LiberatorEx.MockResource, LiberatorEx.Base)
 
-
     LiberatorEx.MockResource
     |> stub(:media_type_available?, fn _ -> true end)
-    
+
     :ok
   end
 
