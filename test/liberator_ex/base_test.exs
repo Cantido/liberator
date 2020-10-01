@@ -93,6 +93,19 @@ defmodule LiberatorEx.BaseTest do
     end
   end
 
+  describe "accept_exists?/1" do
+    test "returns true if the accept header is present" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept", "application/json")
+
+      assert Base.accept_exists?(conn)
+    end
+      test "returns false if the accept header is not present" do
+        assert not Base.accept_exists?(conn(:get, "/"))
+      end
+  end
+
   describe "media_type_available?/1" do
     test "allows text/plain" do
       assert Base.media_type_available?(conn(:get, "/") |> put_req_header("accept", "text/plain"))

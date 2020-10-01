@@ -34,7 +34,9 @@ defmodule LiberatorEx.Base do
   def method_delete?(conn), do: conn.method == "DELETE"
   def method_patch?(conn), do: conn.method == "PATCH"
 
-  def accept_exists?(_conn), do: true
+  def accept_exists?(conn) do
+    get_req_header(conn, "accept") |> Enum.any?()
+  end
   def media_type_available?(conn) do
     requested_media_type = get_req_header(conn, "accept") |> Enum.at(0)
     requested_media_type in available_media_types(conn)
