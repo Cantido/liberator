@@ -1,5 +1,6 @@
 defmodule LiberatorEx.Base do
   import Plug.Conn
+  use Timex
   @behaviour LiberatorEx.Resource
 
   def allowed_methods(_conn) do
@@ -8,6 +9,10 @@ defmodule LiberatorEx.Base do
 
   def available_media_types(_conn) do
     ["text/plain"]
+  end
+
+  def last_modified(_conn) do
+    DateTime.utc_now()
   end
 
   def service_available?(_conn), do: true
@@ -57,7 +62,14 @@ defmodule LiberatorEx.Base do
   def etag_matches_for_if_match?(_conn), do: false
   def if_modified_since_exists?(_conn), do: false
   def if_modified_since_valid_date?(_conn), do: true
-  def modified_since?(_conn), do: false
+  def modified_since?(conn) do
+    modified_since_header =
+      get_req_header(conn, "if-modified-since")
+      |> Enum.at(0)
+      |> Timex.parse!("%a, %d20 %b %Y %H:%M:%S GMT", :strftime)
+
+    Timex.before?(modified_since_header, last_modified(conn))
+  end
   def if_unmodified_since_exists?(_conn), do: false
   def if_unmodified_since_valid_date?(_conn), do: true
   def unmodified_since?(_conn), do: true
