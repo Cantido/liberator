@@ -1,10 +1,10 @@
-defmodule LiberatorEx.ResourceTest do
+defmodule Liberator.ResourceTest do
   use ExUnit.Case, async: true
   use Plug.Test
-  doctest LiberatorEx.Resource
+  doctest Liberator.Resource
 
   defmodule MyResource do
-    use LiberatorEx.Resource
+    use Liberator.Resource
   end
 
   describe "method_allowed?/1" do
@@ -367,7 +367,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 503 when service_available? returns false" do
     defmodule UnavailableResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def service_available?(_conn), do: false
     end
@@ -382,7 +382,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 501 when known_method? returns false" do
     defmodule UnknownMethodResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def known_method?(_conn), do: false
     end
@@ -397,7 +397,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 414 when uri_too_long? returns true" do
     defmodule UriTooLongResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def uri_too_long?(_conn), do: true
     end
@@ -412,7 +412,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 405 when method_allowed? returns false" do
     defmodule MethodNotAllowedResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def method_allowed?(_conn), do: false
     end
@@ -427,7 +427,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 400 when malformed? returns true" do
     defmodule MalformedResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def malformed?(_conn), do: true
     end
@@ -442,7 +442,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 401 when authorized? returns false" do
     defmodule UnauthorizedResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def authorized?(_conn), do: false
     end
@@ -457,7 +457,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 403 when allowed? returns false" do
     defmodule ForbiddenResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def allowed?(_conn), do: false
     end
@@ -472,7 +472,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 501 when valid_content_header? returns false" do
     defmodule NotImplementedResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def valid_content_header?(_conn), do: false
     end
@@ -487,7 +487,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 415 when known_content_type? returns false" do
     defmodule UnsupportedMediaResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def known_content_type?(_conn), do: false
     end
@@ -502,7 +502,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 413 when valid_entity_length? returns false" do
     defmodule EntityTooLongResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def valid_entity_length?(_conn), do: false
     end
@@ -517,7 +517,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 200-options for an options request" do
     defmodule OptionsResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def is_options?(_conn), do: true
     end
@@ -532,7 +532,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 406 when accept_exists? returns true but media_type_available? returns false" do
     defmodule NotAcceptableResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def accept_exists?(_conn), do: true
       def media_type_available?(_conn), do: false
@@ -548,7 +548,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 406 when accept_language_exists? returns true but language_available? returns false" do
     defmodule LanguageUnavailableResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def accept_language_exists?(_conn), do: true
       def language_available?(_conn), do: false
@@ -564,7 +564,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 406 when accept_charset_exists? returns true but charset_available? returns false" do
     defmodule CharsetUnavailableResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def accept_charset_exists?(_conn), do: true
       def charset_available?(_conn), do: false
@@ -580,7 +580,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 406 when accept_encoding_exists? returns true but encoding_available? returns false" do
     defmodule EncodingUnavailableResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def accept_encoding_exists?(_conn), do: true
       def encoding_available?(_conn), do: false
@@ -596,7 +596,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 422 when processable? returns false" do
     defmodule UnprocessableResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def processable?(_conn), do: false
     end
@@ -611,7 +611,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 404 if entity does not exist" do
     defmodule NotFoundResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
@@ -630,7 +630,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 404 if entity does not exist and can't post to missing" do
     defmodule NotFoundNoPostResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
@@ -650,7 +650,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 303 if entity does not exist and we can post to missing, and have want a post redirect" do
     defmodule PostedNotFoundRedirectResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
@@ -672,7 +672,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 201 if entity does not exist and we can post to missing, and create a new resource" do
     defmodule PostedNotFoundNewResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
@@ -695,7 +695,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 202 if entity does not exist and we can post to missing, and post is not immediately enacted" do
     defmodule PostedNotFoundAcceptedResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
@@ -716,7 +716,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 204 if entity does not exist and we can post to missing, the entity isn't new and we won't respond with entities" do
     defmodule PostedNotFoundNoContentResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
@@ -740,7 +740,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 300 if entity does not exist and we can post to missing, the entity isn't new and we have multiple entity representations" do
     defmodule PostedNotFoundMultipleRepresentationsResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
@@ -765,7 +765,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 200 if entity does not exist and we can post to missing, the entity isn't new" do
     defmodule PostedNotFoundSingleRepresentationResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
@@ -790,7 +790,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 301 for permanently moved resource" do
     defmodule MovedPermanentlyResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
@@ -809,7 +809,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 307" do
     defmodule MovedTemporarilyResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
@@ -829,7 +829,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 410 if the resource is gone" do
     defmodule GoneResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
@@ -850,7 +850,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 410 when can't post to gone" do
     defmodule CantPostToGoneResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
@@ -872,7 +872,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 201 when resource is gone but we can post to it" do
     defmodule NewPostToGoneResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
@@ -897,7 +897,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 301 when put to a different url but entity doesn't exist" do
     defmodule PutToDifferentUrlResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
@@ -915,7 +915,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 501 when put to a different url but entity doesn't exist and can't put to missing" do
     defmodule CantPutToMissingResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
@@ -934,7 +934,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 409 when put to a different url but entity doesn't exist, and we can put to missing, but there's a conflict" do
     defmodule CanPutToMissingConflictResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
@@ -954,7 +954,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 412 when entity doesn't exist but if_match_star_exists_for_missing is true" do
     defmodule MissingMatchStarResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: true
@@ -970,7 +970,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 412 if If-Match <etag> doesn't match an etag" do
     defmodule MismatchedIfMatchEtagResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def if_match_exists?(_conn), do: true
       def if_match_star?(_conn), do: false
@@ -987,7 +987,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 412 if If-Unmodified-Since <date> and entity has not been modified since" do
     defmodule UnmodifiedSinceResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def if_unmodified_since_exists?(_conn), do: true
       def if_unmodified_since_valid_date?(_conn), do: true
@@ -1004,7 +1004,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 412 if If-None-Match <etag> etag does match" do
     defmodule IfNoneMatchButDoesMatchResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def if_none_match_exists?(_conn), do: true
       def if_none_match_star?(_conn), do: false
@@ -1022,7 +1022,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 412 if If-None-Match * etag does match" do
     defmodule IfNoneMatchStarButMatchesResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def if_none_match_exists?(_conn), do: true
       def if_none_match_star?(_conn), do: true
@@ -1039,7 +1039,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 304 if If-None-Match <etag> etag does't match" do
     defmodule NotModifiedIfNoneMatchResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def if_none_match_exists?(_conn), do: true
       def if_none_match_star?(_conn), do: false
@@ -1057,7 +1057,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 304 if If-Modified-Since <date> and resource has not been modified" do
     defmodule ModifiedSinceResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def if_modified_since_exists?(_conn), do: true
       def if_modified_since_valid_date?(_conn), do: true
@@ -1074,7 +1074,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 200 if method is delete" do
     defmodule SuccessfulDeleteResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def method_delete?(_conn), do: true
       def delete!(_conn), do: nil
@@ -1090,7 +1090,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 202 if method is delete but delete is not immediately enacted" do
     defmodule DelayedDeleteResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def method_delete?(_conn), do: true
       def delete!(_conn), do: nil
@@ -1107,7 +1107,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 204 if method is delete and no content is returned" do
     defmodule SuccessfulDeleteNoEntityResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def method_delete?(_conn), do: true
       def delete!(_conn), do: nil
@@ -1124,7 +1124,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 200 if method is patch" do
     defmodule SuccessfulPatchResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def method_delete?(_conn), do: false
       def method_patch?(_conn), do: true
@@ -1144,7 +1144,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 202 if method is patch and patch is not immediately enacted" do
     defmodule AcceptedPatchResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def method_delete?(_conn), do: false
       def method_patch?(_conn), do: true
@@ -1162,7 +1162,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 204 if method is patch and no content is returned" do
     defmodule AcceptedPatchNoContentResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def method_delete?(_conn), do: false
       def method_patch?(_conn), do: true
@@ -1181,7 +1181,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 409 if post-to-existing has a conflict" do
     defmodule ConflictedPostToExistingResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def method_delete?(_conn), do: false
       def method_patch?(_conn), do: false
@@ -1199,7 +1199,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 409 if put-to-existing has a conflict" do
     defmodule ConflictedPutToExistingResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def method_delete?(_conn), do: false
       def method_patch?(_conn), do: false
@@ -1218,7 +1218,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 303 if post with post-redirect enabled" do
     defmodule PostRedirectResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: true
       def if_match_exists?(_conn), do: false
@@ -1241,7 +1241,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 201 if post when resource is created" do
     defmodule PostCreatedNewResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: true
       def if_match_exists?(_conn), do: false
@@ -1265,7 +1265,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 204 if post when resource is not new and we want no entity response" do
     defmodule PostNewNoEntityResponseResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: true
       def if_match_exists?(_conn), do: false
@@ -1290,7 +1290,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 200 if post when resource is not new and we want an entity response with one representation" do
     defmodule PostNewSingleEntityResponseResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: true
       def if_match_exists?(_conn), do: false
@@ -1316,7 +1316,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 300 if post when resource is not new and we want an entity response with multiple representations" do
     defmodule PostNewMultipleEntityResponseResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: true
       def if_match_exists?(_conn), do: false
@@ -1342,7 +1342,7 @@ defmodule LiberatorEx.ResourceTest do
 
   test "returns 201 if put when resource is new" do
     defmodule PostNewResource do
-      use LiberatorEx.Resource
+      use Liberator.Resource
       @impl true
       def exists?(_conn), do: true
       def if_match_exists?(_conn), do: false

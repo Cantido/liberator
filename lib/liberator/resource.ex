@@ -1,7 +1,7 @@
-defmodule LiberatorEx.Resource do
+defmodule Liberator.Resource do
   use Plug.Builder
   @moduledoc """
-  Documentation for LiberatorEx.Resource.
+  Documentation for Liberator.Resource.
   """
 
   @callback allowed_methods(Plug.Conn.t) :: list()
@@ -108,7 +108,7 @@ defmodule LiberatorEx.Resource do
     quote do
       use Plug.Builder
       use Timex
-      @behaviour LiberatorEx.Resource
+      @behaviour Liberator.Resource
 
       plug :check_service_available, builder_opts()
       plug :check_known_method, builder_opts()
@@ -770,7 +770,7 @@ defmodule LiberatorEx.Resource do
         send_resp(conn, 503, "Service Unavailable")
       end
 
-      defoverridable LiberatorEx.Resource
+      defoverridable Liberator.Resource
     end
   end
 end

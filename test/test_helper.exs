@@ -1,2 +1,2 @@
 ExUnit.start()
-Mox.defmock(LiberatorEx.MockResource, for: LiberatorEx.Resource)
+Mox.defmock(Liberator.MockResource, for: Liberator.Resource)
