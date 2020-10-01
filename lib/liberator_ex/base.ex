@@ -94,16 +94,20 @@ defmodule LiberatorEx.Base do
     false
   end
 
+  def method_post?(_conn) do
+    false
+  end
+
   def existed?(_conn) do
     false
   end
 
   def post_to_missing?(_conn) do
-    false
+    true
   end
 
   def can_post_to_missing?(_conn) do
-    false
+    true
   end
 
   def moved_permanently?(_conn) do
@@ -194,8 +198,20 @@ defmodule LiberatorEx.Base do
     false
   end
 
+  def post_redirect?(_conn) do
+    false
+  end
+
+  def post_enacted?(_conn) do
+    false
+  end
+
   def put_to_existing?(_conn) do
     false
+  end
+
+  def put_enacted?(_conn) do
+    true
   end
 
   def multiple_representations?(_conn) do
@@ -214,21 +230,29 @@ defmodule LiberatorEx.Base do
     true
   end
 
+  def conflict?(_conn) do
+    false
+  end
+
+  def new?(_conn) do
+    true
+  end
+
 
   def delete!(_conn) do
-    :ok
+    nil
   end
 
   def put!(_conn) do
-    :ok
+    nil
   end
 
   def patch!(_conn) do
-    :ok
+    nil
   end
 
   def post!(_conn) do
-    :ok
+    nil
   end
 
 
@@ -238,6 +262,10 @@ defmodule LiberatorEx.Base do
 
   def handle_options(conn) do
     send_resp(conn, 200, Jason.encode!([]))
+  end
+
+  def handle_created(conn) do
+    send_resp(conn, 201, Jason.encode!([]))
   end
 
   def handle_accepted(conn) do
@@ -254,6 +282,10 @@ defmodule LiberatorEx.Base do
 
   def handle_moved_permanently(conn) do
     send_resp(conn, 301, Jason.encode!([]))
+  end
+
+  def handle_see_other(conn) do
+    send_resp(conn, 303, Jason.encode!([]))
   end
 
   def handle_not_modified(conn) do
@@ -286,6 +318,10 @@ defmodule LiberatorEx.Base do
 
   def handle_not_acceptable(conn) do
     send_resp(conn, 406, Jason.encode!([]))
+  end
+
+  def handle_conflict(conn) do
+    send_resp(conn, 409, Jason.encode!([]))
   end
 
   def handle_gone(conn) do

@@ -54,21 +54,30 @@ defmodule LiberatorEx.Resource do
   @callback delete_enacted?(Plug.Conn.t) :: true | false
   @callback method_patch?(Plug.Conn.t) :: true | false
   @callback patch_enacted?(Plug.Conn.t) :: true | false
+  @callback method_post?(Plug.Conn.t) :: true | false
+  @callback post_redirect?(Plug.Conn.t) :: true | false
   @callback post_to_existing?(Plug.Conn.t) :: true | false
+  @callback post_enacted?(Plug.Conn.t) :: true | false
   @callback put_to_existing?(Plug.Conn.t) :: true | false
+  @callback put_enacted?(Plug.Conn.t) :: true | false
   @callback respond_with_entity?(Plug.Conn.t) :: true | false
   @callback multiple_representations?(Plug.Conn.t) :: true | false
+  @callback conflict?(Plug.Conn.t) :: true | false
+  @callback new?(Plug.Conn.t) :: true | false
 
-  @callback delete!(Plug.Conn.t) :: :ok
-  @callback put!(Plug.Conn.t) :: :ok
-  @callback patch!(Plug.Conn.t) :: :ok
-  @callback post!(Plug.Conn.t) :: :ok
+  @callback delete!(Plug.Conn.t) :: nil
+  @callback put!(Plug.Conn.t) :: nil
+  @callback patch!(Plug.Conn.t) :: nil
+  @callback post!(Plug.Conn.t) :: nil
 
   @callback handle_ok(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_options(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_created(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_accepted(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_no_content(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_multiple_representations(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_moved_permanently(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_see_other(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_not_modified(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_moved_temporarily(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_malformed(Plug.Conn.t) :: Plug.Conn.t
@@ -77,6 +86,7 @@ defmodule LiberatorEx.Resource do
   @callback handle_not_found(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_method_not_allowed(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_not_acceptable(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_conflict(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_gone(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_precondition_failed(Plug.Conn.t) :: Plug.Conn.t
   @callback handle_request_entity_too_large(Plug.Conn.t) :: Plug.Conn.t
@@ -157,6 +167,10 @@ defmodule LiberatorEx.Resource do
               else
                 handler_module.handle_accepted(conn)
               end
+            handler_module.post_to_existing?(conn) ->
+              from_conflict(handler_module, conn)
+            handler_module.put_to_existing?(conn) ->
+              from_conflict(handler_module, conn)
             true ->
               handler_module.handle_ok(conn)
           end
@@ -169,7 +183,7 @@ defmodule LiberatorEx.Resource do
                 handler_module.handle_moved_permanently(conn)
               else
                 if handler_module.can_put_to_missing?(conn) do
-                  # TODO
+                  from_conflict(handler_module, conn)
                 else
                   handler_module.handle_not_implemented(conn)
                 end
@@ -184,7 +198,7 @@ defmodule LiberatorEx.Resource do
                   else
                     if handler_module.post_to_gone?(conn) do
                       if handler_module.can_post_to_gone?(conn) do
-                        # TODO
+                        from_post(handler_module, conn)
                       else
                         handler_module.handle_gone(conn)
                       end
@@ -196,7 +210,7 @@ defmodule LiberatorEx.Resource do
               else
                 if handler_module.post_to_missing?(conn) do
                   if handler_module.can_post_to_missing?(conn) do
-                    # TODO
+                    from_post(handler_module, conn)
                   else
                     handler_module.handle_not_found(conn)
                   end
@@ -207,6 +221,50 @@ defmodule LiberatorEx.Resource do
             end
           end
         end
+    end
+  end
+
+  defp from_conflict(handler_module, conn) do
+    if handler_module.conflict?(conn) do
+      handler_module.handle_conflict(conn)
+    else
+      if handler_module.method_post?(conn) do
+        from_post(handler_module, conn)
+      else
+        from_put(handler_module, conn)
+      end
+    end
+  end
+
+  defp from_post(handler_module, conn) do
+    handler_module.post!(conn)
+
+    if handler_module.post_enacted?(conn) do
+      if handler_module.post_redirect?(conn) do
+        handler_module.handle_see_other(conn)
+      else
+        if handler_module.new?(conn) do
+          handler_module.handle_created(conn)
+        else
+          finish_response(handler_module, conn)
+        end
+      end
+    else
+      handler_module.handle_accepted(conn)
+    end
+  end
+
+  defp from_put(handler_module, conn) do
+    handler_module.put!(conn)
+
+    if handler_module.put_enacted?(conn) do
+      if handler_module.new?(conn) do
+        handler_module.handle_created(conn)
+      else
+        finish_response(handler_module, conn)
+      end
+    else
+      handler_module.handle_accepted(conn)
     end
   end
 

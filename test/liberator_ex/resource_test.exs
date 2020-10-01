@@ -251,6 +251,127 @@ defmodule LiberatorEx.ResourceTest do
     assert Jason.decode!(conn.resp_body) == []
   end
 
+  test "returns 303 if entity does not exist and we can post to missing, and have want a post redirect" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
+    |> expect(:method_put?, fn _ -> false end)
+    |> expect(:existed?, fn _ -> false end)
+    |> expect(:post_to_missing?, fn _ -> true end)
+    |> expect(:can_post_to_missing?, fn _ -> true end)
+    |> expect(:post_enacted?, fn _ -> true end)
+    |> expect(:post_redirect?, fn _ -> true end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 303
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 201 if entity does not exist and we can post to missing, and create a new resource" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
+    |> expect(:method_put?, fn _ -> false end)
+    |> expect(:existed?, fn _ -> false end)
+    |> expect(:post_to_missing?, fn _ -> true end)
+    |> expect(:can_post_to_missing?, fn _ -> true end)
+    |> expect(:post_enacted?, fn _ -> true end)
+    |> expect(:new?, fn _ -> true end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 201
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 202 if entity does not exist and we can post to missing, and post is not immediately enacted" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
+    |> expect(:method_put?, fn _ -> false end)
+    |> expect(:existed?, fn _ -> false end)
+    |> expect(:post_to_missing?, fn _ -> true end)
+    |> expect(:can_post_to_missing?, fn _ -> true end)
+    |> expect(:post_enacted?, fn _ -> false end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 202
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 204 if entity does not exist and we can post to missing, the entity isn't new and we won't respond with entities" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
+    |> expect(:method_put?, fn _ -> false end)
+    |> expect(:existed?, fn _ -> false end)
+    |> expect(:post_to_missing?, fn _ -> true end)
+    |> expect(:can_post_to_missing?, fn _ -> true end)
+    |> expect(:post_enacted?, fn _ -> true end)
+    |> expect(:post_redirect?, fn _ -> false end)
+    |> expect(:new?, fn _ -> false end)
+    |> expect(:respond_with_entity?, fn _ -> false end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 204
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 300 if entity does not exist and we can post to missing, the entity isn't new and we have multiple entity representations" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
+    |> expect(:method_put?, fn _ -> false end)
+    |> expect(:existed?, fn _ -> false end)
+    |> expect(:post_to_missing?, fn _ -> true end)
+    |> expect(:can_post_to_missing?, fn _ -> true end)
+    |> expect(:post_enacted?, fn _ -> true end)
+    |> expect(:post_redirect?, fn _ -> false end)
+    |> expect(:new?, fn _ -> false end)
+    |> expect(:respond_with_entity?, fn _ -> true end)
+    |> expect(:multiple_representations?, fn _ -> true end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 300
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 200 if entity does not exist and we can post to missing, the entity isn't new" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
+    |> expect(:method_put?, fn _ -> false end)
+    |> expect(:existed?, fn _ -> false end)
+    |> expect(:post_to_missing?, fn _ -> true end)
+    |> expect(:can_post_to_missing?, fn _ -> true end)
+    |> expect(:post_enacted?, fn _ -> true end)
+    |> expect(:post_redirect?, fn _ -> false end)
+    |> expect(:new?, fn _ -> false end)
+    |> expect(:respond_with_entity?, fn _ -> true end)
+    |> expect(:multiple_representations?, fn _ -> false end)
+
+    conn = conn(:get, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
   test "returns 301" do
     LiberatorEx.MockResource
     |> expect(:exists?, fn _ -> false end)
@@ -283,7 +404,7 @@ defmodule LiberatorEx.ResourceTest do
     assert Jason.decode!(conn.resp_body) == []
   end
 
-  test "returns 410" do
+  test "returns 410 if the resource is gone" do
     LiberatorEx.MockResource
     |> expect(:exists?, fn _ -> false end)
     |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
@@ -316,6 +437,26 @@ defmodule LiberatorEx.ResourceTest do
     assert Jason.decode!(conn.resp_body) == []
   end
 
+  test "returns 201 when resource is gone but we can post to it" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
+    |> expect(:method_put?, fn _ -> false end)
+    |> expect(:existed?, fn _ -> true end)
+    |> expect(:post_to_gone?, fn _ -> true end)
+    |> expect(:can_post_to_gone?, fn _ -> true end)
+    |> expect(:post_enacted?, fn _ -> true end)
+    |> expect(:post_redirect?, fn _ -> false end)
+    |> expect(:new?, fn _ -> true end)
+
+    conn = conn(:post, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 201
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
   test "returns 301 when put to a different url but entity doesn't exist" do
     LiberatorEx.MockResource
     |> expect(:exists?, fn _ -> false end)
@@ -343,6 +484,22 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 501
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 409 when put to a different url but entity doesn't exist, and we can put to missing, but there's a conflict" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> false end)
+    |> expect(:if_match_star_exists_for_missing?, fn _ -> false end)
+    |> expect(:method_put?, fn _ -> true end)
+    |> expect(:can_put_to_missing?, fn _ -> true end)
+    |> expect(:conflict?, fn _ -> true end)
+
+    conn = conn(:put, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 409
     assert Jason.decode!(conn.resp_body) == []
   end
 
@@ -524,6 +681,179 @@ defmodule LiberatorEx.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 204
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 409 if post-to-existing has a conflict" do
+    LiberatorEx.MockResource
+    |> expect(:post_to_existing?, fn _ -> true end)
+    |> expect(:conflict?, fn _ -> true end)
+
+    conn = conn(:post, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 409
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 409 if put-to-existing has a conflict" do
+    LiberatorEx.MockResource
+    |> expect(:put_to_existing?, fn _ -> true end)
+    |> expect(:conflict?, fn _ -> true end)
+
+    conn = conn(:put, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 409
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 303 if post with post-redirect enabled" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> true end)
+    |> expect(:if_match_exists?, fn _ -> false end)
+    |> expect(:if_unmodified_since_exists?, fn _ -> false end)
+    |> expect(:if_none_match_exists?, fn _ -> false end)
+    |> expect(:if_modified_since_exists?, fn _ -> false end)
+    |> expect(:method_delete?, fn _ -> false end)
+    |> expect(:method_patch?, fn _ -> false end)
+    |> expect(:post_to_existing?, fn _ -> true end)
+    |> expect(:conflict?, fn _ -> false end)
+    |> expect(:method_post?, fn _ -> true end)
+    |> expect(:post_enacted?, fn _ -> true end)
+    |> expect(:post_redirect?, fn _ -> true end)
+
+    conn = conn(:post, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 303
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 201 if post when resource is created" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> true end)
+    |> expect(:if_match_exists?, fn _ -> false end)
+    |> expect(:if_unmodified_since_exists?, fn _ -> false end)
+    |> expect(:if_none_match_exists?, fn _ -> false end)
+    |> expect(:if_modified_since_exists?, fn _ -> false end)
+    |> expect(:method_delete?, fn _ -> false end)
+    |> expect(:method_patch?, fn _ -> false end)
+    |> expect(:post_to_existing?, fn _ -> true end)
+    |> expect(:conflict?, fn _ -> false end)
+    |> expect(:method_post?, fn _ -> true end)
+    |> expect(:post_enacted?, fn _ -> true end)
+    |> expect(:post_redirect?, fn _ -> false end)
+    |> expect(:new?, fn _ -> true end)
+
+    conn = conn(:post, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 201
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 204 if post when resource is not new and we want no entity response" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> true end)
+    |> expect(:if_match_exists?, fn _ -> false end)
+    |> expect(:if_unmodified_since_exists?, fn _ -> false end)
+    |> expect(:if_none_match_exists?, fn _ -> false end)
+    |> expect(:if_modified_since_exists?, fn _ -> false end)
+    |> expect(:method_delete?, fn _ -> false end)
+    |> expect(:method_patch?, fn _ -> false end)
+    |> expect(:post_to_existing?, fn _ -> true end)
+    |> expect(:conflict?, fn _ -> false end)
+    |> expect(:method_post?, fn _ -> true end)
+    |> expect(:post_enacted?, fn _ -> true end)
+    |> expect(:post_redirect?, fn _ -> false end)
+    |> expect(:new?, fn _ -> false end)
+    |> expect(:respond_with_entity?, fn _ -> false end)
+
+    conn = conn(:post, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 204
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 200 if post when resource is not new and we want an entity response with one representation" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> true end)
+    |> expect(:if_match_exists?, fn _ -> false end)
+    |> expect(:if_unmodified_since_exists?, fn _ -> false end)
+    |> expect(:if_none_match_exists?, fn _ -> false end)
+    |> expect(:if_modified_since_exists?, fn _ -> false end)
+    |> expect(:method_delete?, fn _ -> false end)
+    |> expect(:method_patch?, fn _ -> false end)
+    |> expect(:post_to_existing?, fn _ -> true end)
+    |> expect(:conflict?, fn _ -> false end)
+    |> expect(:method_post?, fn _ -> true end)
+    |> expect(:post_enacted?, fn _ -> true end)
+    |> expect(:post_redirect?, fn _ -> false end)
+    |> expect(:new?, fn _ -> false end)
+    |> expect(:respond_with_entity?, fn _ -> true end)
+    |> expect(:multiple_representations?, fn _ -> false end)
+
+    conn = conn(:post, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 300 if post when resource is not new and we want an entity response with multiple representations" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> true end)
+    |> expect(:if_match_exists?, fn _ -> false end)
+    |> expect(:if_unmodified_since_exists?, fn _ -> false end)
+    |> expect(:if_none_match_exists?, fn _ -> false end)
+    |> expect(:if_modified_since_exists?, fn _ -> false end)
+    |> expect(:method_delete?, fn _ -> false end)
+    |> expect(:method_patch?, fn _ -> false end)
+    |> expect(:post_to_existing?, fn _ -> true end)
+    |> expect(:conflict?, fn _ -> false end)
+    |> expect(:method_post?, fn _ -> true end)
+    |> expect(:post_enacted?, fn _ -> true end)
+    |> expect(:post_redirect?, fn _ -> false end)
+    |> expect(:new?, fn _ -> false end)
+    |> expect(:respond_with_entity?, fn _ -> true end)
+    |> expect(:multiple_representations?, fn _ -> true end)
+
+    conn = conn(:post, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 300
+    assert Jason.decode!(conn.resp_body) == []
+  end
+
+  test "returns 201 if put when resource is new" do
+    LiberatorEx.MockResource
+    |> expect(:exists?, fn _ -> true end)
+    |> expect(:if_match_exists?, fn _ -> false end)
+    |> expect(:if_unmodified_since_exists?, fn _ -> false end)
+    |> expect(:if_none_match_exists?, fn _ -> false end)
+    |> expect(:if_modified_since_exists?, fn _ -> false end)
+    |> expect(:method_delete?, fn _ -> false end)
+    |> expect(:method_patch?, fn _ -> false end)
+    |> expect(:post_to_existing?, fn _ -> true end)
+    |> expect(:conflict?, fn _ -> false end)
+    |> expect(:method_post?, fn _ -> false end)
+    |> expect(:put_enacted?, fn _ -> true end)
+    |> expect(:new?, fn _ -> true end)
+
+    conn = conn(:post, "/")
+    conn = Resource.call(conn, @opts)
+
+    assert conn.state == :sent
+    assert conn.status == 201
     assert Jason.decode!(conn.resp_body) == []
   end
 end
