@@ -46,7 +46,7 @@ defmodule LiberatorEx.Base do
   def accept_encoding_exists?(_conn), do: true
   def encoding_available?(_conn), do: true
   def processable?(_conn), do: true
-  
+
   def exists?(_conn), do: true
   def existed?(_conn), do: false
   def moved_permanently?(_conn), do: false
@@ -54,14 +54,14 @@ defmodule LiberatorEx.Base do
 
   def if_match_star_exists_for_missing?(_conn), do: false
   def post_to_missing?(_conn), do: true
-  def can_post_to_missing?(_conn), do: true
+  def post_to_existing?(_conn), do: false
   def post_to_gone?(_conn), do: false
+  def can_post_to_missing?(_conn), do: true
   def can_post_to_gone?(_conn), do: false
   def put_to_existing?(_conn), do: false
-  def post_to_existing?(_conn), do: false
-
-  def put_to_different_url?(_conn), do: false
   def can_put_to_missing?(_conn), do: false
+  def put_to_different_url?(_conn), do: false
+
   def if_match_exists?(_conn), do: false
   def if_match_star?(_conn), do: false
   def if_none_match_exists?(_conn), do: false
