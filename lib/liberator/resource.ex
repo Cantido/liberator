@@ -1,16 +1,72 @@
 defmodule Liberator.Resource do
   use Plug.Builder
   @moduledoc """
-  Documentation for Liberator.Resource.
+  A controller module that understands and respects the HTTP spec.
+
+  This module implements a `Plug` handler that allows an endpoint to comply to the HTTP specification,
+  and to do so by just answering a few questions.
+
+  Define a simple resource like this:
+
+      defmodule MyFirstResource do
+        use Liberator.Resource
+
+        def available_media_types(_), do: ["text/plain"]
+        def handle_ok(conn), do: send_resp(conn, 200, "Hello world!")
+      end
+
+  There are lots of decisions to be made during content negotiation,
+  and Liberator lets gives you access to every single one,
+  but it's also built with sensible defaults that let you quickly build up a controller.
   """
 
+  @doc """
+  Returns a list of HTTP methods that this module serves.
+
+  The methods returned by this function should be upper-case strings, like `"GET"`, `"POST"`, etc.
+  """
   @callback allowed_methods(Plug.Conn.t) :: list()
+
+  @doc """
+  Returns a list of content types that this module serves.
+
+  The types returned by this function should be valid MIME types, like `text/plain`, `application/json`, etc.
+  """
   @callback available_media_types(Plug.Conn.t) :: list()
+
+  @doc """
+  Returns a list of available languages.
+  """
   @callback available_languages(Plug.Conn.t) :: list()
-  @callback last_modified(Plug.Conn.t) :: String.t
+
+  @callback available_encodings(Plug.Conn.t) :: list()
+  @callback available_charsets(Plug.Conn.t) :: list()
+  @doc """
+  Returns the last modified date of your resource.
+
+  This value will be used to respond to caching headers like `If-Modified-Since`.
+  """
+  @callback last_modified(Plug.Conn.t) :: DateTime.t
+
+  @doc """
+  Returns the etag for the current entity.
+
+  This value will be used to respond to caching headers like `If-None-Match`.
+  """
   @callback etag(Plug.Conn.t) :: String.t
 
+  @doc """
+  Check if your service is available.
+
+  This is the first function called in the entire pipeline,
+  and lets you check to make sure everything works before going deeper.
+  Defaults to `true`.
+  """
   @callback service_available?(Plug.Conn.t) :: true | false
+
+  @doc """
+
+  """
   @callback known_method?(Plug.Conn.t) :: true | false
   @callback uri_too_long?(Plug.Conn.t) :: true | false
   @callback method_allowed?(Plug.Conn.t) :: true | false
@@ -400,17 +456,27 @@ defmodule Liberator.Resource do
 
       @impl true
       def allowed_methods(_conn) do
-        ["GET", "HEAD", "PUT", "POST", "DELETE", "OPTIONS", "TRACE", "PATCH"]
+        ["GET", "HEAD"]
       end
 
       @impl true
       def available_media_types(_conn) do
-        ["text/plain"]
+        []
       end
 
       @impl true
       def available_languages(_conn) do
-        ["en"]
+        ["*"]
+      end
+
+      @impl true
+      def available_charsets(_conn) do
+        ["UTF-8"]
+      end
+
+      @impl true
+      def available_encodings(_conn) do
+        ["identity"]
       end
 
       @impl true
@@ -426,7 +492,9 @@ defmodule Liberator.Resource do
       @impl true
       def service_available?(_conn), do: true
       @impl true
-      def known_method?(_conn), do: true
+      def known_method?(conn) do
+        conn.method in ["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", "PATCH", "TRACE"]
+      end
       @impl true
       def uri_too_long?(_conn), do: false
       @impl true
@@ -481,7 +549,12 @@ defmodule Liberator.Resource do
         (requested_media_type in available_media_types(conn)) or requested_media_type == "*/*"
       end
       @impl true
-      def language_available?(_conn), do: true
+      def language_available?(conn) do
+        available_langs = available_languages(conn)
+        ("*" in available_langs) or
+        Enum.zip(available_langs, get_req_header(conn, "accept-language"))
+        |> Enum.any?(fn {av, req} -> String.starts_with?(req, av) end)
+      end
       @impl true
       def charset_available?(_conn), do: true
       @impl true

@@ -128,6 +128,42 @@ defmodule Liberator.ResourceTest do
     end
   end
 
+  describe "language_available?/1" do
+    defmodule LanguageAgnosticResource do
+      use Liberator.Resource
+      def available_languages(_conn), do: ["*"]
+    end
+
+    defmodule EnglishOnlyResource do
+      use Liberator.Resource
+      def available_languages(_conn), do: ["en"]
+    end
+
+    test "returns true if acceptable languges is *" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept-language", "en")
+
+      assert LanguageAgnosticResource.language_available?(conn)
+    end
+
+    test "returns false if acceptable languges is different from requested language" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept-language", "de")
+
+      assert not EnglishOnlyResource.language_available?(conn)
+    end
+
+    test "returns true if available languages contains something matching the accept-language header" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept-language", "en-GB")
+
+      assert EnglishOnlyResource.language_available?(conn)
+    end
+  end
+
   describe "accept_charset_exists?/1" do
     test "returns true if the accept-charset header is present" do
       conn =
@@ -155,9 +191,6 @@ defmodule Liberator.ResourceTest do
   end
 
   describe "media_type_available?/1" do
-    test "allows text/plain" do
-      assert MyResource.media_type_available?(conn(:get, "/") |> put_req_header("accept", "text/plain"))
-    end
     test "disallows text/nonexistent-media-type" do
       assert not MyResource.media_type_available?(conn(:get, "/") |> put_req_header("accept", "text/nonexistent-media-type"))
     end
@@ -519,6 +552,7 @@ defmodule Liberator.ResourceTest do
     defmodule OptionsResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["OPTIONS"]
       def is_options?(_conn), do: true
     end
 
@@ -874,6 +908,7 @@ defmodule Liberator.ResourceTest do
     defmodule NewPostToGoneResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["POST"]
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
       def method_put?(_conn), do: false
@@ -899,6 +934,7 @@ defmodule Liberator.ResourceTest do
     defmodule PutToDifferentUrlResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["PUT"]
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
       def method_put?(_conn), do: true
@@ -917,6 +953,7 @@ defmodule Liberator.ResourceTest do
     defmodule CantPutToMissingResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["PUT"]
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
       def method_put?(_conn), do: true
@@ -936,6 +973,7 @@ defmodule Liberator.ResourceTest do
     defmodule CanPutToMissingConflictResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["PUT"]
       def exists?(_conn), do: false
       def if_match_star_exists_for_missing?(_conn), do: false
       def method_put?(_conn), do: true
@@ -1076,6 +1114,7 @@ defmodule Liberator.ResourceTest do
     defmodule SuccessfulDeleteResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["DELETE"]
       def method_delete?(_conn), do: true
       def delete!(_conn), do: nil
     end
@@ -1092,6 +1131,7 @@ defmodule Liberator.ResourceTest do
     defmodule DelayedDeleteResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["DELETE"]
       def method_delete?(_conn), do: true
       def delete!(_conn), do: nil
       def delete_enacted?(_conn), do: false
@@ -1109,6 +1149,7 @@ defmodule Liberator.ResourceTest do
     defmodule SuccessfulDeleteNoEntityResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["DELETE"]
       def method_delete?(_conn), do: true
       def delete!(_conn), do: nil
       def respond_with_entity?(_conn), do: false
@@ -1126,6 +1167,7 @@ defmodule Liberator.ResourceTest do
     defmodule SuccessfulPatchResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["PATCH"]
       def method_delete?(_conn), do: false
       def method_patch?(_conn), do: true
       def patch!(_conn), do: nil
@@ -1146,6 +1188,7 @@ defmodule Liberator.ResourceTest do
     defmodule AcceptedPatchResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["PATCH"]
       def method_delete?(_conn), do: false
       def method_patch?(_conn), do: true
       def patch!(_conn), do: nil
@@ -1164,6 +1207,7 @@ defmodule Liberator.ResourceTest do
     defmodule AcceptedPatchNoContentResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["PATCH"]
       def method_delete?(_conn), do: false
       def method_patch?(_conn), do: true
       def patch!(_conn), do: nil
@@ -1183,6 +1227,7 @@ defmodule Liberator.ResourceTest do
     defmodule ConflictedPostToExistingResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["POST"]
       def method_delete?(_conn), do: false
       def method_patch?(_conn), do: false
       def post_to_existing?(_conn), do: true
@@ -1201,6 +1246,7 @@ defmodule Liberator.ResourceTest do
     defmodule ConflictedPutToExistingResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["PUT"]
       def method_delete?(_conn), do: false
       def method_patch?(_conn), do: false
       def post_to_existing?(_conn), do: false
@@ -1220,6 +1266,7 @@ defmodule Liberator.ResourceTest do
     defmodule PostRedirectResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["POST"]
       def exists?(_conn), do: true
       def if_match_exists?(_conn), do: false
       def if_unmodified_since_exists?(_conn), do: false
@@ -1243,6 +1290,7 @@ defmodule Liberator.ResourceTest do
     defmodule PostCreatedNewResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["POST"]
       def exists?(_conn), do: true
       def if_match_exists?(_conn), do: false
       def if_unmodified_since_exists?(_conn), do: false
@@ -1267,6 +1315,7 @@ defmodule Liberator.ResourceTest do
     defmodule PostNewNoEntityResponseResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["POST"]
       def exists?(_conn), do: true
       def if_match_exists?(_conn), do: false
       def if_unmodified_since_exists?(_conn), do: false
@@ -1292,6 +1341,7 @@ defmodule Liberator.ResourceTest do
     defmodule PostNewSingleEntityResponseResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["POST"]
       def exists?(_conn), do: true
       def if_match_exists?(_conn), do: false
       def if_unmodified_since_exists?(_conn), do: false
@@ -1318,6 +1368,7 @@ defmodule Liberator.ResourceTest do
     defmodule PostNewMultipleEntityResponseResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["POST"]
       def exists?(_conn), do: true
       def if_match_exists?(_conn), do: false
       def if_unmodified_since_exists?(_conn), do: false
@@ -1344,6 +1395,7 @@ defmodule Liberator.ResourceTest do
     defmodule PostNewResource do
       use Liberator.Resource
       @impl true
+      def allowed_methods(_conn), do: ["POST"]
       def exists?(_conn), do: true
       def if_match_exists?(_conn), do: false
       def if_unmodified_since_exists?(_conn), do: false
