@@ -958,7 +958,7 @@ defmodule Liberator.Resource do
             status = @handlers[next_step]
             body = apply(__MODULE__, next_step, [conn])
 
-            encoded_body = case Enum.at(get_req_header(conn, "accept"), 0) do
+            encoded_body = case conn.assigns[:media_type] do
               "application/json" -> Jason.encode!(body)
               _ -> body
             end
