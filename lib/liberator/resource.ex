@@ -28,6 +28,7 @@ defmodule Liberator.Resource do
   | Function                    | Default           |
   |-----------------------------|-------------------|
   | `c:allowed_methods/1`       | `["GET", "HEAD"]` |
+  | `c:known_methods/1`         | `["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", "PATCH", "TRACE"]` |
   | `c:available_media_types/1` | `[]`              |
   | `c:available_languages/1`   | `["*"]`           |
   | `c:available_charsets/1`    | `["UTF-8"]`       |
@@ -173,6 +174,16 @@ defmodule Liberator.Resource do
   The methods returned by this function should be upper-case strings, like `"GET"`, `"POST"`, etc.
   """
   @callback allowed_methods(Plug.Conn.t) :: list()
+
+  @doc """
+  Returns a list of HTTP methods that exist.
+
+  Note that this is to filter bad HTTP requests, not to filter requests that your endpoint does not serve.
+  You probably want to implement `c:allowed_methods/1` instead.
+
+  The methods returned by this function should be upper-case strings, like `"GET"`, `"POST"`, etc.
+  """
+  @callback known_methods(Plug.Conn.t) :: list()
 
   @doc """
   Returns a list of content types that this module serves.
@@ -972,6 +983,11 @@ defmodule Liberator.Resource do
       end
 
       @impl true
+      def known_methods(_conn) do
+        ["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", "PATCH", "TRACE"]
+      end
+
+      @impl true
       def available_media_types(_conn) do
         []
       end
@@ -1008,7 +1024,7 @@ defmodule Liberator.Resource do
       def service_available?(_conn), do: true
       @impl true
       def known_method?(conn) do
-        conn.method in ["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", "PATCH", "TRACE"]
+        conn.method in known_methods(conn)
       end
       @impl true
       def uri_too_long?(_conn), do: false
