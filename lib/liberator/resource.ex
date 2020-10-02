@@ -1071,7 +1071,23 @@ defmodule Liberator.Resource do
         |> Enum.any?(fn {av, req} -> String.starts_with?(req, av) end)
       end
       @impl true
-      def charset_available?(_conn), do: true
+      def charset_available?(conn) do
+        available_cs = available_charsets(conn)
+
+        charset =
+          available_cs
+          |> Enum.zip(get_req_header(conn, "accept-charset"))
+          |> Enum.filter(fn {av, req} -> String.starts_with?(req, av) or "*" in available_cs end)
+          |> Enum.map(fn {av, req} -> req end)
+          |> Enum.take(1)
+          |> Map.new(fn c -> {:charset, c} end)
+
+        if Enum.any?(charset) do
+          charset
+        else
+          false
+        end
+      end
       @impl true
       def encoding_available?(_conn), do: true
 

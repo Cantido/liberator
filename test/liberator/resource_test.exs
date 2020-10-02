@@ -196,6 +196,50 @@ defmodule Liberator.ResourceTest do
     end
   end
 
+  describe "charset_available?/1" do
+    test "returns true if charset is present in `available_charsets/1`" do
+      defmodule CharsetUtf8AvailableResource do
+        use Liberator.Resource
+
+        def available_charsets(_), do: ["UTF-8"]
+      end
+
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept-charset", "UTF-8")
+
+      assert CharsetUtf8AvailableResource.charset_available?(conn)
+    end
+
+    test "returns trfalseue if charset is not present in `available_charsets/1`" do
+      defmodule CharsetUtf16UnavailableResource do
+        use Liberator.Resource
+
+        def available_charsets(_), do: ["UTF-8"]
+      end
+
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept-charset", "UTF-16")
+
+      assert not CharsetUtf16UnavailableResource.charset_available?(conn)
+    end
+
+    test "returns a map containing the matching charset" do
+      defmodule SetsCharsetResource do
+        use Liberator.Resource
+
+        def available_charsets(_), do: ["UTF-8"]
+      end
+
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept-charset", "UTF-8")
+
+      assert SetsCharsetResource.charset_available?(conn) == %{charset: "UTF-8"}
+    end
+  end
+
   describe "if_modified_since_exists?" do
     test "returns true if the if-modified-since header is present" do
       conn =
