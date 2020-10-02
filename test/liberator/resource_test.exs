@@ -41,7 +41,7 @@ defmodule Liberator.ResourceTest do
     end
 
     test "disallows asdf" do
-      assert not MyResource.method_allowed?(conn(:asdf, "/"))
+      refute MyResource.method_allowed?(conn(:asdf, "/"))
     end
   end
 
@@ -51,7 +51,7 @@ defmodule Liberator.ResourceTest do
     end
 
     test "returns false for non-options type" do
-      assert not MyResource.is_options?(conn(:get, "/"))
+      refute MyResource.is_options?(conn(:get, "/"))
     end
   end
 
@@ -61,7 +61,7 @@ defmodule Liberator.ResourceTest do
     end
 
     test "returns false for non-put type" do
-      assert not MyResource.method_put?(conn(:get, "/"))
+      refute MyResource.method_put?(conn(:get, "/"))
     end
   end
 
@@ -71,7 +71,7 @@ defmodule Liberator.ResourceTest do
     end
 
     test "returns false for non-post type" do
-      assert not MyResource.method_post?(conn(:get, "/"))
+      refute MyResource.method_post?(conn(:get, "/"))
     end
   end
 
@@ -81,7 +81,7 @@ defmodule Liberator.ResourceTest do
     end
 
     test "returns false for non-delete type" do
-      assert not MyResource.method_delete?(conn(:get, "/"))
+      refute MyResource.method_delete?(conn(:get, "/"))
     end
   end
 
@@ -91,7 +91,7 @@ defmodule Liberator.ResourceTest do
     end
 
     test "returns false for non-patch type" do
-      assert not MyResource.method_patch?(conn(:get, "/"))
+      refute MyResource.method_patch?(conn(:get, "/"))
     end
   end
 
@@ -111,7 +111,7 @@ defmodule Liberator.ResourceTest do
       assert MyResource.accept_exists?(conn)
     end
     test "returns false if the accept header is not present" do
-      assert not MyResource.accept_exists?(conn(:get, "/"))
+      refute MyResource.accept_exists?(conn(:get, "/"))
     end
   end
 
@@ -124,7 +124,7 @@ defmodule Liberator.ResourceTest do
       assert MyResource.accept_language_exists?(conn)
     end
     test "returns false if the accept-language header is not present" do
-      assert not MyResource.accept_language_exists?(conn(:get, "/"))
+      refute MyResource.accept_language_exists?(conn(:get, "/"))
     end
   end
 
@@ -152,7 +152,7 @@ defmodule Liberator.ResourceTest do
         conn(:get, "/")
         |> put_req_header("accept-language", "de")
 
-      assert not EnglishOnlyResource.language_available?(conn)
+      refute EnglishOnlyResource.language_available?(conn)
     end
 
     test "returns true if available languages contains something matching the accept-language header" do
@@ -181,7 +181,7 @@ defmodule Liberator.ResourceTest do
       assert MyResource.accept_charset_exists?(conn)
     end
     test "returns false if the accept-charset header is not present" do
-      assert not MyResource.accept_charset_exists?(conn(:get, "/"))
+      refute MyResource.accept_charset_exists?(conn(:get, "/"))
     end
   end
 
@@ -194,7 +194,7 @@ defmodule Liberator.ResourceTest do
       assert MyResource.accept_encoding_exists?(conn)
     end
     test "returns false if the accept-encoding header is not present" do
-      assert not MyResource.accept_encoding_exists?(conn(:get, "/"))
+      refute MyResource.accept_encoding_exists?(conn(:get, "/"))
     end
   end
 
@@ -206,7 +206,7 @@ defmodule Liberator.ResourceTest do
     end
 
     test "disallows UTF-16" do
-      assert not Utf8EncodingAvailableResource.encoding_available?(conn(:get, "/") |> put_req_header("accept-encoding", "UTF-16"))
+      refute Utf8EncodingAvailableResource.encoding_available?(conn(:get, "/") |> put_req_header("accept-encoding", "UTF-16"))
     end
 
     test "returns a map containing the matching encoding" do
@@ -226,7 +226,7 @@ defmodule Liberator.ResourceTest do
     end
 
     test "disallows text/nonexistent-media-type" do
-      assert not MyResource.media_type_available?(conn(:get, "/") |> put_req_header("accept", "text/nonexistent-media-type"))
+      refute MyResource.media_type_available?(conn(:get, "/") |> put_req_header("accept", "text/nonexistent-media-type"))
     end
 
     test "returns a map containing the matching media type" do
@@ -264,7 +264,7 @@ defmodule Liberator.ResourceTest do
         conn(:get, "/")
         |> put_req_header("accept-charset", "UTF-16")
 
-      assert not CharsetUtf16UnavailableResource.charset_available?(conn)
+      refute CharsetUtf16UnavailableResource.charset_available?(conn)
     end
 
     test "returns a map containing the matching charset" do
@@ -291,7 +291,7 @@ defmodule Liberator.ResourceTest do
       assert MyResource.if_modified_since_exists?(conn)
     end
     test "returns false if the if-modified-since header is not present" do
-      assert not MyResource.if_modified_since_exists?(conn(:get, "/"))
+      refute MyResource.if_modified_since_exists?(conn(:get, "/"))
     end
   end
 
@@ -318,7 +318,7 @@ defmodule Liberator.ResourceTest do
         conn(:get, "/")
         |> put_req_header("if-modified-since", time_str)
 
-      assert not MyResource.modified_since?(conn)
+      refute MyResource.modified_since?(conn)
     end
   end
 
@@ -338,7 +338,7 @@ defmodule Liberator.ResourceTest do
         conn(:get, "/")
         |> put_req_header("if-modified-since", "asdf")
 
-      assert not MyResource.if_modified_since_valid_date?(conn)
+      refute MyResource.if_modified_since_valid_date?(conn)
     end
   end
 
@@ -351,7 +351,7 @@ defmodule Liberator.ResourceTest do
       assert MyResource.if_unmodified_since_exists?(conn)
     end
     test "returns false if the if-unmodified-since header is not present" do
-      assert not MyResource.if_unmodified_since_exists?(conn(:get, "/"))
+      refute MyResource.if_unmodified_since_exists?(conn(:get, "/"))
     end
   end
 
@@ -371,7 +371,7 @@ defmodule Liberator.ResourceTest do
         conn(:get, "/")
         |> put_req_header("if-unmodified-since", "asdf")
 
-      assert not MyResource.if_unmodified_since_valid_date?(conn)
+      refute MyResource.if_unmodified_since_valid_date?(conn)
     end
   end
 
@@ -386,7 +386,7 @@ defmodule Liberator.ResourceTest do
         conn(:get, "/")
         |> put_req_header("if-unmodified-since", time_str)
 
-      assert not MyResource.unmodified_since?(conn)
+      refute MyResource.unmodified_since?(conn)
     end
     test "returns true if last modification date is before modification_since" do
       {:ok, time_str} =
@@ -411,7 +411,7 @@ defmodule Liberator.ResourceTest do
       assert MyResource.if_match_exists?(conn)
     end
     test "returns false if the if-match header is not present" do
-      assert not MyResource.if_match_exists?(conn(:get, "/"))
+      refute MyResource.if_match_exists?(conn(:get, "/"))
     end
   end
 
@@ -428,7 +428,7 @@ defmodule Liberator.ResourceTest do
         conn(:get, "/")
         |> put_req_header("if-match", "abcdefg")
 
-      assert not MyResource.if_match_star?(conn)
+      refute MyResource.if_match_star?(conn)
     end
   end
 
@@ -445,7 +445,7 @@ defmodule Liberator.ResourceTest do
         conn(:get, "/")
         |> put_req_header("if-match", "abcdefg")
 
-      assert not MyResource.if_match_star_exists_for_missing?(conn)
+      refute MyResource.if_match_star_exists_for_missing?(conn)
     end
   end
 
@@ -458,7 +458,7 @@ defmodule Liberator.ResourceTest do
       assert MyResource.if_none_match_exists?(conn)
     end
     test "returns false if the if-none-match header is not present" do
-      assert not MyResource.if_none_match_exists?(conn(:get, "/"))
+      refute MyResource.if_none_match_exists?(conn(:get, "/"))
     end
   end
 
@@ -475,19 +475,47 @@ defmodule Liberator.ResourceTest do
         conn(:get, "/")
         |> put_req_header("if-none-match", "asdf")
 
-      assert not MyResource.if_none_match_star?(conn)
+      refute MyResource.if_none_match_star?(conn)
     end
   end
 
   describe "etag_matches_for_if_match?" do
+    defmodule IfMatchModule do
+      use Liberator.Resource
+
+      def etag(_), do: "1"
+    end
+
     test "returns false by default" do
-      assert not MyResource.etag_matches_for_if_match?(conn(:get, "/"))
+      refute MyResource.etag_matches_for_if_match?(conn(:get, "/"))
+    end
+
+    test "returns the etag if etag matches" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("if-match", "1")
+
+      assert IfMatchModule.etag_matches_for_if_match?(conn) == %{etag: "1"}
     end
   end
 
   describe "etag_matches_for_if_none?" do
+    defmodule IfNoneMatchModule do
+      use Liberator.Resource
+
+      def etag(_), do: "1"
+    end
+
     test "returns false by default" do
-      assert not MyResource.etag_matches_for_if_none?(conn(:get, "/"))
+      refute MyResource.etag_matches_for_if_none?(conn(:get, "/"))
+    end
+
+    test "returns the etag if etag matches" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("if-none-match", "1")
+
+      assert IfNoneMatchModule.etag_matches_for_if_none?(conn) == %{etag: "1"}
     end
   end
 
@@ -496,7 +524,7 @@ defmodule Liberator.ResourceTest do
       assert MyResource.post_to_missing?(conn(:post, "/"))
     end
     test "returns true for GET" do
-      assert not MyResource.post_to_missing?(conn(:get, "/"))
+      refute MyResource.post_to_missing?(conn(:get, "/"))
     end
   end
 
@@ -505,7 +533,7 @@ defmodule Liberator.ResourceTest do
       assert MyResource.post_to_existing?(conn(:post, "/"))
     end
     test "returns true for GET" do
-      assert not MyResource.post_to_existing?(conn(:get, "/"))
+      refute MyResource.post_to_existing?(conn(:get, "/"))
     end
   end
 
@@ -514,7 +542,7 @@ defmodule Liberator.ResourceTest do
       assert MyResource.post_to_gone?(conn(:post, "/"))
     end
     test "returns true for GET" do
-      assert not MyResource.post_to_gone?(conn(:get, "/"))
+      refute MyResource.post_to_gone?(conn(:get, "/"))
     end
   end
 
@@ -523,7 +551,7 @@ defmodule Liberator.ResourceTest do
       assert MyResource.put_to_existing?(conn(:put, "/"))
     end
     test "returns true for GET" do
-      assert not MyResource.put_to_existing?(conn(:get, "/"))
+      refute MyResource.put_to_existing?(conn(:get, "/"))
     end
   end
 

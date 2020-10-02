@@ -1156,20 +1156,22 @@ defmodule Liberator.Resource do
       end
       @impl true
       def if_none_match?(_conn), do: false
+
       @impl true
       def etag_matches_for_if_match?(conn) do
         if etag = etag(conn) do
-          etag == get_req_header(conn, "if-match") |> Enum.at(0)
-        else
-          false
+          if etag == get_req_header(conn, "if-match") |> Enum.at(0) do
+            %{etag: etag}
+          end
         end
       end
+
       @impl true
       def etag_matches_for_if_none?(conn) do
         if etag = etag(conn) do
-          etag == get_req_header(conn, "if-none-match") |> Enum.at(0)
-        else
-          false
+          if etag == get_req_header(conn, "if-none-match") |> Enum.at(0) do
+            %{etag: etag}
+          end
         end
       end
 
