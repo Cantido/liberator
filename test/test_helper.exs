@@ -1,2 +1,1 @@
-ExUnit.start()
-Mox.defmock(Liberator.MockResource, for: Liberator.Resource)
+ExUnit.start(capture_log: true)
