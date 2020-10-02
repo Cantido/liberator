@@ -12,7 +12,31 @@ defmodule Liberator.Resource do
         use Liberator.Resource
 
         def available_media_types(_), do: ["text/plain"]
-        def handle_ok(conn), do: "Hello world!"
+        def handle_ok(_), do: "Hello world!"
+      end
+
+  To add this plug to a Phoenix application, use the `Phoenix.Router.forward/4` keyword in your router:
+
+      scope "/", MyApp do
+        pipe_through [:browser]
+
+        forward "/api/resource", MyFirstResource
+      end
+
+  If you're using another Plug-based framework, use `Plug.forward/4` once you've matched on the path:
+
+      defmodule Router do
+       def init(opts), do: opts
+
+       def call(conn, opts) do
+         case conn do
+           %{host: "localhost", path_info: ["resources" | rest]} ->
+             Plug.forward(conn, rest, MyFirstResource, opts)
+
+           _ ->
+             MainRouter.call(conn, opts)
+         end
+       end
       end
 
   There are lots of decisions to be made during content negotiation,
@@ -98,6 +122,12 @@ defmodule Liberator.Resource do
   Some of them are needed for next to every resource definition.
   Others are seldom used or there is no other sensible implementation.
 
+  Return any truthy value for a `true` response.
+  If you return a map, Liberator will merge that map with the conn's `:assigns` map,
+  allowing you to cache data and do work when it makes sense.
+  For example, the `exists?/1` callback is a great place to fetch your resource,
+  and you can return it as a map for your later functions to act upon.
+
   | Function                    | Description                                                                         | Default  |
   |---                          |---                                                                                  |---       |
   | `c:allowed?/1`              | Is the user allowed to make this request?                                           | true     |
@@ -173,6 +203,7 @@ defmodule Liberator.Resource do
 
   The methods returned by this function should be upper-case strings, like `"GET"`, `"POST"`, etc.
   """
+  @doc since: "1.0"
   @callback allowed_methods(Plug.Conn.t) :: list()
 
   @doc """
@@ -183,6 +214,7 @@ defmodule Liberator.Resource do
 
   The methods returned by this function should be upper-case strings, like `"GET"`, `"POST"`, etc.
   """
+  @doc since: "1.0"
   @callback known_methods(Plug.Conn.t) :: list()
 
   @doc """
@@ -190,11 +222,13 @@ defmodule Liberator.Resource do
 
   The types returned by this function should be valid MIME types, like `text/plain`, `application/json`, etc.
   """
+  @doc since: "1.0"
   @callback available_media_types(Plug.Conn.t) :: list()
 
   @doc """
   Returns a list of available languages.
   """
+  @doc since: "1.0"
   @callback available_languages(Plug.Conn.t) :: list()
 
   @doc """
@@ -202,6 +236,7 @@ defmodule Liberator.Resource do
 
   By default, only `identity` (no compression) is supported.
   """
+  @doc since: "1.0"
   @callback available_encodings(Plug.Conn.t) :: list()
 
   @doc """
@@ -209,6 +244,7 @@ defmodule Liberator.Resource do
 
   By default, only `UTF-8` is supported.
   """
+  @doc since: "1.0"
   @callback available_charsets(Plug.Conn.t) :: list()
 
   @doc """
@@ -216,6 +252,7 @@ defmodule Liberator.Resource do
 
   This value will be used to respond to caching headers like `If-Modified-Since`.
   """
+  @doc since: "1.0"
   @callback last_modified(Plug.Conn.t) :: DateTime.t
 
   @doc """
@@ -223,6 +260,7 @@ defmodule Liberator.Resource do
 
   This value will be used to respond to caching headers like `If-None-Match`.
   """
+  @doc since: "1.0"
   @callback etag(Plug.Conn.t) :: String.t
 
   @doc """
@@ -234,6 +272,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `true`.
   """
+  @doc since: "1.0"
   @callback service_available?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -248,6 +287,7 @@ defmodule Liberator.Resource do
 
   By default, allows the methods returned by `c:known_methods/1`.
   """
+  @doc since: "1.0"
   @callback known_method?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -257,6 +297,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `false`.
   """
+  @doc since: "1.0"
   @callback uri_too_long?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -266,6 +307,7 @@ defmodule Liberator.Resource do
 
   By default, allows the methods returned by `c:allowed_methods/1`.
   """
+  @doc since: "1.0"
   @callback method_allowed?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -278,6 +320,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `false`.
   """
+  @doc since: "1.0"
   @callback malformed?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -292,6 +335,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `true`.
   """
+  @doc since: "1.0"
   @callback authorized?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -303,6 +347,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `true`.
   """
+  @doc since: "1.0"
   @callback allowed?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -310,6 +355,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `true`.
   """
+  @doc since: "1.0"
   @callback valid_content_header?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -317,6 +363,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `true`.
   """
+  @doc since: "1.0"
   @callback known_content_type?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -324,6 +371,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `true`.
   """
+  @doc since: "1.0"
   @callback valid_entity_length?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -331,6 +379,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback is_options?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -338,6 +387,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback accept_exists?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -345,6 +395,7 @@ defmodule Liberator.Resource do
 
   By default, uses the values returned by `c:available_media_types/1`.
   """
+  @doc since: "1.0"
   @callback media_type_available?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -352,6 +403,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback accept_language_exists?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -359,6 +411,7 @@ defmodule Liberator.Resource do
 
   By default, uses the values returned by `c:available_languages/1`.
   """
+  @doc since: "1.0"
   @callback language_available?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -366,6 +419,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback accept_charset_exists?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -373,6 +427,7 @@ defmodule Liberator.Resource do
 
   By default, uses the values returned by `c:available_charsets/1`.
   """
+  @doc since: "1.0"
   @callback charset_available?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -380,6 +435,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback accept_encoding_exists?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -387,6 +443,7 @@ defmodule Liberator.Resource do
 
   By default, uses the values returned by `c:available_encodings/1`.
   """
+  @doc since: "1.0"
   @callback encoding_available?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -395,6 +452,7 @@ defmodule Liberator.Resource do
   This is a good place to parse a JSON body if that's what you're doing.
   Returning `false` here would cause the plug to return a 422 Unprocessable response.
   """
+  @doc since: "1.0"
   @callback processable?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -405,6 +463,7 @@ defmodule Liberator.Resource do
 
   Returning `false` here will cause the plug to return a 404 Not Found response.
   """
+  @doc since: "1.0"
   @callback exists?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -412,6 +471,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback method_put?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -420,6 +480,7 @@ defmodule Liberator.Resource do
   Answering `true` here will lead you down the path that leads to
   responses like "Moved Permanently" and "Gone", among othes.
   """
+  @doc since: "1.0"
   @callback existed?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -427,6 +488,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback post_to_missing?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -435,6 +497,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `true`.
   """
+  @doc since: "1.0"
   @callback can_post_to_missing?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -442,6 +505,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `false`.
   """
+  @doc since: "1.0"
   @callback moved_permanently?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -449,6 +513,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `false`.
   """
+  @doc since: "1.0"
   @callback moved_temporarily?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -456,6 +521,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback post_to_gone?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -463,6 +529,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `false`.
   """
+  @doc since: "1.0"
   @callback can_post_to_gone?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -470,6 +537,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `false`.
   """
+  @doc since: "1.0"
   @callback put_to_different_url?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -477,6 +545,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `true`.
   """
+  @doc since: "1.0"
   @callback can_put_to_missing?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -484,6 +553,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback if_none_match_exists?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -491,6 +561,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback if_none_match_star?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -498,6 +569,7 @@ defmodule Liberator.Resource do
 
   By default, checks the header against the value returned by `c:etag/1`.
   """
+  @doc since: "1.0"
   @callback etag_matches_for_if_none?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -505,6 +577,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback if_none_match?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -512,6 +585,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback if_match_exists?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -519,6 +593,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback if_match_star?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -526,6 +601,7 @@ defmodule Liberator.Resource do
 
   By default, checks the header against the value returned by `c:etag/1`.
   """
+  @doc since: "1.0"
   @callback etag_matches_for_if_match?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -533,6 +609,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback if_match_star_exists_for_missing?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -540,6 +617,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback if_modified_since_exists?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -547,6 +625,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback if_modified_since_valid_date?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -554,6 +633,7 @@ defmodule Liberator.Resource do
 
   By default, checks the header against the value returned by `c:last_modified/1`.
   """
+  @doc since: "1.0"
   @callback modified_since?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -561,6 +641,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback if_unmodified_since_exists?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -568,6 +649,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback if_unmodified_since_valid_date?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -575,6 +657,7 @@ defmodule Liberator.Resource do
 
   By default, checks the header against the value returned by `c:last_modified/1`.
   """
+  @doc since: "1.0"
   @callback unmodified_since?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -582,6 +665,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback method_delete?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -592,6 +676,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `true`.
   """
+  @doc since: "1.0"
   @callback delete_enacted?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -599,6 +684,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback method_patch?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -609,6 +695,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `true`.
   """
+  @doc since: "1.0"
   @callback patch_enacted?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -616,6 +703,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback method_post?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -623,6 +711,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `false`.
   """
+  @doc since: "1.0"
   @callback post_redirect?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -630,6 +719,7 @@ defmodule Liberator.Resource do
 
   Used internally; it is not advised to override this function.
   """
+  @doc since: "1.0"
   @callback post_to_existing?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -640,11 +730,13 @@ defmodule Liberator.Resource do
 
   By default, always returns `true`.
   """
+  @doc since: "1.0"
   @callback post_enacted?(Plug.Conn.t) :: true | false
 
   @doc """
   Check if the request method is a `PUT` for a resource that already exists.
   """
+  @doc since: "1.0"
   @callback put_to_existing?(Plug.Conn.t) :: true | false
 
   @doc """
@@ -655,179 +747,220 @@ defmodule Liberator.Resource do
 
   By default, always returns `true`.
   """
+  @doc since: "1.0"
   @callback put_enacted?(Plug.Conn.t) :: true | false
 
   @doc """
   Should the response contain a representation of the resource?
   """
+  @doc since: "1.0"
   @callback respond_with_entity?(Plug.Conn.t) :: true | false
 
   @doc """
   Check if there are multiple representations of the resource.
   """
+  @doc since: "1.0"
   @callback multiple_representations?(Plug.Conn.t) :: true | false
 
   @doc """
   Does the `PUT` or `POST` request result in a conflict?
   """
+  @doc since: "1.0"
   @callback conflict?(Plug.Conn.t) :: true | false
 
   @doc """
   Was the resource created by this request?
   """
+  @doc since: "1.0"
   @callback new?(Plug.Conn.t) :: true | false
 
+  @doc """
+  A hook invoked at the beginning of the decision tree to set up anything you may need.
+
+  You can return a map here and it will be merged with the given conn's `:assigns` map.
+  """
+  @doc since: "1.0"
   @callback initialize(Plug.Conn.t) :: any()
 
   @doc """
   Called for `DELETE` requests.
   """
+  @doc since: "1.0"
   @callback delete!(Plug.Conn.t) :: any()
 
   @doc """
   Called for `PUT` requests.
   """
+  @doc since: "1.0"
   @callback put!(Plug.Conn.t) :: any()
 
   @doc """
   Called for `PATCH` requests.
   """
+  @doc since: "1.0"
   @callback patch!(Plug.Conn.t) :: any()
 
   @doc """
   Called for `POST` requests.
   """
+  @doc since: "1.0"
   @callback post!(Plug.Conn.t) :: any()
 
 
   @doc """
   Returns content for a `200 OK` response.
   """
+  @doc since: "1.0"
   @callback handle_ok(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `200 OK` response to an `OPTIONS` request.
   """
+  @doc since: "1.0"
   @callback handle_options(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `201 Created` response.
   """
+  @doc since: "1.0"
   @callback handle_created(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `202 Accepted` response.
   """
+  @doc since: "1.0"
   @callback handle_accepted(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `204 No Content` response.
   """
+  @doc since: "1.0"
   @callback handle_no_content(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `300 Multiple Representations` response.
   """
+  @doc since: "1.0"
   @callback handle_multiple_representations(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `301 Moved Permanently` response.
   """
+  @doc since: "1.0"
   @callback handle_moved_permanently(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `303 See Other` response.
   """
+  @doc since: "1.0"
   @callback handle_see_other(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `304 Not Modified` response.
   """
+  @doc since: "1.0"
   @callback handle_not_modified(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `307 Moved Permanently` response.
   """
+  @doc since: "1.0"
   @callback handle_moved_temporarily(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `400 Malformed` response.
   """
+  @doc since: "1.0"
   @callback handle_malformed(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `401 Unauthorized` response.
   """
+  @doc since: "1.0"
   @callback handle_unauthorized(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `403 Forbidden` response.
   """
+  @doc since: "1.0"
   @callback handle_forbidden(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `404 Not Found` response.
   """
+  @doc since: "1.0"
   @callback handle_not_found(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `405 Method Not Allowed` response.
   """
+  @doc since: "1.0"
   @callback handle_method_not_allowed(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `406 Not Acceptable` response.
   """
+  @doc since: "1.0"
   @callback handle_not_acceptable(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `409 Conflict` response.
   """
+  @doc since: "1.0"
   @callback handle_conflict(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `410 Gone` response.
   """
+  @doc since: "1.0"
   @callback handle_gone(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `412 Precondition Failed` response.
   """
+  @doc since: "1.0"
   @callback handle_precondition_failed(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `413 Entity Too Large` response.
   """
+  @doc since: "1.0"
   @callback handle_request_entity_too_large(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `414 URI Too Long` response.
   """
+  @doc since: "1.0"
   @callback handle_uri_too_long(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `415 Unsuppported Media Type` response.
   """
+  @doc since: "1.0"
   @callback handle_unsupported_media_type(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `422 Unprocesable Entity` response.
   """
+  @doc since: "1.0"
   @callback handle_unprocessable_entity(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `501 Unknown Method` response.
   """
+  @doc since: "1.0"
   @callback handle_unknown_method(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `501 Not Implemented` response.
   """
+  @doc since: "1.0"
   @callback handle_not_implemented(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Returns content for a `503 Service Unavailable` response.
   """
+  @doc since: "1.0"
   @callback handle_service_unavailable(Plug.Conn.t) :: Plug.Conn.t
 
   defmacro __using__(_opts) do
