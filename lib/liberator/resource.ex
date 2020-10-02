@@ -1060,48 +1060,37 @@ defmodule Liberator.Resource do
 
       @impl true
       def media_type_available?(conn) do
-        requested_media_type = get_req_header(conn, "accept") |> Enum.at(0)
-        (requested_media_type in available_media_types(conn)) or requested_media_type == "*/*"
+        accept_something(conn, :media_type, "accept", available_media_types(conn))
       end
       @impl true
       def language_available?(conn) do
-        available_langs = available_languages(conn)
-
-        language =
-          available_langs
-          |> Enum.zip(get_req_header(conn, "accept-language"))
-          |> Enum.filter(fn {av, req} -> String.starts_with?(req, av) or "*" in available_langs end)
-          |> Enum.map(fn {av, req} -> req end)
-          |> Enum.take(1)
-          |> Map.new(fn c -> {:language, c} end)
-
-        if Enum.any?(language) do
-          language
-        else
-          false
-        end
+        accept_something(conn, :language, "accept-language", available_languages(conn))
       end
 
       @impl true
       def charset_available?(conn) do
-        available_cs = available_charsets(conn)
+        accept_something(conn, :charset, "accept-charset", available_charsets(conn))
+      end
+      @impl true
+      def encoding_available?(conn) do
+        accept_something(conn, :encoding, "accept-encoding", available_encodings(conn))
+      end
 
-        charset =
-          available_cs
-          |> Enum.zip(get_req_header(conn, "accept-charset"))
-          |> Enum.filter(fn {av, req} -> String.starts_with?(req, av) or "*" in available_cs end)
+      defp accept_something(conn, key, header_name, available_values) do
+        val =
+          available_values
+          |> Enum.zip(get_req_header(conn, header_name))
+          |> Enum.filter(fn {av, req} -> String.starts_with?(req, av) or "*" in available_values end)
           |> Enum.map(fn {av, req} -> req end)
           |> Enum.take(1)
-          |> Map.new(fn c -> {:charset, c} end)
+          |> Map.new(fn c -> {key, c} end)
 
-        if Enum.any?(charset) do
-          charset
+        if Enum.any?(val) do
+          val
         else
           false
         end
       end
-      @impl true
-      def encoding_available?(_conn), do: true
 
       @impl true
       def processable?(_conn), do: true

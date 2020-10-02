@@ -198,9 +198,43 @@ defmodule Liberator.ResourceTest do
     end
   end
 
+  describe "encoding_available?/1" do
+    defmodule Utf8EncodingAvailableResource do
+      use Liberator.Resource
+
+      def available_encodings(_), do: ["UTF-8"]
+    end
+
+    test "disallows UTF-16" do
+      assert not Utf8EncodingAvailableResource.encoding_available?(conn(:get, "/") |> put_req_header("accept-encoding", "UTF-16"))
+    end
+
+    test "returns a map containing the matching encoding" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept-encoding", "UTF-8")
+
+      assert Utf8EncodingAvailableResource.encoding_available?(conn) == %{encoding: "UTF-8"}
+    end
+  end
+
   describe "media_type_available?/1" do
+    defmodule JsonMediaTypeAvailableResource do
+      use Liberator.Resource
+
+      def available_media_types(_), do: ["application/json"]
+    end
+
     test "disallows text/nonexistent-media-type" do
       assert not MyResource.media_type_available?(conn(:get, "/") |> put_req_header("accept", "text/nonexistent-media-type"))
+    end
+
+    test "returns a map containing the matching media type" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept", "application/json")
+
+      assert JsonMediaTypeAvailableResource.media_type_available?(conn) == %{media_type: "application/json"}
     end
   end
 
