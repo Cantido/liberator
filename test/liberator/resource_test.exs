@@ -451,6 +451,21 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "OK"
   end
 
+  test "gets index as JSON" do
+    defmodule JsonResource do
+      use Liberator.Resource
+      @impl true
+      def available_media_types(_), do: ["application/json"]
+    end
+
+    conn = conn(:get, "/") |> put_req_header("accept", "application/json")
+    conn = JsonResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert Jason.decode!(conn.resp_body) == "OK"
+  end
+
   test "returns 503 when service_available? returns false" do
     defmodule UnavailableResource do
       use Liberator.Resource

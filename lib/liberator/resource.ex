@@ -286,7 +286,13 @@ defmodule Liberator.Resource do
           Map.has_key?(@handlers, next_step) ->
             status = @handlers[next_step]
             body = apply(__MODULE__, next_step, [conn])
-            send_resp(conn, status, body)
+
+            encoded_body = case Enum.at(get_req_header(conn, "accept"), 0) do
+              "application/json" -> Jason.encode!(body)
+              _ -> body
+            end
+
+            send_resp(conn, status, encoded_body)
           true ->
             raise "Unknown step #{inspect next_step}"
         end
