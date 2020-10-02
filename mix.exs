@@ -4,10 +4,29 @@ defmodule Liberator.MixProject do
   def project do
     [
       app: :liberator,
-      version: "0.1.0",
+      description: "An Elixir library for building controllers that obey the HTTP spec."
+      version: "1.0.0",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       deps: deps()
+    ]
+  end
+
+  defp package do
+    [
+      maintainers: ["Rosa Richter"],
+      licenses: ["GPL v3"],
+      links: %{"Github" => "https://github.com/Cantido/liberator"}
+    ]
+  end
+
+  def docs do
+    [
+      main: "Liberator",
+      source_url: "https://github.com/Cantido/liberator",
+      extras: [
+        "README.md"
+      ]
     ]
   end
 
