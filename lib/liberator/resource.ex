@@ -938,7 +938,7 @@ defmodule Liberator.Resource do
       plug :start
 
       defp start(conn, opts) do
-        continue(conn, :service_available?, opts)
+        continue(conn, :initialize, opts)
       end
 
       defp continue(conn, next_step, opts) do
@@ -1016,9 +1016,6 @@ defmodule Liberator.Resource do
       def etag(_conn) do
         nil
       end
-
-      @impl true
-      def initialize(_conn), do: nil
 
       @impl true
       def service_available?(_conn), do: true
@@ -1241,6 +1238,9 @@ defmodule Liberator.Resource do
       @impl true
       def multiple_representations?(_conn), do: false
 
+
+      @impl true
+      def initialize(_conn), do: nil
 
       @impl true
       def delete!(_conn) do
