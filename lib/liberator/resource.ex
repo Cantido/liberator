@@ -416,19 +416,19 @@ defmodule Liberator.Resource do
       def moved_temporarily?(_conn), do: false
 
       @impl true
-      def if_match_star_exists_for_missing?(_conn), do: false
+      def if_match_star_exists_for_missing?(conn), do: if_match_star?(conn)
       @impl true
-      def post_to_missing?(_conn), do: true
+      def post_to_missing?(conn), do: method_post?(conn)
       @impl true
-      def post_to_existing?(_conn), do: false
+      def post_to_existing?(conn), do: method_post?(conn)
       @impl true
-      def post_to_gone?(_conn), do: false
+      def post_to_gone?(conn), do: method_post?(conn)
       @impl true
       def can_post_to_missing?(_conn), do: true
       @impl true
       def can_post_to_gone?(_conn), do: false
       @impl true
-      def put_to_existing?(_conn), do: false
+      def put_to_existing?(conn), do: method_put?(conn)
       @impl true
       def can_put_to_missing?(_conn), do: false
       @impl true

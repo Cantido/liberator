@@ -346,6 +346,23 @@ defmodule Liberator.ResourceTest do
     end
   end
 
+  describe "if_match_star_exists_for_missing?" do
+    test "returns true if the if-match * header is present" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("if-match", "*")
+
+      assert MyResource.if_match_star_exists_for_missing?(conn)
+    end
+    test "returns false if the if-match * header is not present" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("if-match", "abcdefg")
+
+      assert not MyResource.if_match_star_exists_for_missing?(conn)
+    end
+  end
+
   describe "if_none_match_exists?" do
     test "returns true if the if-none-match header is present" do
       conn =
@@ -385,6 +402,42 @@ defmodule Liberator.ResourceTest do
   describe "etag_matches_for_if_none?" do
     test "returns false by default" do
       assert not MyResource.etag_matches_for_if_none?(conn(:get, "/"))
+    end
+  end
+
+  describe "post_to_missing?" do
+    test "returns true for POST" do
+      assert MyResource.post_to_missing?(conn(:post, "/"))
+    end
+    test "returns true for GET" do
+      assert not MyResource.post_to_missing?(conn(:get, "/"))
+    end
+  end
+
+  describe "post_to_existing?" do
+    test "returns true for POST" do
+      assert MyResource.post_to_existing?(conn(:post, "/"))
+    end
+    test "returns true for GET" do
+      assert not MyResource.post_to_existing?(conn(:get, "/"))
+    end
+  end
+
+  describe "post_to_gone?" do
+    test "returns true for POST" do
+      assert MyResource.post_to_gone?(conn(:post, "/"))
+    end
+    test "returns true for GET" do
+      assert not MyResource.post_to_gone?(conn(:get, "/"))
+    end
+  end
+
+  describe "put_to_existing?" do
+    test "returns true for PUT" do
+      assert MyResource.put_to_existing?(conn(:put, "/"))
+    end
+    test "returns true for GET" do
+      assert not MyResource.put_to_existing?(conn(:get, "/"))
     end
   end
 
