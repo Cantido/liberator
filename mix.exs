@@ -5,6 +5,8 @@ defmodule Liberator.MixProject do
     [
       app: :liberator,
       description: "An Elixir library for building controllers that obey the HTTP spec.",
+      package: package(),
+      docs: docs(),
       version: "1.0.0",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
