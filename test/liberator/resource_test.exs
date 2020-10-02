@@ -162,6 +162,14 @@ defmodule Liberator.ResourceTest do
 
       assert EnglishOnlyResource.language_available?(conn)
     end
+
+    test "returns a map containing the matching language" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept-language", "en")
+
+      assert EnglishOnlyResource.language_available?(conn) == %{language: "en"}
+    end
   end
 
   describe "accept_charset_exists?/1" do

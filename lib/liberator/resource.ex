@@ -1066,10 +1066,22 @@ defmodule Liberator.Resource do
       @impl true
       def language_available?(conn) do
         available_langs = available_languages(conn)
-        ("*" in available_langs) or
-        Enum.zip(available_langs, get_req_header(conn, "accept-language"))
-        |> Enum.any?(fn {av, req} -> String.starts_with?(req, av) end)
+
+        language =
+          available_langs
+          |> Enum.zip(get_req_header(conn, "accept-language"))
+          |> Enum.filter(fn {av, req} -> String.starts_with?(req, av) or "*" in available_langs end)
+          |> Enum.map(fn {av, req} -> req end)
+          |> Enum.take(1)
+          |> Map.new(fn c -> {:language, c} end)
+
+        if Enum.any?(language) do
+          language
+        else
+          false
+        end
       end
+
       @impl true
       def charset_available?(conn) do
         available_cs = available_charsets(conn)
