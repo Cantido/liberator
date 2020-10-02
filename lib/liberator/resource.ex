@@ -39,8 +39,20 @@ defmodule Liberator.Resource do
   """
   @callback available_languages(Plug.Conn.t) :: list()
 
+  @doc """
+  Returns a list of available response content encodings (AKA compressions).
+
+  By default, only `identity` (no compression) is supported.
+  """
   @callback available_encodings(Plug.Conn.t) :: list()
+
+  @doc """
+  Returns a list of available content charsets.
+
+  By default, only `UTF-8` is supported.
+  """
   @callback available_charsets(Plug.Conn.t) :: list()
+
   @doc """
   Returns the last modified date of your resource.
 
@@ -60,25 +72,128 @@ defmodule Liberator.Resource do
 
   This is the first function called in the entire pipeline,
   and lets you check to make sure everything works before going deeper.
-  Defaults to `true`.
+  If this function returns `false`, then the plug will return a 503 Service Not Available response.
+
+  By default, always returns `true`.
   """
   @callback service_available?(Plug.Conn.t) :: true | false
 
   @doc """
+  Check of the HTTP method in the request is one we know about.
 
+  This is different from `allowed_methods/1` in that this function
+  checks to see if the given HTTP method is an HTTP method at all.
+  You probably want to override `allowed_methods/1` and not this one,
+  unless you're extending HTTP with more verbs.
+
+  If this function returns `false`, then the plug will return a 501 Unknown Method response.
+
+  By default, allows the methods returned by `known_methods/1`.
   """
   @callback known_method?(Plug.Conn.t) :: true | false
+
+  @doc """
+  Checks the length of the URI.
+
+  If this function returns true, then the plug will return a 414 URI Too Long response.
+
+  By default, always returns `false`.
+  """
   @callback uri_too_long?(Plug.Conn.t) :: true | false
+
+  @doc """
+  Check if the server supports the request's HTTP method.
+
+  Override `allowed_methods/1` instead of this function to let this plug perform the check for you.
+
+  By default, allows the methods returned by `allowed_methods/1`.
+  """
   @callback method_allowed?(Plug.Conn.t) :: true | false
+
+  @doc """
+  Check the request for general adherence to some form.
+
+  If this function returns false, then the plug will return a 400 Malformed response.
+
+  If you're checking the body of a request against some schema,
+  you should override `processable?/1` instead.
+
+  By default, always returns `false`.
+  """
   @callback malformed?(Plug.Conn.t) :: true | false
+
+  @doc """
+  Check for presence ofauthentication information in the request.
+
+  Note the difference between `authorized?/1` and `allowed?/1`.
+  This function should just check for the presence of authentication information,
+  not the content of it.
+
+  If you implement this function to return `false`, your response in `handle_unauthorized`
+  must include a `WWW-Authenticate` header field containing a challenge applicable to the requested resource.
+
+  By default, always returns `true`.
+  """
   @callback authorized?(Plug.Conn.t) :: true | false
+
+  @doc """
+  Check the authentication information in the request to see if it has the necessary permissions.
+
+  Note the difference between `authorized?/1` and `allowed?/1`.
+  This function checks if the given request is allowed to perform an action,
+  but isn't responsible for checking the presence of authentication information in the first place.
+
+  By default, always returns `true`.
+  """
   @callback allowed?(Plug.Conn.t) :: true | false
+
+  @doc """
+  Check if the Content-Type of the body is valid.
+
+  By default, always returns `true`.
+  """
   @callback valid_content_header?(Plug.Conn.t) :: true | false
+
+  @doc """
+  Check if the Content-Type of the body is known.
+
+  By default, always returns `true`.
+  """
   @callback known_content_type?(Plug.Conn.t) :: true | false
+
+  @doc """
+  Check if the length of the body is valid.
+
+  By default, always returns `true`.
+  """
   @callback valid_entity_length?(Plug.Conn.t) :: true | false
+
+  @doc """
+  Check if the request method is Options.
+
+  Used internally; it is not advised to override this function.
+  """
   @callback is_options?(Plug.Conn.t) :: true | false
+
+  @doc """
+  Check if the `Accept` header exists.
+
+  Used internally; it is not advised to override this function.
+  """
   @callback accept_exists?(Plug.Conn.t) :: true | false
+
+  @doc """
+  Check if the request media type is available.
+
+  By default, uses the values returned by `available_media_types/1`.
+  """
   @callback media_type_available?(Plug.Conn.t) :: true | false
+
+  @doc """
+  Check if the `Accept-Language` header exists.
+
+  Used internally; it is not advised to override this function.
+  """
   @callback accept_language_exists?(Plug.Conn.t) :: true | false
   @callback language_available?(Plug.Conn.t) :: true | false
   @callback accept_charset_exists?(Plug.Conn.t) :: true | false
