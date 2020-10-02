@@ -236,32 +236,32 @@ defmodule Liberator.Resource do
       }
 
       @handlers %{
-        handle_ok: %{},
-        handle_options: %{},
-        handle_created: %{},
-        handle_accepted: %{},
-        handle_no_content: %{},
-        handle_multiple_representations: %{},
-        handle_moved_permanently: %{},
-        handle_see_other: %{},
-        handle_not_modified: %{},
-        handle_moved_temporarily: %{},
-        handle_malformed: %{},
-        handle_unauthorized: %{},
-        handle_forbidden: %{},
-        handle_not_found: %{},
-        handle_method_not_allowed: %{},
-        handle_not_acceptable: %{},
-        handle_conflict: %{},
-        handle_gone: %{},
-        handle_precondition_failed: %{},
-        handle_request_entity_too_large: %{},
-        handle_uri_too_long: %{},
-        handle_unsupported_media_type: %{},
-        handle_unprocessable_entity: %{},
-        handle_unknown_method: %{},
-        handle_not_implemented: %{},
-        handle_service_unavailable: %{}
+        handle_ok: 200,
+        handle_options: 200,
+        handle_created: 201,
+        handle_accepted: 202,
+        handle_no_content: 204,
+        handle_multiple_representations: 300,
+        handle_moved_permanently: 301,
+        handle_see_other: 303,
+        handle_not_modified: 304,
+        handle_moved_temporarily: 307,
+        handle_malformed: 400,
+        handle_unauthorized: 401,
+        handle_forbidden: 403,
+        handle_not_found: 404,
+        handle_method_not_allowed: 405,
+        handle_not_acceptable: 406,
+        handle_conflict: 409,
+        handle_gone: 410,
+        handle_precondition_failed: 412,
+        handle_request_entity_too_large: 413,
+        handle_uri_too_long: 414,
+        handle_unsupported_media_type: 415,
+        handle_unprocessable_entity: 422,
+        handle_unknown_method: 501,
+        handle_not_implemented: 501,
+        handle_service_unavailable: 503
       }
 
       plug :start
@@ -284,7 +284,9 @@ defmodule Liberator.Resource do
             apply(__MODULE__, next_step, [conn])
             continue(conn, @actions[next_step], opts)
           Map.has_key?(@handlers, next_step) ->
-            apply(__MODULE__, next_step, [conn])
+            status = @handlers[next_step]
+            body = apply(__MODULE__, next_step, [conn])
+            send_resp(conn, status, body)
           true ->
             raise "Unknown step #{inspect next_step}"
         end
@@ -559,132 +561,132 @@ defmodule Liberator.Resource do
 
       @impl true
       def handle_ok(conn) do
-        send_resp(conn, 200, "OK")
+        "OK"
       end
 
       @impl true
       def handle_options(conn) do
-        send_resp(conn, 200, "Options")
+        "Options"
       end
 
       @impl true
       def handle_created(conn) do
-        send_resp(conn, 201, "Created")
+        "Created"
       end
 
       @impl true
       def handle_accepted(conn) do
-        send_resp(conn, 202, "Accepted")
+        "Accepted"
       end
 
       @impl true
       def handle_no_content(conn) do
-        send_resp(conn, 204, "No Content")
+        "No Content"
       end
 
       @impl true
       def handle_multiple_representations(conn) do
-        send_resp(conn, 300, "Multiple Representations")
+        "Multiple Representations"
       end
 
       @impl true
       def handle_moved_permanently(conn) do
-        send_resp(conn, 301, "Moved Permanently")
+        "Moved Permanently"
       end
 
       @impl true
       def handle_see_other(conn) do
-        send_resp(conn, 303, "See Other")
+        "See Other"
       end
 
       @impl true
       def handle_not_modified(conn) do
-        send_resp(conn, 304, "Not Modified")
+        "Not Modified"
       end
 
       @impl true
       def handle_moved_temporarily(conn) do
-        send_resp(conn, 307, "Moved Temporarily")
+        "Moved Temporarily"
       end
 
       @impl true
       def handle_malformed(conn) do
-        send_resp(conn, 400, "Malformed")
+        "Malformed"
       end
 
       @impl true
       def handle_unauthorized(conn) do
-        send_resp(conn, 401, "Unauthorized")
+        "Unauthorized"
       end
 
       @impl true
       def handle_forbidden(conn) do
-        send_resp(conn, 403, "Forbidden")
+        "Forbidden"
       end
 
       @impl true
       def handle_not_found(conn) do
-        send_resp(conn, 404, "Not Found")
+        "Not Found"
       end
 
       @impl true
       def handle_method_not_allowed(conn) do
-        send_resp(conn, 405, "Method Not Allowed")
+        "Method Not Allowed"
       end
 
       @impl true
       def handle_not_acceptable(conn) do
-        send_resp(conn, 406, "Not Acceptable")
+        "Not Acceptable"
       end
 
       @impl true
       def handle_conflict(conn) do
-        send_resp(conn, 409, "Conflict")
+        "Conflict"
       end
 
       @impl true
       def handle_gone(conn) do
-        send_resp(conn, 410, "Gone")
+        "Gone"
       end
 
       @impl true
       def handle_precondition_failed(conn) do
-        send_resp(conn, 412, "Precondition Failed")
+        "Precondition Failed"
       end
 
       @impl true
       def handle_request_entity_too_large(conn) do
-        send_resp(conn, 413, "Request Entity Too Large")
+        "Request Entity Too Large"
       end
 
       @impl true
       def handle_uri_too_long(conn) do
-        send_resp(conn, 414, "URI Too Long")
+        "URI Too Long"
       end
 
       @impl true
       def handle_unsupported_media_type(conn) do
-        send_resp(conn, 415, "Unsupported Media Type")
+        "Unsupported Media Type"
       end
 
       @impl true
       def handle_unprocessable_entity(conn) do
-        send_resp(conn, 422, "Unprocessable Entity")
+        "Unprocessable Entity"
       end
 
       @impl true
       def handle_not_implemented(conn) do
-        send_resp(conn, 501, "Not Implemented")
+        "Not Implemented"
       end
 
       @impl true
       def handle_unknown_method(conn) do
-        send_resp(conn, 501, "Unknown Method")
+        "Unknown Method"
       end
 
       @impl true
       def handle_service_unavailable(conn) do
-        send_resp(conn, 503, "Service Unavailable")
+        "Service Unavailable"
       end
 
       defoverridable Liberator.Resource
