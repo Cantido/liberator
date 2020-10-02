@@ -1,5 +1,8 @@
 # Liberator
 
+![Hex.pm](https://img.shields.io/hexpm/v/liberator)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Cantido/liberator/Elixir%20CI)
+
 An Elixir port of the [Liberator](https://clojure-liberator.github.io/liberator/) Clojure library for building RESTful applications.
 
 You can find documentation at https://hexdocs.pm/liberator/.
