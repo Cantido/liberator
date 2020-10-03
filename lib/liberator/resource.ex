@@ -984,7 +984,7 @@ defmodule Liberator.Resource do
 
       @impl true
       def available_media_types(_conn) do
-        []
+        ["text/plain"]
       end
 
       @impl true
