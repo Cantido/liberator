@@ -964,13 +964,13 @@ defmodule Liberator.Resource do
   @doc since: "1.0"
   @callback handle_service_unavailable(Plug.Conn.t) :: Plug.Conn.t
 
-  defmacro __using__(_opts) do
+  defmacro __using__(usage_opts) do
     quote do
       use Plug.Builder
       alias Liberator.ContentNegotiation, as: ConNeg
       @behaviour Liberator.Resource
 
-      plug Liberator.Evaluator, module: __MODULE__
+      plug Liberator.Evaluator, Keyword.merge([module: __MODULE__], unquote(usage_opts))
 
       @impl true
       def allowed_methods(_conn) do

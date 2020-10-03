@@ -105,29 +105,42 @@ defmodule Liberator.Evaluator do
 
   def init(opts), do: opts
 
-  def call(conn, [module: module]) do
-    continue(conn, module, :initialize)
+  def call(conn, opts) do
+    module = Keyword.get(opts, :module)
+    continue(conn, module, :initialize, opts)
   end
 
-  defp continue(conn, module, next_step) do
+  defp continue(conn, module, next_step, opts) do
     cond do
       Map.has_key?(@decisions, next_step) ->
         {true_step, false_step} = @decisions[next_step]
         if result = apply(module, next_step, [conn]) do
           conn = merge_map_assigns(conn, result)
           conn = Trace.update_trace(conn, next_step, result)
-          continue(conn, module, true_step)
+          continue(conn, module, true_step, opts)
         else
           conn = Trace.update_trace(conn, next_step, result)
-          continue(conn, module, false_step)
+          continue(conn, module, false_step, opts)
         end
       Map.has_key?(@actions, next_step) ->
         conn = Trace.update_trace(conn, next_step, nil)
 
         apply(module, next_step, [conn])
-        continue(conn, module, @actions[next_step])
+        continue(conn, module, @actions[next_step], opts)
       Map.has_key?(@handlers, next_step) ->
         conn = Trace.update_trace(conn, next_step, nil)
+
+        conn = if Keyword.get(opts, :trace) == :headers do
+          trace =
+            Trace.get_trace(conn)
+            |> Enum.map(fn {key, val} ->
+              {"X-Liberator-Trace", "#{Atom.to_string(key)}: #{val}"}
+            end)
+
+          prepend_resp_headers(conn, trace)
+        else
+          conn
+        end
 
         status = @handlers[next_step]
         body = apply(module, next_step, [conn])
