@@ -102,6 +102,11 @@ defmodule Liberator.Evaluator do
     handle_not_implemented: 501,
     handle_service_unavailable: 503
   }
+  
+  @default_codecs %{
+    "text/plain" => Liberator.TextPlainCodec,
+    "application/json" => Jason
+  }
 
   def init(opts), do: opts
 
@@ -132,14 +137,23 @@ defmodule Liberator.Evaluator do
         status = @handlers[next_step]
         body = apply(module, next_step, [conn])
 
-        encoded_body = case conn.assigns[:media_type] do
-          "application/json" -> Jason.encode!(body)
-          _ -> body
-        end
+        codec =
+          Map.get(conn.assigns, :media_type, "text/plain")
+          |> get_codec()
+        encoded_body = codec.encode!(body)
 
         send_resp(conn, status, encoded_body)
       true ->
         raise "Unknown step #{inspect next_step}"
+    end
+  end
+
+  defp get_codec(media_type) do
+    Application.get_env(:liberator, :codecs, @default_codecs)
+    |> Map.get(media_type)
+    |> case do
+      nil -> raise "No codec found for media type #{media_type}. Add a codec module to the :parsers map under the :liberator config in config.exs."
+      codec -> codec
     end
   end
 
