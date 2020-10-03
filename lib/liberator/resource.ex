@@ -999,7 +999,7 @@ defmodule Liberator.Resource do
 
       @impl true
       def available_encodings(_conn) do
-        ["identity"]
+        ["gzip", "deflate", "identity"]
       end
 
       @impl true

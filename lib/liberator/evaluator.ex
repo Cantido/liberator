@@ -145,12 +145,16 @@ defmodule Liberator.Evaluator do
         status = @handlers[next_step]
         body = apply(module, next_step, [conn])
 
-        codec =
-          Map.get(conn.assigns, :media_type, "text/plain")
-          |> get_codec()
+        content_type = Map.get(conn.assigns, :media_type, "text/plain")
+        codec = get_codec(content_type)
         encoded_body = codec.encode!(body)
+        conn = put_resp_header(conn, "content-type", content_type)
 
-        send_resp(conn, status, encoded_body)
+        content_encoding = Map.get(conn.assigns, :encoding, "identity")
+        compressed_body = compress(encoded_body, content_encoding)
+        conn = put_resp_header(conn, "content-encoding", content_encoding)
+
+        send_resp(conn, status, compressed_body)
       true ->
         raise "Unknown step #{inspect next_step}"
     end
@@ -163,6 +167,22 @@ defmodule Liberator.Evaluator do
       nil -> raise "No codec found for media type #{media_type}. Add a codec module to the :parsers map under the :liberator config in config.exs."
       codec -> codec
     end
+  end
+
+  defp compress(body, "identity") do
+    body
+  end
+
+  defp compress(body, "deflate") do
+    z = :zlib.open()
+    :zlib.deflateInit(z)
+    b = :zlib.deflate(z, :binary.bin_to_list(body), :finish)
+    :zlib.deflateEnd(z)
+    IO.iodata_to_binary(b)
+  end
+
+  defp compress(body, "gzip") do
+    :zlib.gzip(:binary.bin_to_list(body))
   end
 
   defp merge_map_assigns(conn, result) do
