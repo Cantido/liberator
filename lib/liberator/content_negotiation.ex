@@ -2,7 +2,7 @@ defmodule Liberator.ContentNegotiation do
   import Plug.Conn
   @moduledoc false
 
-  def accept_something(conn, key, header_name, available_values) do
+  def accept_something(conn, key, header_name, available_values, wildcard \\ "*") do
     vals =
       get_req_header(conn, header_name)
       |> Enum.flat_map(&String.split(&1, ","))
@@ -15,7 +15,7 @@ defmodule Liberator.ContentNegotiation do
       end)
       |> product(available_values)
       |> Enum.filter(fn {{req, _params}, av} ->
-        req == av or "*" in available_values
+        req == av or req == wildcard or av == wildcard
       end)
       |> Enum.map(fn {req, _av} -> req end)
 
@@ -30,7 +30,13 @@ defmodule Liberator.ContentNegotiation do
             _ -> 0.0
           end
         end)
-      Map.new([{key, type}])
+
+      if type == wildcard do
+        default_type = Enum.at(available_values, 0)
+        Map.new([{key, default_type}])
+      else
+        Map.new([{key, type}])
+      end
     else
       false
     end

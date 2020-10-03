@@ -1068,7 +1068,7 @@ defmodule Liberator.Resource do
 
       @impl true
       def media_type_available?(conn) do
-        ConNeg.accept_something(conn, :media_type, "accept", available_media_types(conn))
+        ConNeg.accept_something(conn, :media_type, "accept", available_media_types(conn), "*/*")
       end
       @impl true
       def language_available?(conn) do
