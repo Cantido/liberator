@@ -967,6 +967,7 @@ defmodule Liberator.Resource do
   defmacro __using__(_opts) do
     quote do
       use Plug.Builder
+      alias Liberator.ContentNegotiation, as: ConNeg
       @behaviour Liberator.Resource
 
       plug Liberator.Evaluator, module: __MODULE__
@@ -1067,36 +1068,20 @@ defmodule Liberator.Resource do
 
       @impl true
       def media_type_available?(conn) do
-        accept_something(conn, :media_type, "accept", available_media_types(conn))
+        ConNeg.accept_something(conn, :media_type, "accept", available_media_types(conn))
       end
       @impl true
       def language_available?(conn) do
-        accept_something(conn, :language, "accept-language", available_languages(conn))
+        ConNeg.accept_something(conn, :language, "accept-language", available_languages(conn))
       end
 
       @impl true
       def charset_available?(conn) do
-        accept_something(conn, :charset, "accept-charset", available_charsets(conn))
+        ConNeg.accept_something(conn, :charset, "accept-charset", available_charsets(conn))
       end
       @impl true
       def encoding_available?(conn) do
-        accept_something(conn, :encoding, "accept-encoding", available_encodings(conn))
-      end
-
-      defp accept_something(conn, key, header_name, available_values) do
-        val =
-          available_values
-          |> Enum.zip(get_req_header(conn, header_name))
-          |> Enum.filter(fn {av, req} -> String.starts_with?(req, av) or "*" in available_values end)
-          |> Enum.map(fn {av, req} -> req end)
-          |> Enum.take(1)
-          |> Map.new(fn c -> {key, c} end)
-
-        if Enum.any?(val) do
-          val
-        else
-          false
-        end
+        ConNeg.accept_something(conn, :encoding, "accept-encoding", available_encodings(conn))
       end
 
       @impl true
