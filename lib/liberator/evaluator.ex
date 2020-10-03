@@ -102,11 +102,6 @@ defmodule Liberator.Evaluator do
     handle_not_implemented: 501,
     handle_service_unavailable: 503
   }
-  
-  @default_codecs %{
-    "text/plain" => Liberator.TextPlainCodec,
-    "application/json" => Jason
-  }
 
   def init(opts), do: opts
 
@@ -149,7 +144,7 @@ defmodule Liberator.Evaluator do
   end
 
   defp get_codec(media_type) do
-    Application.get_env(:liberator, :codecs, @default_codecs)
+    Application.get_env(:liberator, :codecs, %{})
     |> Map.get(media_type)
     |> case do
       nil -> raise "No codec found for media type #{media_type}. Add a codec module to the :parsers map under the :liberator config in config.exs."
