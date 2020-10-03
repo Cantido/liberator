@@ -555,6 +555,46 @@ defmodule Liberator.ResourceTest do
     end
   end
 
+  test "traces decisions" do
+    conn = conn(:get, "/")
+
+    conn = MyResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "OK"
+    assert conn.private.liberator_trace == [
+      initialize: nil,
+      service_available?: true,
+      known_method?: true,
+      uri_too_long?: false,
+      method_allowed?: true,
+      malformed?: false,
+      authorized?: true,
+      allowed?: true,
+      valid_content_header?: true,
+      known_content_type?: true,
+      valid_entity_length?: true,
+      is_options?: false,
+      accept_exists?: false,
+      accept_language_exists?: false,
+      accept_charset_exists?: false,
+      accept_encoding_exists?: false,
+      processable?: true,
+      exists?: true,
+      if_match_exists?: false,
+      if_unmodified_since_exists?: false,
+      if_none_match_exists?: false,
+      if_modified_since_exists?: false,
+      method_delete?: false,
+      method_patch?: false,
+      post_to_existing?: false,
+      put_to_existing?: false,
+      multiple_representations?: false,
+      handle_ok: nil
+    ]
+  end
+
   test "gets index" do
     conn = conn(:get, "/")
 

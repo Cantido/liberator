@@ -1,5 +1,7 @@
 defmodule Liberator.Resource do
+  alias Liberator.Trace
   use Plug.Builder
+
   @moduledoc """
   A controller module that understands and respects the HTTP spec.
 
@@ -1080,14 +1082,20 @@ defmodule Liberator.Resource do
             {true_step, false_step} = @decisions[next_step]
             if result = apply(__MODULE__, next_step, [conn]) do
               conn = merge_map_assigns(conn, result)
+              conn = Trace.update_trace(conn, next_step, result)
               continue(conn, true_step, opts)
             else
+              conn = Trace.update_trace(conn, next_step, result)
               continue(conn, false_step, opts)
             end
           Map.has_key?(@actions, next_step) ->
+            conn = Trace.update_trace(conn, next_step, nil)
+
             apply(__MODULE__, next_step, [conn])
             continue(conn, @actions[next_step], opts)
           Map.has_key?(@handlers, next_step) ->
+            conn = Trace.update_trace(conn, next_step, nil)
+
             status = @handlers[next_step]
             body = apply(__MODULE__, next_step, [conn])
 
