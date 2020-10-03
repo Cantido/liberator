@@ -1,7 +1,12 @@
 import Config
 
 config :liberator,
-  codecs: %{
-    "text/plain" => Liberator.TextPlainCodec,
+  media_types: %{
+    "text/plain" => Liberator.MediaType.TextPlainCodec,
     "application/json" => Jason
+  },
+  encodings: %{
+    "identity" => Liberator.Encoding.Identity,
+    "deflate" => Liberator.Encoding.Deflate,
+    "gzip" => Liberator.Encoding.Gzip
   }

@@ -103,6 +103,17 @@ defmodule Liberator.Evaluator do
     handle_service_unavailable: 503
   }
 
+  @mediatype_codecs %{
+    "text/plain" => Liberator.MediaType.TextPlainCodec,
+    "application/json" => Jason
+  }
+
+  @compression_codecs %{
+    "identity" => Liberator.Encoding.Identity,
+    "deflate" => Liberator.Encoding.Deflate,
+    "gzip" => Liberator.Encoding.Gzip
+  }
+
   def init(opts), do: opts
 
   def call(conn, opts) do
@@ -146,12 +157,13 @@ defmodule Liberator.Evaluator do
         body = apply(module, next_step, [conn])
 
         content_type = Map.get(conn.assigns, :media_type, "text/plain")
-        codec = get_codec(content_type)
-        encoded_body = codec.encode!(body)
+        mediatype_codec = get_mediatype_codec(content_type)
+        encoded_body = mediatype_codec.encode!(body)
         conn = put_resp_header(conn, "content-type", content_type)
 
         content_encoding = Map.get(conn.assigns, :encoding, "identity")
-        compressed_body = compress(encoded_body, content_encoding)
+        compression_codec = get_compression_codec(content_encoding)
+        compressed_body = compression_codec.encode!(encoded_body)
         conn = put_resp_header(conn, "content-encoding", content_encoding)
 
         send_resp(conn, status, compressed_body)
@@ -160,29 +172,26 @@ defmodule Liberator.Evaluator do
     end
   end
 
-  defp get_codec(media_type) do
-    Application.get_env(:liberator, :codecs, %{})
+  defp get_mediatype_codec(media_type) do
+    Application.get_env(:liberator, :media_types, @mediatype_codecs)
     |> Map.get(media_type)
     |> case do
-      nil -> raise "No codec found for media type #{media_type}. Add a codec module to the :parsers map under the :liberator config in config.exs."
+      nil ->
+        raise "No codec found for media type #{media_type}. " <>
+          " Add a codec module to the :media_types map under the :liberator config in config.exs."
       codec -> codec
     end
   end
 
-  defp compress(body, "identity") do
-    body
-  end
-
-  defp compress(body, "deflate") do
-    z = :zlib.open()
-    :zlib.deflateInit(z)
-    b = :zlib.deflate(z, :binary.bin_to_list(body), :finish)
-    :zlib.deflateEnd(z)
-    IO.iodata_to_binary(b)
-  end
-
-  defp compress(body, "gzip") do
-    :zlib.gzip(:binary.bin_to_list(body))
+  defp get_compression_codec(encoding) do
+    Application.get_env(:liberator, :encodings, @compression_codecs)
+    |> Map.get(encoding)
+    |> case do
+      nil ->
+        raise "No codec found for encoding #{encoding}. " <>
+          "Add a codec module to the :encodings map under the :liberator config in config.exs."
+      codec -> codec
+    end
   end
 
   defp merge_map_assigns(conn, result) do

@@ -1,4 +1,4 @@
-defmodule Liberator.TextPlainCodec do
+defmodule Liberator.MediaType.TextPlainCodec do
   def encode!(str), do: str
   def decode!(str), do: str
 end
