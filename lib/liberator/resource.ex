@@ -967,7 +967,6 @@ defmodule Liberator.Resource do
   defmacro __using__(_opts) do
     quote do
       use Plug.Builder
-      use Timex
       @behaviour Liberator.Resource
 
       plug Liberator.Evaluator, module: __MODULE__
