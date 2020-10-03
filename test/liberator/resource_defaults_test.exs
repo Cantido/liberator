@@ -154,14 +154,6 @@ defmodule Liberator.ResourceDefaultsTest do
       refute EnglishOnlyResource.language_available?(conn)
     end
 
-    test "returns true if available languages contains something matching the accept-language header" do
-      conn =
-        conn(:get, "/")
-        |> put_req_header("accept-language", "en-GB")
-
-      assert EnglishOnlyResource.language_available?(conn)
-    end
-
     test "returns a map containing the matching language" do
       conn =
         conn(:get, "/")
@@ -221,7 +213,7 @@ defmodule Liberator.ResourceDefaultsTest do
     defmodule JsonMediaTypeAvailableResource do
       use Liberator.Resource
 
-      def available_media_types(_), do: ["application/json"]
+      def available_media_types(_), do: ["application/json", "text/html"]
     end
 
     test "disallows text/nonexistent-media-type" do
@@ -232,6 +224,38 @@ defmodule Liberator.ResourceDefaultsTest do
       conn =
         conn(:get, "/")
         |> put_req_header("accept", "application/json")
+
+      assert JsonMediaTypeAvailableResource.media_type_available?(conn) == %{media_type: "application/json"}
+    end
+
+    test "returns a map containing the matching media type with the highest q" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept", "application/json;q=1.0, text/html;q=0.8")
+
+      assert JsonMediaTypeAvailableResource.media_type_available?(conn) == %{media_type: "application/json"}
+    end
+
+    test "returns a map containing the matching media type with the highest q even if they're out of order" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept", "text/html;q=0.8, application/json;q=1.0")
+
+      assert JsonMediaTypeAvailableResource.media_type_available?(conn) == %{media_type: "application/json"}
+    end
+
+    test "values with plus modifiers aren't the same" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept", "text/html;q=0.8, application/json+myspecialschema;q=1.0")
+
+      assert JsonMediaTypeAvailableResource.media_type_available?(conn) == %{media_type: "text/html"}
+    end
+
+    test "values with no q are the highest ranked" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept", "text/html;q=0.8, application/json")
 
       assert JsonMediaTypeAvailableResource.media_type_available?(conn) == %{media_type: "application/json"}
     end
