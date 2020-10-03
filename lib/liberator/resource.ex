@@ -50,14 +50,35 @@ defmodule Liberator.Resource do
   If the client has an accept header that does not match a value from these lists,
   the plug will return a `406 Not Acceptable` response, and call `c:handle_not_acceptable/1`.
 
-  | Function                    | Default           |
-  |-----------------------------|-------------------|
-  | `c:allowed_methods/1`       | `["GET", "HEAD"]` |
+  | Function                    | Default                             |
+  |-----------------------------|-------------------------------------|
+  | `c:allowed_methods/1`       | `["GET", "HEAD"]`                   |
   | `c:known_methods/1`         | `["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", "PATCH", "TRACE"]` |
-  | `c:available_media_types/1` | `[]`              |
-  | `c:available_languages/1`   | `["*"]`           |
-  | `c:available_charsets/1`    | `["UTF-8"]`       |
-  | `c:available_encodings/1`   | `["identity"]`    |
+  | `c:available_media_types/1` | `["text/plain", "application/json"]`|
+  | `c:available_languages/1`   | `["*"]`                             |
+  | `c:available_charsets/1`    | `["UTF-8"]`                         |
+  | `c:available_encodings/1`   | `["gzip", "deflate","identity"]`    |
+
+  Liberator supports a few basic defaults to help you get up and running.
+  It uses `Jason` for `application/json` media responses,
+  but you can override that, along with the compression handlers.
+  Just include your custom codecs in `config.exs` under the `:liberator` key.
+  Media type codecs go under `:media_types`, and compression goes under `:encodings`.
+  Here's the default as an example:
+
+      config :liberator,
+        media_types: %{
+          "text/plain" => Liberator.MediaType.TextPlainCodec,
+          "application/json" => Jason
+        },
+        encodings: %{
+          "identity" => Liberator.Encoding.Identity,
+          "deflate" => Liberator.Encoding.Deflate,
+          "gzip" => Liberator.Encoding.Gzip
+        }
+
+  As long as your codec module implements an `encode!/1` function that accepts and returns a response body,
+  Liberator will call it at the right place in the pipeline.
 
   ## Preconditions
 
