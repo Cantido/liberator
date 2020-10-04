@@ -1,4 +1,11 @@
 defmodule Liberator.Encoding.Deflate do
+  @behaviour Liberator.Codec
+
+  @moduledoc """
+  An implementation of the `deflate` compression used in HTTP.
+  """
+
+  @impl true
   def encode!(body) do
     z = :zlib.open()
     :zlib.deflateInit(z)
