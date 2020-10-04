@@ -79,7 +79,7 @@ by adding `liberator` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:liberator, "~> 1.0.0"}
+    {:liberator, "~> 1.1.0"}
   ]
 end
 ```
