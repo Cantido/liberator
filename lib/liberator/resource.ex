@@ -12,7 +12,6 @@ defmodule Liberator.Resource do
       defmodule MyFirstResource do
         use Liberator.Resource
 
-        def available_media_types(_), do: ["text/plain"]
         def handle_ok(_), do: "Hello world!"
       end
 
@@ -79,6 +78,16 @@ defmodule Liberator.Resource do
 
   As long as your codec module implements an `encode!/1` function that accepts and returns a response body,
   Liberator will call it at the right place in the pipeline.
+  Implement the `Liberator.Codec` behaviour for some compile-time assurance that you've implemented the correct function.
+
+      defmodule MyXmlCodec do
+        @behaviour Liberator.Codec
+
+        @impl true
+        def encode!(body) do
+          # your cool new functionality here
+        end
+      end
 
   ## Preconditions
 
@@ -217,6 +226,18 @@ defmodule Liberator.Resource do
   | `c:post_to_missing?/1`                   | Checks if the request method is `POST` for resources that do not exist.        |
   | `c:put_to_existing?/1`                   | Checks if the request method is `PUT` for a resource that exists.              |
 
+  ## Debugging
+
+  Set the `:trace` option in your `use` statement to `:headers` so you can
+  get a full trace of all the decisions that were made during the execution of a request.
+
+      defmodule MyFirstResource do
+        use Liberator.Resource, trace: :headers
+
+        def handle_ok(_), do: "Hello world!"
+      end
+
+  This will add a header called `x-liberator-trace` that will show you the entire set of decisions, in the order they were made.
 
   """
 
