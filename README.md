@@ -8,7 +8,7 @@ An Elixir port of the [Liberator](https://clojure-liberator.github.io/liberator/
 You can find documentation at https://hexdocs.pm/liberator/.
 
 Liberator allows you to define a controller that adheres to the HTTP spec by providing just a few pieces of information.
-For a basic `GET` endpoint. you can define the entire module in five lines of code:
+For a basic `GET` endpoint, you can define an entire module in five lines of code:
 
 ```elixir
 defmodule MyFirstResource do
@@ -29,6 +29,47 @@ scope "/", MyApp do
   forward "/api/resource", MyFirstResource
 end
 ```
+
+Content negotiation and representation becomes easy.
+Liberator finds the best media type you support,
+and automatically encodes your return value.
+JSON is supported out of the box, and any additional types
+can be provided in a line of the config.
+
+```elixir
+# in config.exs
+config :liberator, media_types: %{
+  "application/json" => Jason,
+  "application/xml" => MyXmlCodec
+}
+
+# in your main body of code
+defmodule MyJsonOrXmlResource do
+  use Liberator.Resource
+
+  def available_media_types(_), do: ["application/json", "application/xml"]
+  def handle_ok(_), do: %{message: "hi!"}
+end
+```
+
+Your results from questions are aggregated into the `:assigns` map on the conn,
+so you don't have to access data more than once.
+
+```elixir
+defmodule MaybeExistingResource do
+  use Liberator.Resource
+
+  def exists?(conn) do
+    case MyApp.Repo.get(MyApp.Post, conn.params["id"]) do
+      nil -> false
+      post -> %{post: post}
+    end
+  end
+  def handle_ok(conn), do: conn.assigns[:post]
+end
+```
+
+See more in the [documentation for `Liberator.Resource`](https://hexdocs.pm/liberator/Liberator.Resource.html).
 
 ## Installation
 
