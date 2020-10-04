@@ -24,10 +24,29 @@ defmodule Liberator.MixProject do
 
   def docs do
     [
-      main: "Liberator",
+      main: "Liberator.Resource",
       source_url: "https://github.com/Cantido/liberator",
       extras: [
         "README.md"
+      ],
+      groups_for_modules: [
+        # Ungrouped:
+        #
+        # Liberator
+        # Liberator.Evaluator
+        # Liberator.Resource
+
+        "Content Negotiation": [
+          Liberator.Codec,
+          Liberator.ContentNegotiation,
+          Liberator.Encoding.Deflate,
+          Liberator.Encoding.Gzip,
+          Liberator.Encoding.Identity,
+          Liberator.MediaType.TextPlainCodec,
+        ],
+        "Debugging": [
+          Liberator.Trace
+        ]
       ]
     ]
   end
