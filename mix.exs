@@ -17,7 +17,7 @@ defmodule Liberator.MixProject do
   defp package do
     [
       maintainers: ["Rosa Richter"],
-      licenses: ["GPL v3"],
+      licenses: ["MIT"],
       links: %{"Github" => "https://github.com/Cantido/liberator"}
     ]
   end
