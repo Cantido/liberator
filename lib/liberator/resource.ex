@@ -143,6 +143,7 @@ defmodule Liberator.Resource do
   | `c:handle_uri_too_long/1`                   | 414 |
   | `c:handle_unsupported_media_type/1`         | 415 |
   | `c:handle_unprocessable_entity/1`           | 422 |
+  | `c:handle_unavailable_for_legal_reasons/1`  | 451 |
   | `c:handle_unknown_method/1`                 | 501 |
   | `c:handle_not_implemented/1`                | 501 |
   | `c:handle_service_unavailable/1`            | 503 |
@@ -192,6 +193,7 @@ defmodule Liberator.Resource do
   | `c:put_to_different_url?/1` | Should the `PUT` request be made to a different URL?                                | false |
   | `c:processable?/1`          | Is the request body processable?                                                    | true |
   | `c:service_available?/1`    | Is the service available?                                                           | true |
+  | `c:unavailable_for_legal_reasons?/1` | Is the resource not available, for legal reasons?                          | false |
   | `c:uri_too_long?/1`         | Is the request URI too long?                                                        | false |
   | `c:valid_content_header?/1` | Is the `Content-Type` of the body valid?                                            | true |
   | `c:valid_entity_length?/1`  | Is the length of the body valid?                                                    | true |
