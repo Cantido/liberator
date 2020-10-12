@@ -185,10 +185,10 @@ defmodule Liberator.Resource do
   | `c:moved_permanently?/1`    | Was the resource moved permanently?                                                 | false |
   | `c:moved_temporarily?/1`    | Was the resource moved temporarily?                                                 | false |
   | `c:multiple_representations?/1` | Are there multiple representations for this resource?                           | false |
+  | `c:new?/1`                  | Was the resource created by this request?                                           | true |
   | `c:post_enacted?/1`         | Was the `POST` request finally processed?                                           | true |
   | `c:put_enacted?/1`          | Was the `PUT` request finally processed?                                            | true |
   | `c:patch_enacted?/1`        | Was the `PATCH` request finally processed?                                          | true |
-  | `c:new?/1`                  | Was the resource created by this request?                                           | true |
   | `c:post_redirect?/1`        | Should the response redirect after a `POST`?                                        | false |
   | `c:put_to_different_url?/1` | Should the `PUT` request be made to a different URL?                                | false |
   | `c:processable?/1`          | Is the request body processable?                                                    | true |
