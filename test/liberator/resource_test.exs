@@ -33,6 +33,7 @@ defmodule Liberator.ResourceTest do
       accept_charset_exists?: false,
       accept_encoding_exists?: false,
       processable?: true,
+      unavailable_for_legal_reasons?: false,
       exists?: true,
       if_match_exists?: false,
       if_unmodified_since_exists?: false,
@@ -319,6 +320,21 @@ defmodule Liberator.ResourceTest do
     assert conn.state == :sent
     assert conn.status == 422
     assert conn.resp_body == "Unprocessable Entity"
+  end
+
+  test "returns 451 when unavailable_for_legal_reasons? returns true" do
+    defmodule UnavailableForLegalReasonsResource do
+      use Liberator.Resource
+      @impl true
+      def unavailable_for_legal_reasons?(_conn), do: true
+    end
+
+    conn = conn(:get, "/")
+    conn = UnavailableForLegalReasonsResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 451
+    assert conn.resp_body == "Unavailable for Legal Reasons"
   end
 
   test "returns 404 if entity does not exist" do

@@ -560,6 +560,17 @@ defmodule Liberator.Resource do
   @callback moved_temporarily?(Plug.Conn.t) :: true | false
 
   @doc """
+  Check if the resource is no longer available, for legal reasons.
+
+  If this function returns `true`,
+  then the plug will return a 451 Unavailable for Legal Reasons response.
+
+  By default, always returns `false`.
+  """
+  @doc since: "1.2"
+  @callback unavailable_for_legal_reasons?(Plug.Conn.t) :: true | false
+
+  @doc """
   Check if the request method is `POST` for resources that do not exist anymore.
 
   Used internally; it is not advised to override this function.
@@ -989,6 +1000,14 @@ defmodule Liberator.Resource do
   @callback handle_unprocessable_entity(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
+  Returns content for a `451 Unavailable for Legal Reasons` response.
+
+  For more information on this response type, see [RFC 7725](https://tools.ietf.org/html/rfc7725).
+  """
+  @doc since: "1.2"
+  @callback handle_unavailable_for_legal_reasons(Plug.Conn.t) :: Plug.Conn.t
+
+  @doc """
   Returns content for a `501 Unknown Method` response.
   """
   @doc since: "1.0"
@@ -1136,6 +1155,8 @@ defmodule Liberator.Resource do
       def moved_permanently?(_conn), do: false
       @impl true
       def moved_temporarily?(_conn), do: false
+      @impl true
+      def unavailable_for_legal_reasons?(_conn), do: false
 
       @impl true
       def if_match_star_exists_for_missing?(conn), do: if_match_star?(conn)
@@ -1397,6 +1418,11 @@ defmodule Liberator.Resource do
       @impl true
       def handle_unprocessable_entity(conn) do
         "Unprocessable Entity"
+      end
+
+      @impl true
+      def handle_unavailable_for_legal_reasons(_conn) do
+        "Unavailable for Legal Reasons"
       end
 
       @impl true

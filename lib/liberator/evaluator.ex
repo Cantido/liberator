@@ -24,7 +24,8 @@ defmodule Liberator.Evaluator do
     charset_available?: {:accept_encoding_exists?, :handle_not_acceptable},
     accept_encoding_exists?: {:encoding_available?, :processable?},
     encoding_available?: {:processable?, :handle_not_acceptable},
-    processable?: {:exists?, :handle_unprocessable_entity},
+    processable?: {:unavailable_for_legal_reasons?, :handle_unprocessable_entity},
+    unavailable_for_legal_reasons?: {:handle_unavailable_for_legal_reasons, :exists?},
     exists?: {:if_match_exists?, :if_match_star_exists_for_missing?},
     if_match_exists?: {:if_match_star?, :if_unmodified_since_exists?},
     if_match_star?: {:if_unmodified_since_exists?, :etag_matches_for_if_match?},
@@ -98,6 +99,7 @@ defmodule Liberator.Evaluator do
     handle_uri_too_long: 414,
     handle_unsupported_media_type: 415,
     handle_unprocessable_entity: 422,
+    handle_unavailable_for_legal_reasons: 451,
     handle_unknown_method: 501,
     handle_not_implemented: 501,
     handle_service_unavailable: 503
