@@ -24,6 +24,7 @@ defmodule Liberator.ResourceTest do
       malformed?: false,
       authorized?: true,
       allowed?: true,
+      too_many_requests?: false,
       valid_content_header?: true,
       known_content_type?: true,
       valid_entity_length?: true,
@@ -320,6 +321,88 @@ defmodule Liberator.ResourceTest do
     assert conn.state == :sent
     assert conn.status == 422
     assert conn.resp_body == "Unprocessable Entity"
+  end
+
+  test "returns 429 when too_many_requests? returns true" do
+    defmodule RateLimitedResource do
+      use Liberator.Resource
+      @impl true
+      def too_many_requests?(_conn), do: true
+    end
+
+    conn = conn(:get, "/")
+    conn = RateLimitedResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 429
+    assert conn.resp_body == "Too Many Requests"
+  end
+
+  test "sets retry-after header of resource if too_many_requests returns %{retry_after: %DateTime{}}" do
+    defmodule RateLimitedUntilOctoberResource do
+      use Liberator.Resource
+      @impl true
+      def too_many_requests?(_conn), do: %{retry_after: ~U[2020-10-12 17:06:00Z]}
+    end
+
+    conn = conn(:get, "/")
+    conn = RateLimitedUntilOctoberResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 429
+    assert conn.resp_body == "Too Many Requests"
+    assert "Mon, 12 Oct 2020 17:06:00 GMT" in get_resp_header(conn, "retry-after")
+  end
+
+  test "sets retry-after header of resource if too_many_requests returns %{retry_after: 60}" do
+    defmodule RateLimitedForAMinuteResource do
+      use Liberator.Resource
+      @impl true
+      def too_many_requests?(_conn), do: %{retry_after: 60}
+    end
+
+    conn = conn(:get, "/")
+    conn = RateLimitedForAMinuteResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 429
+    assert conn.resp_body == "Too Many Requests"
+    assert "60" in get_resp_header(conn, "retry-after")
+  end
+
+  test "sets retry-after header of resource if too_many_requests returns %{retry_after: \"whenever, man\"}" do
+    defmodule RateLimitedByLebowskiResource do
+      use Liberator.Resource
+      @impl true
+      def too_many_requests?(_conn), do: %{retry_after: "whenever, man"}
+    end
+
+    conn = conn(:get, "/")
+    conn = RateLimitedByLebowskiResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 429
+    assert conn.resp_body == "Too Many Requests"
+    assert "whenever, man" in get_resp_header(conn, "retry-after")
+  end
+
+  test "raises if the value of :retry_after is not a valid string" do
+    defmodule RateLimitedByUnicodeConsortiumResource do
+      use Liberator.Resource
+      @impl true
+      def too_many_requests?(_conn), do: %{retry_after: <<0xFFFF::16>>}
+    end
+
+    expected_message =
+      "Value for :retry_after was not a valid DateTime, integer, or String, but was <<255, 255>>. " <>
+      "Make sure the too_many_requests/1 function of " <>
+      "Liberator.ResourceTest.RateLimitedByUnicodeConsortiumResource is setting " <>
+      "that key to one of those types. Remember that you can also just return true or false."
+
+    conn = conn(:get, "/")
+    assert_raise RuntimeError, expected_message, fn ->
+      RateLimitedByUnicodeConsortiumResource.call(conn, [])
+    end
   end
 
   test "returns 451 when unavailable_for_legal_reasons? returns true" do

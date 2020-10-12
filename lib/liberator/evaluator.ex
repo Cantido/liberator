@@ -11,7 +11,8 @@ defmodule Liberator.Evaluator do
     method_allowed?: {:malformed?, :handle_method_not_allowed},
     malformed?: {:handle_malformed, :authorized?},
     authorized?: {:allowed?, :handle_unauthorized},
-    allowed?: {:valid_content_header?, :handle_forbidden},
+    allowed?: {:too_many_requests?, :handle_forbidden},
+    too_many_requests?: {:handle_too_many_requests, :valid_content_header?},
     valid_content_header?: {:known_content_type?, :handle_not_implemented},
     known_content_type?: {:valid_entity_length?, :handle_unsupported_media_type},
     valid_entity_length?: {:is_options?, :handle_request_entity_too_large},
@@ -99,6 +100,7 @@ defmodule Liberator.Evaluator do
     handle_uri_too_long: 414,
     handle_unsupported_media_type: 415,
     handle_unprocessable_entity: 422,
+    handle_too_many_requests: 429,
     handle_unavailable_for_legal_reasons: 451,
     handle_unknown_method: 501,
     handle_not_implemented: 501,
@@ -154,6 +156,27 @@ defmodule Liberator.Evaluator do
         else
           conn
         end
+
+        conn =
+          if retry_after = Map.get(conn.assigns, :retry_after) do
+            retry_after_value =
+              cond do
+                Timex.is_valid?(retry_after) ->
+                  Timex.format!(retry_after, "%a, %d %b %Y %H:%M:%S GMT", :strftime)
+                is_integer(retry_after)->
+                  Integer.to_string(retry_after)
+                String.valid?(retry_after) ->
+                  retry_after
+                true ->
+                  raise "Value for :retry_after was not a valid DateTime, integer, or String, but was #{inspect retry_after}. " <>
+                    "Make sure the too_many_requests/1 function of #{inspect module} is setting that key to one of those types. " <>
+                    "Remember that you can also just return true or false."
+              end
+
+            put_resp_header(conn, "retry-after", retry_after_value)
+          else
+            conn
+          end
 
         status = @handlers[next_step]
         body = apply(module, next_step, [conn])

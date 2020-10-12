@@ -143,6 +143,7 @@ defmodule Liberator.Resource do
   | `c:handle_uri_too_long/1`                   | 414 |
   | `c:handle_unsupported_media_type/1`         | 415 |
   | `c:handle_unprocessable_entity/1`           | 422 |
+  | `c:handle_too_many_requests/1`              | 429 |
   | `c:handle_unavailable_for_legal_reasons/1`  | 451 |
   | `c:handle_unknown_method/1`                 | 501 |
   | `c:handle_not_implemented/1`                | 501 |
@@ -192,6 +193,7 @@ defmodule Liberator.Resource do
   | `c:post_redirect?/1`        | Should the response redirect after a `POST`?                                        | false |
   | `c:put_to_different_url?/1` | Should the `PUT` request be made to a different URL?                                | false |
   | `c:processable?/1`          | Is the request body processable?                                                    | true |
+  | `c:too_many_requests?/1`    | Has the client or user issued too many requests in a period of time?                | false |
   | `c:service_available?/1`    | Is the service available?                                                           | true |
   | `c:unavailable_for_legal_reasons?/1` | Is the resource not available, for legal reasons?                          | false |
   | `c:uri_too_long?/1`         | Is the request URI too long?                                                        | false |
@@ -394,6 +396,27 @@ defmodule Liberator.Resource do
   """
   @doc since: "1.0"
   @callback allowed?(Plug.Conn.t) :: true | false
+
+  @doc """
+  Check to see if the client has performed too many requests.
+  Used as part of a rate limiting scheme.
+
+  If you return a map containing a `:retry_after` key,
+  then the response's `retry-after` header will be automatically set.
+  The value of this key can be either an Elixir `DateTime` object,
+  a `String` HTTP date, or an integer of seconds.
+  All of these values tell the client when they can attempt their request again.
+  Note that if you provide a `String` for this value,
+  it should be formatted as an HTTP date.
+
+  If you do return map with the key `:retry_after` set,
+  and its value is not a `DateTime`, integer, or valid `String`,
+  then Liberator will raise an exception.
+
+  By default, always returns `false`.
+  """
+  @doc since: "1.2"
+  @callback too_many_requests?(Plug.Conn.t) :: true | false
 
   @doc """
   Check if the Content-Type of the body is valid.
@@ -1002,6 +1025,14 @@ defmodule Liberator.Resource do
   @callback handle_unprocessable_entity(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
+  Returns content for a `429 Too Many Requests` response.
+
+  For more information on this response type, see [RFC 6585, section 4](https://tools.ietf.org/html/rfc6585#section-4).
+  """
+  @doc since: "1.2"
+  @callback handle_too_many_requests(Plug.Conn.t) :: Plug.Conn.t
+
+  @doc """
   Returns content for a `451 Unavailable for Legal Reasons` response.
 
   For more information on this response type, see [RFC 7725](https://tools.ietf.org/html/rfc7725).
@@ -1093,6 +1124,8 @@ defmodule Liberator.Resource do
       def authorized?(_conn), do: true
       @impl true
       def allowed?(_conn), do: true
+      @impl true
+      def too_many_requests?(_conn), do: false
       @impl true
       def valid_content_header?(_conn), do: true
       @impl true
@@ -1420,6 +1453,11 @@ defmodule Liberator.Resource do
       @impl true
       def handle_unprocessable_entity(conn) do
         "Unprocessable Entity"
+      end
+
+      @impl true
+      def handle_too_many_requests(conn) do
+        "Too Many Requests"
       end
 
       @impl true
