@@ -324,7 +324,7 @@ defmodule Liberator.ResourceDefaultsTest do
         Timex.Timezone.get("GMT")
         |> Timex.now()
         |> Timex.shift(days: -1)
-        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d20 %b %Y %H:%M:%S GMT")
+        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d %b %Y %H:%M:%S GMT")
       conn =
         conn(:get, "/")
         |> put_req_header("if-modified-since", time_str)
@@ -336,7 +336,7 @@ defmodule Liberator.ResourceDefaultsTest do
         Timex.Timezone.get("GMT")
         |> Timex.now()
         |> Timex.shift(days: 1)
-        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d20 %b %Y %H:%M:%S GMT")
+        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d %b %Y %H:%M:%S GMT")
       conn =
         conn(:get, "/")
         |> put_req_header("if-modified-since", time_str)
@@ -349,7 +349,7 @@ defmodule Liberator.ResourceDefaultsTest do
     test "returns true if if_modified_since header contains a valid date" do
       {:ok, time_str} =
         Timex.now()
-        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d20 %b %Y %H:%M:%S GMT")
+        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d %b %Y %H:%M:%S GMT")
       conn =
         conn(:get, "/")
         |> put_req_header("if-modified-since", time_str)
@@ -382,7 +382,7 @@ defmodule Liberator.ResourceDefaultsTest do
     test "returns true if if_unmodified_since header contains a valid date" do
       {:ok, time_str} =
         Timex.now()
-        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d20 %b %Y %H:%M:%S GMT")
+        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d %b %Y %H:%M:%S GMT")
       conn =
         conn(:get, "/")
         |> put_req_header("if-unmodified-since", time_str)
@@ -404,7 +404,7 @@ defmodule Liberator.ResourceDefaultsTest do
         Timex.Timezone.get("GMT")
         |> Timex.now()
         |> Timex.shift(days: -1)
-        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d20 %b %Y %H:%M:%S GMT")
+        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d %b %Y %H:%M:%S GMT")
       conn =
         conn(:get, "/")
         |> put_req_header("if-unmodified-since", time_str)
@@ -416,7 +416,7 @@ defmodule Liberator.ResourceDefaultsTest do
         Timex.Timezone.get("GMT")
         |> Timex.now()
         |> Timex.shift(days: 1)
-        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d20 %b %Y %H:%M:%S GMT")
+        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d %b %Y %H:%M:%S GMT")
       conn =
         conn(:get, "/")
         |> put_req_header("if-unmodified-since", time_str)

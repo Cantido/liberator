@@ -1225,7 +1225,7 @@ defmodule Liberator.Resource do
         conn
         |> get_req_header("if-modified-since")
         |> Enum.at(0)
-        |> Timex.parse("%a, %d20 %b %Y %H:%M:%S GMT", :strftime)
+        |> Timex.parse("%a, %d %b %Y %H:%M:%S GMT", :strftime)
         |> case do
           {:ok, _time} -> true
           _ -> false
@@ -1236,7 +1236,7 @@ defmodule Liberator.Resource do
         conn
         |> get_req_header("if-modified-since")
         |> Enum.at(0)
-        |> Timex.parse!("%a, %d20 %b %Y %H:%M:%S GMT", :strftime)
+        |> Timex.parse!("%a, %d %b %Y %H:%M:%S GMT", :strftime)
         |> Timex.before?(last_modified(conn))
       end
       @impl true
@@ -1248,7 +1248,7 @@ defmodule Liberator.Resource do
         conn
         |> get_req_header("if-unmodified-since")
         |> Enum.at(0)
-        |> Timex.parse("%a, %d20 %b %Y %H:%M:%S GMT", :strftime)
+        |> Timex.parse("%a, %d %b %Y %H:%M:%S GMT", :strftime)
         |> case do
           {:ok, _time} -> true
           _ -> false
@@ -1259,7 +1259,7 @@ defmodule Liberator.Resource do
         conn
         |> get_req_header("if-unmodified-since")
         |> Enum.at(0)
-        |> Timex.parse!("%a, %d20 %b %Y %H:%M:%S GMT", :strftime)
+        |> Timex.parse!("%a, %d %b %Y %H:%M:%S GMT", :strftime)
         |> Timex.after?(last_modified(conn))
       end
 
