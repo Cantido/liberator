@@ -20,7 +20,7 @@ Liberator does.
 
 ## Install
 
-This package is [available in Hex](https://hex.pm/liberator).
+This package is [available in Hex](https://hex.pm/packages/liberator).
 Install it by adding `liberator` to your list of dependencies in `mix.exs`:
 
 ```elixir
