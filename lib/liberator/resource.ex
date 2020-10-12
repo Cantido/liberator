@@ -210,13 +210,13 @@ defmodule Liberator.Resource do
   | `c:if_match_exists?/1`                   | Checks if header `If-Match` exists.                                            |
   | `c:if_match_star?/1`                     | Checks if header `If-Match` is `*`.                                            |
   | `c:if_match_star_exists_for_missing?/1`  | Checks if header `If-Match` exists for a resource that does not exist.         |
-  | `c:if_modified_since?/1`                 | Checks if header `If-Modified-Since` exists.                                   |
-  | `c:if_modified_valid_date?/1`            | Checks if header `If-Modified-Since` is a valid HTTP date.                     |
+  | `c:if_modified_since_exists?/1`          | Checks if header `If-Modified-Since` exists.                                   |
+  | `c:if_modified_since_valid_date?/1`      | Checks if header `If-Modified-Since` is a valid HTTP date.                     |
   | `c:if_none_match?/1`                     | Checks if the request method to handle failed `If-None-Match`                  |
   | `c:if_none_match_exists?/1`              | Checks if header `If-None-Match` exists.                                       |
   | `c:if_none_match_star?/1`                | Checks if header `If-None-Match` is `*`.                                       |
   | `c:if_unmodified_since_exists?/1`        | Checks if header `If-Unmodified-Since` exists.                                 |
-  | `c:if_unmodified_valid_date?/1`          | Checks if header `If-Unmodified-Since` is a valid HTTP date.                   |
+  | `c:if_unmodified_since_valid_date?/1`    | Checks if header `If-Unmodified-Since` is a valid HTTP date.                   |
   | `c:is_options?/1`                        | Checks if the request method is `OPTIONS`                                      |
   | `c:method_delete?/1`                     | Checks if the request method is `DELETE`                                       |
   | `c:method_put?/1`                        | Checks if the request method is `PUT`                                          |
