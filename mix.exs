@@ -27,7 +27,10 @@ defmodule Liberator.MixProject do
       main: "Liberator.Resource",
       source_url: "https://github.com/Cantido/liberator",
       extras: [
-        "README.md"
+        "README.md",
+        "CHANGELOG.md",
+        "CONTRIBUTING.md",
+        "code_of_conduct.md"
       ],
       groups_for_modules: [
         # Ungrouped:
