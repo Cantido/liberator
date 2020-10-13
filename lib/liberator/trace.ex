@@ -9,6 +9,7 @@ defmodule Liberator.Trace do
   @doc """
   Get the log of all decisions made on the given conn.
   """
+  @doc since: "1.1"
   def get_trace(conn) do
     Map.get(conn.private, :liberator_trace, [])
   end
@@ -25,6 +26,7 @@ defmodule Liberator.Trace do
   Get a list of tuples for the `x-liberator-trace` header,
   based on the given trace.
   """
+  @doc since: "1.3"
   def headers(trace) do
     trace
     |> Enum.map(fn {key, val} ->
@@ -36,6 +38,7 @@ defmodule Liberator.Trace do
   Log a message containing the given trace,
   along with its request path and optional request ID.
   """
+  @doc since: "1.3"
   def log(trace, request_path, request_id \\ nil) do
     trace =
       trace
