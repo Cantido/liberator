@@ -21,6 +21,10 @@ defmodule Liberator.Trace do
     put_private(conn, :liberator_trace, updated_trace)
   end
 
+  @doc """
+  Get a list of tuples for the `x-liberator-trace` header,
+  based on the given trace.
+  """
   def headers(trace) do
     trace
     |> Enum.map(fn {key, val} ->
@@ -28,7 +32,11 @@ defmodule Liberator.Trace do
     end)
   end
 
-  def log(trace, request_path, request_id) do
+  @doc """
+  Log a message containing the given trace,
+  along with its request path and optional request ID.
+  """
+  def log(trace, request_path, request_id \\ nil) do
     trace =
       trace
       |> Enum.with_index()
