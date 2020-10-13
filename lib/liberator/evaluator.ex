@@ -162,7 +162,7 @@ defmodule Liberator.Evaluator do
             retry_after_value =
               cond do
                 Timex.is_valid?(retry_after) ->
-                  Timex.format!(retry_after, "%a, %d %b %Y %H:%M:%S GMT", :strftime)
+                  Liberator.HTTPDateTime.format!(retry_after)
                 is_integer(retry_after)->
                   Integer.to_string(retry_after)
                 String.valid?(retry_after) ->

@@ -1258,18 +1258,14 @@ defmodule Liberator.Resource do
         conn
         |> get_req_header("if-modified-since")
         |> Enum.at(0)
-        |> Timex.parse("%a, %d %b %Y %H:%M:%S GMT", :strftime)
-        |> case do
-          {:ok, _time} -> true
-          _ -> false
-        end
+        |> Liberator.HTTPDateTime.valid?()
       end
       @impl true
       def modified_since?(conn) do
         conn
         |> get_req_header("if-modified-since")
         |> Enum.at(0)
-        |> Timex.parse!("%a, %d %b %Y %H:%M:%S GMT", :strftime)
+        |> Liberator.HTTPDateTime.parse!()
         |> Timex.before?(last_modified(conn))
       end
       @impl true
@@ -1281,18 +1277,14 @@ defmodule Liberator.Resource do
         conn
         |> get_req_header("if-unmodified-since")
         |> Enum.at(0)
-        |> Timex.parse("%a, %d %b %Y %H:%M:%S GMT", :strftime)
-        |> case do
-          {:ok, _time} -> true
-          _ -> false
-        end
+        |> Liberator.HTTPDateTime.valid?()
       end
       @impl true
       def unmodified_since?(conn) do
         conn
         |> get_req_header("if-unmodified-since")
         |> Enum.at(0)
-        |> Timex.parse!("%a, %d %b %Y %H:%M:%S GMT", :strftime)
+        |> Liberator.HTTPDateTime.parse!()
         |> Timex.after?(last_modified(conn))
       end
 

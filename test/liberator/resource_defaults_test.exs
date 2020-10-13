@@ -1,6 +1,7 @@
 defmodule Liberator.ResourceDefaultsTest do
   use ExUnit.Case, async: true
   use Plug.Test
+  alias Liberator.HTTPDateTime
 
   defmodule MyDefaultResource do
     use Liberator.Resource
@@ -320,11 +321,11 @@ defmodule Liberator.ResourceDefaultsTest do
 
   describe "modified_since?" do
     test "returns true if last modification date is after modification_since" do
-      {:ok, time_str} =
+      time_str =
         Timex.Timezone.get("GMT")
         |> Timex.now()
         |> Timex.shift(days: -1)
-        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d %b %Y %H:%M:%S GMT")
+        |> HTTPDateTime.format!()
       conn =
         conn(:get, "/")
         |> put_req_header("if-modified-since", time_str)
@@ -332,11 +333,11 @@ defmodule Liberator.ResourceDefaultsTest do
       assert MyDefaultResource.modified_since?(conn)
     end
     test "returns false if last modification date is before modification_since" do
-      {:ok, time_str} =
+      time_str =
         Timex.Timezone.get("GMT")
         |> Timex.now()
         |> Timex.shift(days: 1)
-        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d %b %Y %H:%M:%S GMT")
+        |> HTTPDateTime.format!()
       conn =
         conn(:get, "/")
         |> put_req_header("if-modified-since", time_str)
@@ -347,9 +348,9 @@ defmodule Liberator.ResourceDefaultsTest do
 
   describe "if_modified_since_valid_date?" do
     test "returns true if if_modified_since header contains a valid date" do
-      {:ok, time_str} =
+      time_str =
         Timex.now()
-        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d %b %Y %H:%M:%S GMT")
+        |> HTTPDateTime.format!()
       conn =
         conn(:get, "/")
         |> put_req_header("if-modified-since", time_str)
@@ -380,9 +381,9 @@ defmodule Liberator.ResourceDefaultsTest do
 
   describe "if_unmodified_since_valid_date?" do
     test "returns true if if_unmodified_since header contains a valid date" do
-      {:ok, time_str} =
+      time_str =
         Timex.now()
-        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d %b %Y %H:%M:%S GMT")
+        |> HTTPDateTime.format!()
       conn =
         conn(:get, "/")
         |> put_req_header("if-unmodified-since", time_str)
@@ -400,11 +401,11 @@ defmodule Liberator.ResourceDefaultsTest do
 
   describe "unmodified_since?" do
     test "returns false if last modification date is after modification_since" do
-      {:ok, time_str} =
+      time_str =
         Timex.Timezone.get("GMT")
         |> Timex.now()
         |> Timex.shift(days: -1)
-        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d %b %Y %H:%M:%S GMT")
+        |> HTTPDateTime.format!()
       conn =
         conn(:get, "/")
         |> put_req_header("if-unmodified-since", time_str)
@@ -412,11 +413,11 @@ defmodule Liberator.ResourceDefaultsTest do
       refute MyDefaultResource.unmodified_since?(conn)
     end
     test "returns true if last modification date is before modification_since" do
-      {:ok, time_str} =
+      time_str =
         Timex.Timezone.get("GMT")
         |> Timex.now()
         |> Timex.shift(days: 1)
-        |> Timex.Format.DateTime.Formatters.Strftime.format("%a, %d %b %Y %H:%M:%S GMT")
+        |> HTTPDateTime.format!()
       conn =
         conn(:get, "/")
         |> put_req_header("if-unmodified-since", time_str)
