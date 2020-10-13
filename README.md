@@ -49,7 +49,7 @@ defmodule MyFirstResource do
 end
 ```
 
-It doens't look like much, but behind the scenes,
+It doesn't look like much, but behind the scenes,
 Liberator navigated a [decision graph] of content negotation, cache management,
 and existence checks before returning 200 OK.
 Liberator finds the best media type you support,
