@@ -318,6 +318,14 @@ defmodule Liberator.Resource do
   and lets you check to make sure everything works before going deeper.
   If this function returns `false`, then the plug will return a 503 Service Not Available response.
 
+  If this function returns a map containing a value called `:retry_after`,
+  Liberator will put this value into a `retry-after` header,
+  Some crawlers and spiders honor this value,
+  so they will not bother you while you're down,
+  and will continue to index your site afterward.
+  See [MDN's docs on the `retry-after` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After)
+  for more information.
+
   By default, always returns `true`.
   """
   @doc since: "1.0"
