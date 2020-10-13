@@ -163,7 +163,7 @@ defmodule Liberator.Evaluator do
             conn
           end
 
-        conn = apply_retry_header(conn)
+        conn = apply_retry_header(conn, module)
 
         status = @handlers[next_step]
         body = apply(module, next_step, [conn])
@@ -185,7 +185,7 @@ defmodule Liberator.Evaluator do
     end
   end
 
-  defp apply_retry_header(conn) do
+  defp apply_retry_header(conn, module) do
     if retry_after = Map.get(conn.assigns, :retry_after) do
       retry_after_value =
         cond do
