@@ -24,6 +24,7 @@ Please note that this project is released with a Contributor [Code of Conduct]. 
   This isn't a big library.
 - Run `mix format` on your files before committing them.
   I like clean diffs.
+- Run `mix credo` and resolve anything of yours that comes up.
 - Delegate as much as possible to the user, or let them override everything.
 - Provide sensible defaults.
   If you can `use Liberator.Resource` in an empty module in an empty Phoenix project,
