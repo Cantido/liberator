@@ -163,10 +163,9 @@ defmodule Liberator.Evaluator do
           cond do
             Keyword.get(opts, :trace) == :headers ->
               trace =
-                Trace.get_trace(conn)
-                |> Enum.map(fn {key, val} ->
-                  {"x-liberator-trace", "#{Atom.to_string(key)}: #{inspect(val)}"}
-                end)
+                conn
+                |> Trace.get_trace()
+                |> Trace.headers()
 
               prepend_resp_headers(conn, trace)
             Keyword.get(opts, :trace) == :log ->

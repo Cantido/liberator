@@ -21,6 +21,13 @@ defmodule Liberator.Trace do
     put_private(conn, :liberator_trace, updated_trace)
   end
 
+  def headers(trace) do
+    trace
+    |> Enum.map(fn {key, val} ->
+      {"x-liberator-trace", "#{Atom.to_string(key)}: #{inspect(val)}"}
+    end)
+  end
+
   def log(trace, request_path, request_id) do
     trace =
       trace
