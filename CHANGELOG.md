@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Liberator will use that to set a `retry-after` header.
 - You can also return a `:retry_after` value from any other decision function,
   like `service_available?/1`, or `moved_permanently?/1`, for the same effect.
-  See [MDN's docs on the retry-after header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After)
+  See [MDN's docs on the `retry-after` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After)
   for more information on why you'd want to do this.
 
 ### Fixed
