@@ -1,7 +1,7 @@
 # Liberator
 
-![Hex.pm](https://img.shields.io/hexpm/v/liberator)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Cantido/liberator/Elixir%20CI)
+[![Hex.pm](https://img.shields.io/hexpm/v/liberator)](https://hex.pm/packages/liberator/)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Cantido/liberator/Elixir%20CI)](https://github.com/Cantido/liberator/actions?query=workflow%3A%22Elixir+CI%22)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md)
 
