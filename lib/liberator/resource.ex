@@ -1079,6 +1079,8 @@ defmodule Liberator.Resource do
   @callback handle_service_unavailable(Plug.Conn.t) :: Plug.Conn.t
 
   defmacro __using__(usage_opts) do
+    # I wish I could find a way to make this shorter, but I don't think I can!
+    # credo:disable-for-next-line Credo.Check.Refactor.LongQuoteBlocks
     quote do
       use Plug.Builder
       alias Liberator.ContentNegotiation, as: ConNeg

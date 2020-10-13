@@ -159,26 +159,7 @@ defmodule Liberator.Evaluator do
           conn
         end
 
-        conn =
-          if retry_after = Map.get(conn.assigns, :retry_after) do
-            retry_after_value =
-              cond do
-                Timex.is_valid?(retry_after) ->
-                  Liberator.HTTPDateTime.format!(retry_after)
-                is_integer(retry_after)->
-                  Integer.to_string(retry_after)
-                String.valid?(retry_after) ->
-                  retry_after
-                true ->
-                  raise "Value for :retry_after was not a valid DateTime, integer, or String, but was #{inspect retry_after}. " <>
-                    "Make sure the too_many_requests/1 function of #{inspect module} is setting that key to one of those types. " <>
-                    "Remember that you can also just return true or false."
-              end
-
-            put_resp_header(conn, "retry-after", retry_after_value)
-          else
-            conn
-          end
+        conn = apply_retry_header(conn)
 
         status = @handlers[next_step]
         body = apply(module, next_step, [conn])
@@ -196,6 +177,28 @@ defmodule Liberator.Evaluator do
         send_resp(conn, status, compressed_body)
       true ->
         raise "Unknown step #{inspect next_step}"
+    end
+  end
+
+  defp apply_retry_header(conn) do
+    if retry_after = Map.get(conn.assigns, :retry_after) do
+      retry_after_value =
+        cond do
+          Timex.is_valid?(retry_after) ->
+            Liberator.HTTPDateTime.format!(retry_after)
+          is_integer(retry_after) ->
+            Integer.to_string(retry_after)
+          String.valid?(retry_after) ->
+            retry_after
+          true ->
+            raise "Value for :retry_after was not a valid DateTime, integer, or String, but was #{inspect retry_after}. " <>
+              "Make sure the too_many_requests/1 function of #{inspect module} is setting that key to one of those types. " <>
+              "Remember that you can also just return true or false."
+        end
+
+      put_resp_header(conn, "retry-after", retry_after_value)
+    else
+      conn
     end
   end
 
