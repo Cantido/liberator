@@ -1083,7 +1083,6 @@ defmodule Liberator.Resource do
     # credo:disable-for-next-line Credo.Check.Refactor.LongQuoteBlocks
     quote do
       use Plug.Builder
-      alias Liberator.ContentNegotiation, as: ConNeg
       @behaviour Liberator.Resource
 
       plug Liberator.Evaluator, Keyword.merge([module: __MODULE__], unquote(usage_opts))
@@ -1188,20 +1187,20 @@ defmodule Liberator.Resource do
 
       @impl true
       def media_type_available?(conn) do
-        ConNeg.accept_something(conn, :media_type, "accept", available_media_types(conn), "*/*")
+        Liberator.ContentNegotiation.accept_something(conn, :media_type, "accept", available_media_types(conn), "*/*")
       end
       @impl true
       def language_available?(conn) do
-        ConNeg.accept_something(conn, :language, "accept-language", available_languages(conn))
+        Liberator.ContentNegotiation.accept_something(conn, :language, "accept-language", available_languages(conn))
       end
 
       @impl true
       def charset_available?(conn) do
-        ConNeg.accept_something(conn, :charset, "accept-charset", available_charsets(conn))
+        Liberator.ContentNegotiation.accept_something(conn, :charset, "accept-charset", available_charsets(conn))
       end
       @impl true
       def encoding_available?(conn) do
-        ConNeg.accept_something(conn, :encoding, "accept-encoding", available_encodings(conn))
+        Liberator.ContentNegotiation.accept_something(conn, :encoding, "accept-encoding", available_encodings(conn))
       end
 
       @impl true
