@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- The `402 Payment Required` status,
+  along with related callbacks `payment_required?` and
+  `handle_payment_required/1`.
 - The `451 Unavailable for Legal Reasons` status,
   along with related callbacks `unavailable_for_legal_reasons?/1` and
   `handle_unavailable_for_legal_reasons/1`.
@@ -20,9 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   like `service_available?/1`, or `moved_permanently?/1`, for the same effect.
   See [MDN's docs on the retry-after header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After)
   for more information on why you'd want to do this.
-- The `402 Payment Required` status,
-  along with related callbacks `payment_required?` and
-  `handle_payment_required/1`.
 
 ### Fixed
 - Dates in headers are now parsed properly. ([#1](https://github.com/Cantido/liberator/issues/1))
