@@ -344,7 +344,10 @@ defmodule Liberator.Resource do
         def available_media_types(_), do: ["application/xml"]
 
         @impl true
-        def known_methods["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", "PATCH", "TRACE", "COPY"]
+        def allowed_methods(_), do: ["COPY"]
+
+        @impl true
+        def known_methods(_), do: ["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", "PATCH", "TRACE", "COPY"]
 
         def lock_token_valid?(conn), do: MyWebDavBackend.lock_token_valid?(conn)
         def copy!(conn), do: MyWebDavBackend.copy(conn)
