@@ -205,7 +205,7 @@ defmodule Liberator.Evaluator do
 
           true ->
             raise "Value for :retry_after was not a valid DateTime, integer, or String, but was #{inspect retry_after}. " <>
-              "Make sure the too_many_requests/1 function of #{inspect module} is setting that key to one of those types. " <>
+              "Make sure the too_many_requests?/1 function of #{inspect module} is setting that key to one of those types. " <>
               "Remember that you can also just return true or false."
         end
 
