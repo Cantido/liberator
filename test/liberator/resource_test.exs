@@ -51,6 +51,138 @@ defmodule Liberator.ResourceTest do
     ]
   end
 
+  test "traces decisions to header when trace: :headers" do
+    defmodule TracingToHeaderResource do
+      use Liberator.Resource, trace: :headers
+    end
+
+    conn = conn(:get, "/")
+
+    conn = TracingToHeaderResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "OK"
+
+    assert get_resp_header(conn, "x-liberator-trace") == [
+      "initialize: nil",
+      "service_available?: true",
+      "known_method?: true",
+      "uri_too_long?: false",
+      "method_allowed?: true",
+      "malformed?: false",
+      "authorized?: true",
+      "allowed?: true",
+      "too_many_requests?: false",
+      "payment_required?: false",
+      "valid_content_header?: true",
+      "known_content_type?: true",
+      "valid_entity_length?: true",
+      "is_options?: false",
+      "accept_exists?: false",
+      "accept_language_exists?: false",
+      "accept_charset_exists?: false",
+      "accept_encoding_exists?: false",
+      "processable?: true",
+      "unavailable_for_legal_reasons?: false",
+      "exists?: true",
+      "if_match_exists?: false",
+      "if_unmodified_since_exists?: false",
+      "if_none_match_exists?: false",
+      "if_modified_since_exists?: false",
+      "method_delete?: false",
+      "method_patch?: false",
+      "post_to_existing?: false",
+      "put_to_existing?: false",
+      "multiple_representations?: false",
+      "handle_ok: nil"
+    ]
+
+  end
+
+  test "logs the trace to the logger when trace: :log" do
+    defmodule TracingToLogResource do
+      use Liberator.Resource, trace: :log
+
+      # The docs for the RequestId plug specify that the correct way to access it is via Logger metadata
+      @impl true
+      def initialize(_), do: Logger.metadata([request_id: "my-very-specific-request-id"])
+    end
+
+    parent = self()
+    defmodule LogMessageToParentProcess do
+      def init(parent), do: {:ok, parent}
+
+      def handle_event({_level, _gl, {Logger, msg, _, _}}, parent) do
+        Process.send(parent, msg, [])
+        {:ok, parent}
+      end
+
+      def handle_event(:flush, parent) do
+        {:ok, parent}
+      end
+
+      def handle_call({:configure, options}, _state) do
+        parent = Keyword.fetch!(options, :parent)
+        {:ok, :ok, parent}
+      end
+    end
+
+    Logger.add_backend(LogMessageToParentProcess)
+    Logger.configure_backend(LogMessageToParentProcess, [parent: parent])
+    on_exit(fn ->
+      Logger.remove_backend(LogMessageToParentProcess)
+    end)
+
+    conn = conn(:get, "/")
+
+    conn = TracingToLogResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "OK"
+
+    message =
+      """
+      Liberator trace for request "my-very-specific-request-id" to /:
+
+          1. initialize: nil
+          2. service_available?: true
+          3. known_method?: true
+          4. uri_too_long?: false
+          5. method_allowed?: true
+          6. malformed?: false
+          7. authorized?: true
+          8. allowed?: true
+          9. too_many_requests?: false
+          10. payment_required?: false
+          11. valid_content_header?: true
+          12. known_content_type?: true
+          13. valid_entity_length?: true
+          14. is_options?: false
+          15. accept_exists?: false
+          16. accept_language_exists?: false
+          17. accept_charset_exists?: false
+          18. accept_encoding_exists?: false
+          19. processable?: true
+          20. unavailable_for_legal_reasons?: false
+          21. exists?: true
+          22. if_match_exists?: false
+          23. if_unmodified_since_exists?: false
+          24. if_none_match_exists?: false
+          25. if_modified_since_exists?: false
+          26. method_delete?: false
+          27. method_patch?: false
+          28. post_to_existing?: false
+          29. put_to_existing?: false
+          30. multiple_representations?: false
+          31. handle_ok: nil
+      """
+      |> String.trim()
+
+    assert_receive ^message
+  end
+
   test "gets index" do
     defmodule GetOkResource do
       use Liberator.Resource

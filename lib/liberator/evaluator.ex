@@ -1,6 +1,7 @@
 defmodule Liberator.Evaluator do
   alias Liberator.Trace
   import Plug.Conn
+  require Logger
 
   @moduledoc false
 
@@ -160,16 +161,35 @@ defmodule Liberator.Evaluator do
         conn = Trace.update_trace(conn, next_step, nil)
 
         conn =
-          if Keyword.get(opts, :trace) == :headers do
-            trace =
-              Trace.get_trace(conn)
-              |> Enum.map(fn {key, val} ->
-                {"x-liberator-trace", "#{Atom.to_string(key)}: #{inspect(val)}"}
-              end)
+          cond do
+            Keyword.get(opts, :trace) == :headers ->
+              trace =
+                Trace.get_trace(conn)
+                |> Enum.map(fn {key, val} ->
+                  {"x-liberator-trace", "#{Atom.to_string(key)}: #{inspect(val)}"}
+                end)
 
-            prepend_resp_headers(conn, trace)
-          else
-            conn
+              prepend_resp_headers(conn, trace)
+            Keyword.get(opts, :trace) == :log ->
+              trace =
+                Trace.get_trace(conn)
+                |> Enum.with_index()
+                |> Enum.map(fn {{key, val}, index} ->
+                  "    #{index + 1}. #{Atom.to_string(key)}: #{inspect(val)}"
+                end)
+                |> Enum.join("\n")
+
+              header =
+                if request_id = Logger.metadata[:request_id] do
+                  "Liberator trace for request #{inspect(request_id)} to #{conn.request_path}:\n\n"
+                else
+                  "Liberator trace for request to #{conn.request_path}:\n\n"
+                end
+
+              Logger.debug(header <> trace)
+              conn
+            true ->
+              conn
           end
 
         conn = apply_retry_header(conn, module)

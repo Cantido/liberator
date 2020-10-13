@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- The `:log` argument to the `:trace` option.
+  Add a `trace: :log` option to your module's `use` statement,
+  and every request will be logged with a trace.
+  The log message even includes a request ID from `Plug.RequestId`, if you have one.
 - The `:decision_tree_overrides` argument to `Liberator.Resource`.
   This is an advanced feature that lets users override parts of the decision tree that Liberator evaluates.
   Want to change the ordering of some decisions, or add new ones?

@@ -203,8 +203,59 @@ defmodule Liberator.Resource do
 
   ## Debugging
 
-  Set the `:trace` option in your `use` statement to `:headers` so you can
-  get a full trace of all the decisions that were made during the execution of a request.
+  For every request, Liberator builds a list of the decisions called and their answers.
+  You can access this list with the `:trace` option of your `use` statement.
+
+  Set it to `:log` for a log message of the full trace.
+
+      defmodule MyFirstResource do
+        use Liberator.Resource, trace: :log
+
+        def handle_ok(_), do: "Hello world!"
+      end
+
+  You'll get a log message like this:
+
+  ```comment
+  14:57:04.861 [debug] Liberator trace for request "my-very-specific-request-id" to /:
+
+      1. initialize: nil
+      2. service_available?: true
+      3. known_method?: true
+      4. uri_too_long?: false
+      5. method_allowed?: true
+      6. malformed?: false
+      7. authorized?: true
+      8. allowed?: true
+      9. too_many_requests?: false
+      10. payment_required?: false
+      11. valid_content_header?: true
+      12. known_content_type?: true
+      13. valid_entity_length?: true
+      14. is_options?: false
+      15. accept_exists?: false
+      16. accept_language_exists?: false
+      17. accept_charset_exists?: false
+      18. accept_encoding_exists?: false
+      19. processable?: true
+      20. unavailable_for_legal_reasons?: false
+      21. exists?: true
+      22. if_match_exists?: false
+      23. if_unmodified_since_exists?: false
+      24. if_none_match_exists?: false
+      25. if_modified_since_exists?: false
+      26. method_delete?: false
+      27. method_patch?: false
+      28. post_to_existing?: false
+      29. put_to_existing?: false
+      30. multiple_representations?: false
+      31. handle_ok: nil
+  ```
+
+  Liberator will include the request ID set by the `Plug.RequestId` plug,
+  if you have it as part of your pipeline.
+
+  Set the `:trace` option to `:headers` so you can get the trace as HTTP headers.
 
       defmodule MyFirstResource do
         use Liberator.Resource, trace: :headers
