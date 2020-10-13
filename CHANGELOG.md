@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2020-10-12
+
 ### Added
 - The `402 Payment Required` status,
   along with related callbacks `payment_required?` and
@@ -55,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic decision tree navigation
 
 
-[Unreleased]: https://github.com/Cantido/liberator/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/Cantido/liberator/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/Cantido/liberator/releases/tag/v1.2.0
 [1.1.0]: https://github.com/Cantido/liberator/releases/tag/v1.1.0
 [1.0.0]: https://github.com/Cantido/liberator/releases/tag/v1.0.0
