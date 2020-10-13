@@ -294,7 +294,7 @@ defmodule Liberator.Resource do
       defmodule ResourceLikesToParty do
         use Liberator.Resource,
           decision_tree_overrides:  %{
-            allowed?: {:too_many_requests?, :handle_forbidden}
+            allowed?: {:likes_to_party?, :handle_forbidden}
             likes_to_party?: {:handle_likes_to_party, :too_many_requests?}
           },
           handler_status_overrides: %{
