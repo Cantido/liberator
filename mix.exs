@@ -68,7 +68,6 @@ defmodule Liberator.MixProject do
       {:jason, "~> 1.2"},
       {:timex, "~> 3.5"},
       {:credo, "~> 1.5.0-rc.2", only: [:dev, :test], runtime: false},
-      {:sobelow, "~> 0.8", only: :dev},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false}
     ]
   end
