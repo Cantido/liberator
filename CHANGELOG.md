@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- The `451 Unavailable for Legal Reasons` status.
+  Implement the callbacks `unavailable_for_legal_reasons?/1` and
+  `handle_unavailable_for_legal_reasons/1` to see it work.
+- The `429 Too Many Requests` status.
+  Implement the callbacks `too_many_requests?/1` and
+  `handle_too_many_requests/1` to see it work.
+  If you return a map containing a `:retry_after` value,
+  Liberator will use that to set a `retry-after` header.
+
+### Fixed
+- Dates in headers are now parsed properly. ([#1](https://github.com/Cantido/liberator/issues/1))
+
 ## [1.1.0] - 2020-10-04
 
 ### Added
