@@ -435,7 +435,7 @@ defmodule Liberator.ResourceTest do
 
     expected_message =
       "Value for :retry_after was not a valid DateTime, integer, or String, but was <<255, 255>>. " <>
-        "Make sure the too_many_requests/1 function of " <>
+        "Make sure the too_many_requests?/1 function of " <>
         "Liberator.ResourceTest.RateLimitedByUnicodeConsortiumResource is setting " <>
         "that key to one of those types. Remember that you can also just return true or false."
 
