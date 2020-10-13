@@ -187,6 +187,7 @@ defmodule Liberator.Resource do
   | `c:moved_temporarily?/1`    | Was the resource moved temporarily?                                                 | false |
   | `c:multiple_representations?/1` | Are there multiple representations for this resource?                           | false |
   | `c:new?/1`                  | Was the resource created by this request?                                           | true |
+  | `c:payment_required?/1`     | Is payment required before this request can be processed?                           | false |
   | `c:post_enacted?/1`         | Was the `POST` request finally processed?                                           | true |
   | `c:put_enacted?/1`          | Was the `PUT` request finally processed?                                            | true |
   | `c:patch_enacted?/1`        | Was the `PATCH` request finally processed?                                          | true |
@@ -396,6 +397,17 @@ defmodule Liberator.Resource do
   """
   @doc since: "1.0"
   @callback allowed?(Plug.Conn.t) :: true | false
+
+  @doc """
+  Check to see if payment is required for this resource.
+
+  If this function returns true, then the plug will return a 402 Payment Required response.
+  Please note that the 402 status code is experimental, and is "reserved for future use."
+
+  By default, always returns `false`.
+  """
+  @doc since: "1.2"
+  @callback payment_required?(Plug.Conn.t) :: true | false
 
   @doc """
   Check to see if the client has performed too many requests.
@@ -959,6 +971,14 @@ defmodule Liberator.Resource do
   @callback handle_unauthorized(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
+  Returns content for a `402 Payment Required` response.
+
+  Please note that the 402 status code is experimental, and is "reserved for future use."
+  """
+  @doc since: "1.2"
+  @callback handle_payment_required(Plug.Conn.t) :: Plug.Conn.t
+
+  @doc """
   Returns content for a `403 Forbidden` response.
   """
   @doc since: "1.0"
@@ -1120,6 +1140,8 @@ defmodule Liberator.Resource do
       end
       @impl true
       def malformed?(_conn), do: false
+      @impl true
+      def payment_required?(_conn), do: false
       @impl true
       def authorized?(_conn), do: true
       @impl true
@@ -1385,6 +1407,11 @@ defmodule Liberator.Resource do
       @impl true
       def handle_malformed(conn) do
         "Malformed"
+      end
+
+      @impl true
+      def handle_payment_required(_conn) do
+        "Payment Required"
       end
 
       @impl true

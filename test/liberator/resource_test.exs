@@ -25,6 +25,7 @@ defmodule Liberator.ResourceTest do
       authorized?: true,
       allowed?: true,
       too_many_requests?: false,
+      payment_required?: false,
       valid_content_header?: true,
       known_content_type?: true,
       valid_entity_length?: true,
@@ -242,6 +243,21 @@ defmodule Liberator.ResourceTest do
     assert conn.state == :sent
     assert conn.status == 200
     assert conn.resp_body == "Options"
+  end
+
+  test "returns 402 when payment_required? returns true" do
+    defmodule PayGatedResource do
+      use Liberator.Resource
+      @impl true
+      def payment_required?(_conn), do: true
+    end
+
+    conn = conn(:get, "/")
+    conn = PayGatedResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 402
+    assert conn.resp_body == "Payment Required"
   end
 
   test "returns 406 when accept_exists? returns true but media_type_available? returns false" do
