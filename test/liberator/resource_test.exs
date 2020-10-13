@@ -65,6 +65,29 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "OK"
   end
 
+  test "can override the decision tree" do
+    defmodule ShortcutResource do
+      use Liberator.Resource,
+        decision_tree_overrides: %{
+          service_available?: {:handle_ok, :handle_service_unavailable}
+        }
+    end
+
+    conn = conn(:get, "/")
+
+    conn = ShortcutResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "OK"
+
+    assert conn.private.liberator_trace == [
+      initialize: nil,
+      service_available?: true,
+      handle_ok: nil
+    ]
+  end
+
   test "gets index as JSON" do
     defmodule JsonResource do
       use Liberator.Resource

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- The `:decision_tree_overrides` argument to `Liberator.Resource`.
+  This is an advanced feature that lets users override parts of the decision tree that Liberator evaluates.
+  Want to change the ordering of some decisions, or add new ones?
+  This is the way!
+
 ## [1.2.0] - 2020-10-12
 
 ### Added

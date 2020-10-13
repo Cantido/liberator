@@ -128,9 +128,12 @@ defmodule Liberator.Evaluator do
   end
 
   defp continue(conn, module, next_step, opts) do
+    decision_tree_overrides = Keyword.get(opts, :decision_tree_overrides, %{})
+    decisions = Map.merge(@decisions, decision_tree_overrides)
+
     cond do
-      Map.has_key?(@decisions, next_step) ->
-        {true_step, false_step} = @decisions[next_step]
+      Map.has_key?(decisions, next_step) ->
+        {true_step, false_step} = decisions[next_step]
 
         if result = apply(module, next_step, [conn]) do
           conn = merge_map_assigns(conn, result)

@@ -201,7 +201,25 @@ defmodule Liberator.Resource do
   | `c:valid_content_header?/1` | Is the `Content-Type` of the body valid?                                            | true |
   | `c:valid_entity_length?/1`  | Is the length of the body valid?                                                    | true |
 
-  ## Internal Decision Points
+  ## Debugging
+
+  Set the `:trace` option in your `use` statement to `:headers` so you can
+  get a full trace of all the decisions that were made during the execution of a request.
+
+      defmodule MyFirstResource do
+        use Liberator.Resource, trace: :headers
+
+        def handle_ok(_), do: "Hello world!"
+      end
+
+  This will add a header called `x-liberator-trace` that will show you the entire set of decisions, in the order they were made.
+
+  ## Advanced Overrides
+
+  Liberator tries to give you access to as much of the program as possible.
+  Lots of the guts are open for you to play around in.
+  You probably won't ever need to mess with this stuff,
+  but it's there if you need it.
 
   These decision points are used internally by Liberator and provide reasonable defaults.
   Overriding is possible, but not useful in general.
@@ -231,18 +249,30 @@ defmodule Liberator.Resource do
   | `c:post_to_missing?/1`                   | Checks if the request method is `POST` for resources that do not exist.        |
   | `c:put_to_existing?/1`                   | Checks if the request method is `PUT` for a resource that exists.              |
 
-  ## Debugging
+  Since version 1.3, you can even pass a map, named `:decision_tree_overrides`, into your `use` statement to override parts of the decision tree.
+  The decision tree is a map of `atom -> {atom, atom}`,
+  where all three atoms should be function names in the module that called `use`.
+  The first element of the tuple is the next function to call if the key function returns `true`,
+  and the second element of the tuple is the function to call if the function returns `false`.
+  For example, here's me overriding the first chunk of the decision tree so that the decision `c:uri_too_long?/1` is completely skipped.
+  That decisions happens right after `c:known_method?/1`, so just update that key to call the next decision instead, which is `c:known_method?/1`
 
-  Set the `:trace` option in your `use` statement to `:headers` so you can
-  get a full trace of all the decisions that were made during the execution of a request.
-
-      defmodule MyFirstResource do
-        use Liberator.Resource, trace: :headers
-
-        def handle_ok(_), do: "Hello world!"
+      defmodule LongUrisResource do
+        use Liberator.Resource,
+          decision_tree_overrides:  %{
+            # instead of known_method?: {:uri_too_long?, :handle_unknown_method}
+            known_method?: {:method_allowed?, :handle_unknown_method}
+          }
       end
 
-  This will add a header called `x-liberator-trace` that will show you the entire set of decisions, in the order they were made.
+    Every function in the decision matrix needs an entry.
+    If you're adding a new decision function of your own,
+    that new decision needs to be in both a result tuple and a key.
+    Otherwise, Liberator will throw an exception.
+    Also note that Liberator cannot detect a cycle in your callbacks,
+    so be careful!
+
+    Handlers (like `c:handle_ok/1`) and actions (like `c:post!/1`) cannot be overridden.
 
   """
 
