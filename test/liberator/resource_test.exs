@@ -88,6 +88,23 @@ defmodule Liberator.ResourceTest do
     ]
   end
 
+  test "can override the handlers tree" do
+    defmodule DevilsOkayResource do
+      use Liberator.Resource,
+        handler_status_overrides: %{
+          handle_ok: 666
+        }
+    end
+
+    conn = conn(:get, "/")
+
+    conn = DevilsOkayResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 666
+    assert conn.resp_body == "OK"
+  end
+
   test "gets index as JSON" do
     defmodule JsonResource do
       use Liberator.Resource

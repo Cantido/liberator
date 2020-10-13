@@ -131,6 +131,9 @@ defmodule Liberator.Evaluator do
     decision_tree_overrides = Keyword.get(opts, :decision_tree_overrides, %{})
     decisions = Map.merge(@decisions, decision_tree_overrides)
 
+    handler_status_overrides = Keyword.get(opts, :handler_status_overrides, %{})
+    handlers = Map.merge(@handlers, handler_status_overrides)
+
     cond do
       Map.has_key?(decisions, next_step) ->
         {true_step, false_step} = decisions[next_step]
@@ -150,7 +153,7 @@ defmodule Liberator.Evaluator do
         apply(module, next_step, [conn])
         continue(conn, module, @actions[next_step], opts)
 
-      Map.has_key?(@handlers, next_step) ->
+      Map.has_key?(handlers, next_step) ->
         conn = Trace.update_trace(conn, next_step, nil)
 
         conn =
@@ -168,7 +171,7 @@ defmodule Liberator.Evaluator do
 
         conn = apply_retry_header(conn, module)
 
-        status = @handlers[next_step]
+        status = handlers[next_step]
         body = apply(module, next_step, [conn])
 
         content_type = Map.get(conn.assigns, :media_type, "text/plain")

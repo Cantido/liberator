@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   This is an advanced feature that lets users override parts of the decision tree that Liberator evaluates.
   Want to change the ordering of some decisions, or add new ones?
   This is the way!
+- The `:handler_status_overrides` argument to `Liberator.Resource`.
+  This is an advanced feature that lets users override status codes associated with handlers.
+  It's mostly useful for those wanting to implement their own new statuses that Liberator doesn't support.
 
 ## [1.2.0] - 2020-10-12
 

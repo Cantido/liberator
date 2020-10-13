@@ -249,11 +249,13 @@ defmodule Liberator.Resource do
   | `c:post_to_missing?/1`                   | Checks if the request method is `POST` for resources that do not exist.        |
   | `c:put_to_existing?/1`                   | Checks if the request method is `PUT` for a resource that exists.              |
 
-  Since version 1.3, you can even pass a map, named `:decision_tree_overrides`, into your `use` statement to override parts of the decision tree.
+  Since version 1.3, you can even override the decision and handler trees.
+  To override the decision tree, add an option named `:decision_tree_overrides` into your `use` statement.
   The decision tree is a map of `atom -> {atom, atom}`,
   where all three atoms should be function names in the module that called `use`.
   The first element of the tuple is the next function to call if the key function returns `true`,
   and the second element of the tuple is the function to call if the function returns `false`.
+  Your argument to `:decision_tree_overrides` will be merged into the default decision tree.
   For example, here's me overriding the first chunk of the decision tree so that the decision `c:uri_too_long?/1` is completely skipped.
   That decisions happens right after `c:known_method?/1`, so just update that key to call the next decision instead, which is `c:known_method?/1`
 
@@ -272,8 +274,37 @@ defmodule Liberator.Resource do
     Also note that Liberator cannot detect a cycle in your callbacks,
     so be careful!
 
-    Handlers (like `c:handle_ok/1`) and actions (like `c:post!/1`) cannot be overridden.
+    To override the handler status, or add your own,
+    add an option named `:handler_status_overrides` to your `use` statement,
+    with a map of `atom -> integer`.
+    The integers are the status codes that Liberator will set before calling the actual handler function.
 
+    If you are adding a new status code to Liberator,
+    you'll also need to set `:decision_tree_overrides` in order to actually call this new handler,
+    as well as a functions of those name defined in the module that called `use`.
+    Here's an example of adding a handler for a new status code:
+
+        defmodule ResourceLikesToParty do
+          use Liberator.Resource,
+            decision_tree_overrides:  %{
+              allowed?: {:too_many_requests?, :handle_forbidden}
+              likes_to_party?: {:handle_likes_to_party, :too_many_requests?}
+            },
+            handler_status_overrides: %{
+              handle_likes_to_party: 420
+            }
+          }
+
+          def likes_to_party?(_conn), do: Enum.random([true, false])
+          def handle_likes_to_party(_conn), do: "Hey come party with me sometime."
+        end
+
+    In this example, the `likes_to_party?/1` callback is added,
+    and if that function returns `false`, it will continue on with the pipeline,
+    but if it returns `true`, then it will call the new `handle_likes_to_party/1` callback,
+    and set the status code to 420.
+
+    Actions (like `c:post!/1`) cannot be overridden.
   """
 
   @doc """
