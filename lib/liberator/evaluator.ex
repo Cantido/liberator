@@ -1,4 +1,5 @@
 defmodule Liberator.Evaluator do
+  alias Liberator.Trace
   import Plug.Conn
 
   @moduledoc false
@@ -142,35 +143,35 @@ defmodule Liberator.Evaluator do
 
         if result = apply(module, next_step, [conn]) do
           conn = merge_map_assigns(conn, result)
-          conn = Liberator.Trace.update_trace(conn, next_step, result)
+          conn = Trace.update_trace(conn, next_step, result)
           continue(conn, module, true_step, opts)
         else
-          conn = Liberator.Trace.update_trace(conn, next_step, result)
+          conn = Trace.update_trace(conn, next_step, result)
           continue(conn, module, false_step, opts)
         end
 
       Map.has_key?(actions, next_step) ->
-        conn = Liberator.Trace.update_trace(conn, next_step, nil)
+        conn = Trace.update_trace(conn, next_step, nil)
 
         apply(module, next_step, [conn])
         continue(conn, module, actions[next_step], opts)
 
       Map.has_key?(handlers, next_step) ->
-        conn = Liberator.Trace.update_trace(conn, next_step, nil)
+        conn = Trace.update_trace(conn, next_step, nil)
 
         conn =
           cond do
             Keyword.get(opts, :trace) == :headers ->
               trace =
                 conn
-                |> Liberator.Trace.get_trace()
-                |> Liberator.Trace.headers()
+                |> Trace.get_trace()
+                |> Trace.headers()
 
               prepend_resp_headers(conn, trace)
             Keyword.get(opts, :trace) == :log ->
               conn
-              |> Liberator.Trace.get_trace()
-              |> Liberator.Trace.log(conn.request_path, Logger.metadata[:request_id])
+              |> Trace.get_trace()
+              |> Trace.log(conn.request_path, Logger.metadata[:request_id])
 
               conn
             true ->
