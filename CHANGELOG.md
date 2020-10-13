@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `:handler_status_overrides` argument to `Liberator.Resource`.
   This is an advanced feature that lets users override status codes associated with handlers.
   It's mostly useful for those wanting to implement their own new statuses that Liberator doesn't support.
+- The `:action_followup_overrides` argument to `Liberator.Resource`.
+  This is an advanced feature that lets users override the functions called immediately after actions.
+  It's mostly useful for those wanting to implement their own new actions that Liberator doesn't support.
 
 ## [1.2.0] - 2020-10-12
 

@@ -134,6 +134,9 @@ defmodule Liberator.Evaluator do
     handler_status_overrides = Keyword.get(opts, :handler_status_overrides, %{})
     handlers = Map.merge(@handlers, handler_status_overrides)
 
+    action_followup_overrides = Keyword.get(opts, :action_followup_overrides, %{})
+    actions = Map.merge(@actions, action_followup_overrides)
+
     cond do
       Map.has_key?(decisions, next_step) ->
         {true_step, false_step} = decisions[next_step]
@@ -147,11 +150,11 @@ defmodule Liberator.Evaluator do
           continue(conn, module, false_step, opts)
         end
 
-      Map.has_key?(@actions, next_step) ->
+      Map.has_key?(actions, next_step) ->
         conn = Trace.update_trace(conn, next_step, nil)
 
         apply(module, next_step, [conn])
-        continue(conn, module, @actions[next_step], opts)
+        continue(conn, module, actions[next_step], opts)
 
       Map.has_key?(handlers, next_step) ->
         conn = Trace.update_trace(conn, next_step, nil)
@@ -187,9 +190,21 @@ defmodule Liberator.Evaluator do
         send_resp(conn, status, compressed_body)
 
       true ->
-        raise "Liberator encountered an unknown step called #{inspect(next_step)}. " <>
-          "If you have overridden part of the decision tree with :decision_tree_overrides, " <>
-          "make sure that the atoms in the {true, false} tuple value have their own entries in the map."
+        raise """
+          Liberator encountered an unknown step called #{inspect(next_step)}
+
+          In module: #{inspect module}
+
+          A couple things could be wrong:
+
+          - If you have overridden part of the decision tree with :decision_tree_overrides,
+            make sure that the atoms in the {true, false} tuple values have their own entries in the map.
+
+          - If you have overridden part of the handler tree with :handler_status_overrides,
+            or the action followups with :action_followup_overrides,
+            make sure that the handler the atoms you passed in are spelled correctly,
+            and match what the decision tree is calling.
+        """
     end
   end
 

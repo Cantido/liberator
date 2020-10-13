@@ -221,6 +221,8 @@ defmodule Liberator.Resource do
   You probably won't ever need to mess with this stuff,
   but it's there if you need it.
 
+  ### Overriding Decisions
+
   These decision points are used internally by Liberator and provide reasonable defaults.
   Overriding is possible, but not useful in general.
 
@@ -249,7 +251,10 @@ defmodule Liberator.Resource do
   | `c:post_to_missing?/1`                   | Checks if the request method is `POST` for resources that do not exist.        |
   | `c:put_to_existing?/1`                   | Checks if the request method is `PUT` for a resource that exists.              |
 
-  Since version 1.3, you can even override the decision and handler trees.
+
+  ### Adding Decisions
+
+  Since version 1.3, you can even override the decision, handler, and action trees.
   To override the decision tree, add an option named `:decision_tree_overrides` into your `use` statement.
   The decision tree is a map of `atom -> {atom, atom}`,
   where all three atoms should be function names in the module that called `use`.
@@ -267,44 +272,84 @@ defmodule Liberator.Resource do
           }
       end
 
-    Every function in the decision matrix needs an entry.
-    If you're adding a new decision function of your own,
-    that new decision needs to be in both a result tuple and a key.
-    Otherwise, Liberator will throw an exception.
-    Also note that Liberator cannot detect a cycle in your callbacks,
-    so be careful!
+  Every function in the decision matrix needs an entry.
+  If you're adding a new decision function of your own,
+  that new decision needs to be in both a result tuple and a key.
+  Otherwise, Liberator will throw an exception.
+  Also note that Liberator cannot detect a cycle in your callbacks,
+  so be careful!
 
-    To override the handler status, or add your own,
-    add an option named `:handler_status_overrides` to your `use` statement,
-    with a map of `atom -> integer`.
-    The integers are the status codes that Liberator will set before calling the actual handler function.
+  ### Adding Handlers
 
-    If you are adding a new status code to Liberator,
-    you'll also need to set `:decision_tree_overrides` in order to actually call this new handler,
-    as well as a functions of those name defined in the module that called `use`.
-    Here's an example of adding a handler for a new status code:
+  To override the handler status, or add your own,
+  add an option named `:handler_status_overrides` to your `use` statement,
+  with a map of `atom -> integer`.
+  The integers are the status codes that Liberator will set before calling the actual handler function.
 
-        defmodule ResourceLikesToParty do
-          use Liberator.Resource,
-            decision_tree_overrides:  %{
-              allowed?: {:too_many_requests?, :handle_forbidden}
-              likes_to_party?: {:handle_likes_to_party, :too_many_requests?}
-            },
-            handler_status_overrides: %{
-              handle_likes_to_party: 420
-            }
+  If you are adding a new status code to Liberator,
+  you'll also need to set `:decision_tree_overrides` in order to actually call this new handler,
+  as well as a functions of those name defined in the module that called `use`.
+  Here's an example of adding a handler for a new status code:
+
+      defmodule ResourceLikesToParty do
+        use Liberator.Resource,
+          decision_tree_overrides:  %{
+            allowed?: {:too_many_requests?, :handle_forbidden}
+            likes_to_party?: {:handle_likes_to_party, :too_many_requests?}
+          },
+          handler_status_overrides: %{
+            handle_likes_to_party: 420
           }
+        }
 
-          def likes_to_party?(_conn), do: Enum.random([true, false])
-          def handle_likes_to_party(_conn), do: "Hey come party with me sometime."
-        end
+        def likes_to_party?(_conn), do: Enum.random([true, false])
+        def handle_likes_to_party(_conn), do: "Hey come party with me sometime."
+      end
 
-    In this example, the `likes_to_party?/1` callback is added,
-    and if that function returns `false`, it will continue on with the pipeline,
-    but if it returns `true`, then it will call the new `handle_likes_to_party/1` callback,
-    and set the status code to 420.
+  In this example, the `likes_to_party?/1` callback is added,
+  and if that function returns `false`, it will continue on with the pipeline,
+  but if it returns `true`, then it will call the new `handle_likes_to_party/1` callback,
+  and set the status code to 420.
 
-    Actions (like `c:post!/1`) cannot be overridden.
+  ### Adding Actions
+
+  Finally, you can override actions as well.
+  The option is called `:action_followup_overrides`,
+  and is a map of `atom -> atom`,
+  where both atoms are functions defined in the module that called `use`.
+  The first atom is the name of the handler function, like `c:post!/1` or `c:delete!/1`.
+  The second atom is the function that will be called immediately after the action.
+
+  Say you're implementing a [WebDAV](https://en.wikipedia.org/wiki/WebDAV) server using Liberator,
+  and you want to add your own `COPY` decision, action, and handler.
+  By overriding some internals, this is how you'd do it,
+  and still have the power of the decision tree on your side!
+
+      defmodule WebDavResource do
+        use Liberator.Resource,
+          decision_tree_overrides:  %{
+            method_delete?: {:delete!, :method_copy?}
+            method_copy?: {:lock_token_valid?, :method_patch?}
+            lock_token_valid?: {:copy!, :handle_locked}
+          },
+          handler_status_overrides: %{
+            handle_locked: 423
+          },
+          action_followup_overrides: %{
+            copy!: :respond_with_entity?
+          }
+        }
+
+        @impl true
+        def available_media_types(_), do: ["application/xml"]
+
+        @impl true
+        def known_methods["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", "PATCH", "TRACE", "COPY"]
+
+        def lock_token_valid?(conn), do: MyWebDavBackend.lock_token_valid?(conn)
+        def copy!(conn), do: MyWebDavBackend.copy(conn)
+        def handle_locked(_conn), do: "Resource Locked"
+      end
   """
 
   @doc """

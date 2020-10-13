@@ -88,6 +88,37 @@ defmodule Liberator.ResourceTest do
     ]
   end
 
+  test "exception test" do
+    defmodule WillBreakLiberatorResource do
+      use Liberator.Resource,
+        decision_tree_overrides: %{
+          service_available?: {:i_dont_exist, :handle_service_unavailable}
+        }
+    end
+
+    conn = conn(:get, "/")
+
+    message = """
+        Liberator encountered an unknown step called :i_dont_exist
+
+        In module: Liberator.ResourceTest.WillBreakLiberatorResource
+
+        A couple things could be wrong:
+
+        - If you have overridden part of the decision tree with :decision_tree_overrides,
+          make sure that the atoms in the {true, false} tuple values have their own entries in the map.
+
+        - If you have overridden part of the handler tree with :handler_status_overrides,
+          or the action followups with :action_followup_overrides,
+          make sure that the handler the atoms you passed in are spelled correctly,
+          and match what the decision tree is calling.
+      """
+
+    assert_raise RuntimeError, message, fn ->
+      WillBreakLiberatorResource.call(conn, [])
+    end
+  end
+
   test "can override the handlers tree" do
     defmodule DevilsOkayResource do
       use Liberator.Resource,
@@ -102,6 +133,25 @@ defmodule Liberator.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 666
+    assert conn.resp_body == "OK"
+  end
+
+  test "can override the action followups" do
+    defmodule PostGoesToOk do
+      use Liberator.Resource,
+        action_followup_overrides: %{
+          post!: :handle_ok
+        }
+      @impl true
+      def allowed_methods(_conn), do: ["POST"]
+    end
+
+    conn = conn(:post, "/")
+
+    conn = PostGoesToOk.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
     assert conn.resp_body == "OK"
   end
 
