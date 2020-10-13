@@ -252,7 +252,7 @@ defmodule Liberator.Resource do
   The methods returned by this function should be upper-case strings, like `"GET"`, `"POST"`, etc.
   """
   @doc since: "1.0"
-  @callback allowed_methods(Plug.Conn.t) :: list()
+  @callback allowed_methods(Plug.Conn.t()) :: list()
 
   @doc """
   Returns a list of HTTP methods that exist.
@@ -263,7 +263,7 @@ defmodule Liberator.Resource do
   The methods returned by this function should be upper-case strings, like `"GET"`, `"POST"`, etc.
   """
   @doc since: "1.0"
-  @callback known_methods(Plug.Conn.t) :: list()
+  @callback known_methods(Plug.Conn.t()) :: list()
 
   @doc """
   Returns a list of content types that this module serves.
@@ -271,13 +271,13 @@ defmodule Liberator.Resource do
   The types returned by this function should be valid MIME types, like `text/plain`, `application/json`, etc.
   """
   @doc since: "1.0"
-  @callback available_media_types(Plug.Conn.t) :: list()
+  @callback available_media_types(Plug.Conn.t()) :: list()
 
   @doc """
   Returns a list of available languages.
   """
   @doc since: "1.0"
-  @callback available_languages(Plug.Conn.t) :: list()
+  @callback available_languages(Plug.Conn.t()) :: list()
 
   @doc """
   Returns a list of available response content encodings (AKA compressions).
@@ -285,7 +285,7 @@ defmodule Liberator.Resource do
   By default, only `identity` (no compression) is supported.
   """
   @doc since: "1.0"
-  @callback available_encodings(Plug.Conn.t) :: list()
+  @callback available_encodings(Plug.Conn.t()) :: list()
 
   @doc """
   Returns a list of available content charsets.
@@ -293,7 +293,7 @@ defmodule Liberator.Resource do
   By default, only `UTF-8` is supported.
   """
   @doc since: "1.0"
-  @callback available_charsets(Plug.Conn.t) :: list()
+  @callback available_charsets(Plug.Conn.t()) :: list()
 
   @doc """
   Returns the last modified date of your resource.
@@ -301,7 +301,7 @@ defmodule Liberator.Resource do
   This value will be used to respond to caching headers like `If-Modified-Since`.
   """
   @doc since: "1.0"
-  @callback last_modified(Plug.Conn.t) :: DateTime.t
+  @callback last_modified(Plug.Conn.t()) :: DateTime.t()
 
   @doc """
   Returns the etag for the current entity.
@@ -309,7 +309,7 @@ defmodule Liberator.Resource do
   This value will be used to respond to caching headers like `If-None-Match`.
   """
   @doc since: "1.0"
-  @callback etag(Plug.Conn.t) :: String.t
+  @callback etag(Plug.Conn.t()) :: String.t()
 
   @doc """
   Check if your service is available.
@@ -329,7 +329,7 @@ defmodule Liberator.Resource do
   By default, always returns `true`.
   """
   @doc since: "1.0"
-  @callback service_available?(Plug.Conn.t) :: true | false
+  @callback service_available?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check of the HTTP method in the request is one we know about.
@@ -344,7 +344,7 @@ defmodule Liberator.Resource do
   By default, allows the methods returned by `c:known_methods/1`.
   """
   @doc since: "1.0"
-  @callback known_method?(Plug.Conn.t) :: true | false
+  @callback known_method?(Plug.Conn.t()) :: true | false
 
   @doc """
   Checks the length of the URI.
@@ -354,7 +354,7 @@ defmodule Liberator.Resource do
   By default, always returns `false`.
   """
   @doc since: "1.0"
-  @callback uri_too_long?(Plug.Conn.t) :: true | false
+  @callback uri_too_long?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the server supports the request's HTTP method.
@@ -364,7 +364,7 @@ defmodule Liberator.Resource do
   By default, allows the methods returned by `c:allowed_methods/1`.
   """
   @doc since: "1.0"
-  @callback method_allowed?(Plug.Conn.t) :: true | false
+  @callback method_allowed?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check the request for general adherence to some form.
@@ -377,7 +377,7 @@ defmodule Liberator.Resource do
   By default, always returns `false`.
   """
   @doc since: "1.0"
-  @callback malformed?(Plug.Conn.t) :: true | false
+  @callback malformed?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check for presence ofauthentication information in the request.
@@ -392,7 +392,7 @@ defmodule Liberator.Resource do
   By default, always returns `true`.
   """
   @doc since: "1.0"
-  @callback authorized?(Plug.Conn.t) :: true | false
+  @callback authorized?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check the authentication information in the request to see if it has the necessary permissions.
@@ -404,7 +404,7 @@ defmodule Liberator.Resource do
   By default, always returns `true`.
   """
   @doc since: "1.0"
-  @callback allowed?(Plug.Conn.t) :: true | false
+  @callback allowed?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check to see if payment is required for this resource.
@@ -415,7 +415,7 @@ defmodule Liberator.Resource do
   By default, always returns `false`.
   """
   @doc since: "1.2"
-  @callback payment_required?(Plug.Conn.t) :: true | false
+  @callback payment_required?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check to see if the client has performed too many requests.
@@ -436,7 +436,7 @@ defmodule Liberator.Resource do
   By default, always returns `false`.
   """
   @doc since: "1.2"
-  @callback too_many_requests?(Plug.Conn.t) :: true | false
+  @callback too_many_requests?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the Content-Type of the body is valid.
@@ -444,7 +444,7 @@ defmodule Liberator.Resource do
   By default, always returns `true`.
   """
   @doc since: "1.0"
-  @callback valid_content_header?(Plug.Conn.t) :: true | false
+  @callback valid_content_header?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the Content-Type of the body is known.
@@ -452,7 +452,7 @@ defmodule Liberator.Resource do
   By default, always returns `true`.
   """
   @doc since: "1.0"
-  @callback known_content_type?(Plug.Conn.t) :: true | false
+  @callback known_content_type?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the length of the body is valid.
@@ -460,7 +460,7 @@ defmodule Liberator.Resource do
   By default, always returns `true`.
   """
   @doc since: "1.0"
-  @callback valid_entity_length?(Plug.Conn.t) :: true | false
+  @callback valid_entity_length?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the request method is Options.
@@ -468,7 +468,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback is_options?(Plug.Conn.t) :: true | false
+  @callback is_options?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `Accept` header exists.
@@ -476,7 +476,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback accept_exists?(Plug.Conn.t) :: true | false
+  @callback accept_exists?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the request media type is available.
@@ -484,7 +484,7 @@ defmodule Liberator.Resource do
   By default, uses the values returned by `c:available_media_types/1`.
   """
   @doc since: "1.0"
-  @callback media_type_available?(Plug.Conn.t) :: true | false
+  @callback media_type_available?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `Accept-Language` header exists.
@@ -492,7 +492,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback accept_language_exists?(Plug.Conn.t) :: true | false
+  @callback accept_language_exists?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the requested language is available.
@@ -500,7 +500,7 @@ defmodule Liberator.Resource do
   By default, uses the values returned by `c:available_languages/1`.
   """
   @doc since: "1.0"
-  @callback language_available?(Plug.Conn.t) :: true | false
+  @callback language_available?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `Accept-Charset` header exists.
@@ -508,7 +508,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback accept_charset_exists?(Plug.Conn.t) :: true | false
+  @callback accept_charset_exists?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check of the requested charset is available.
@@ -516,7 +516,7 @@ defmodule Liberator.Resource do
   By default, uses the values returned by `c:available_charsets/1`.
   """
   @doc since: "1.0"
-  @callback charset_available?(Plug.Conn.t) :: true | false
+  @callback charset_available?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `Accept-Encoding` header exists.
@@ -524,7 +524,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback accept_encoding_exists?(Plug.Conn.t) :: true | false
+  @callback accept_encoding_exists?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check of the requested encoding is available.
@@ -532,7 +532,7 @@ defmodule Liberator.Resource do
   By default, uses the values returned by `c:available_encodings/1`.
   """
   @doc since: "1.0"
-  @callback encoding_available?(Plug.Conn.t) :: true | false
+  @callback encoding_available?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the body of the request can be processed.
@@ -541,7 +541,7 @@ defmodule Liberator.Resource do
   Returning `false` here would cause the plug to return a 422 Unprocessable response.
   """
   @doc since: "1.0"
-  @callback processable?(Plug.Conn.t) :: true | false
+  @callback processable?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the requested entity exists.
@@ -552,7 +552,7 @@ defmodule Liberator.Resource do
   Returning `false` here will cause the plug to return a 404 Not Found response.
   """
   @doc since: "1.0"
-  @callback exists?(Plug.Conn.t) :: true | false
+  @callback exists?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the request method is `PUT`.
@@ -560,7 +560,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback method_put?(Plug.Conn.t) :: true | false
+  @callback method_put?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the resource ever existed.
@@ -569,7 +569,7 @@ defmodule Liberator.Resource do
   responses like "Moved Permanently" and "Gone", among othes.
   """
   @doc since: "1.0"
-  @callback existed?(Plug.Conn.t) :: true | false
+  @callback existed?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the request method is `POST` to a resource that doesn't exist.
@@ -577,7 +577,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback post_to_missing?(Plug.Conn.t) :: true | false
+  @callback post_to_missing?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if we can process a post to a resource that does not exist,
@@ -586,7 +586,7 @@ defmodule Liberator.Resource do
   By default, always returns `true`.
   """
   @doc since: "1.0"
-  @callback can_post_to_missing?(Plug.Conn.t) :: true | false
+  @callback can_post_to_missing?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the resource was moved permanently.
@@ -594,7 +594,7 @@ defmodule Liberator.Resource do
   By default, always returns `false`.
   """
   @doc since: "1.0"
-  @callback moved_permanently?(Plug.Conn.t) :: true | false
+  @callback moved_permanently?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the resource was moved temporarily.
@@ -602,7 +602,7 @@ defmodule Liberator.Resource do
   By default, always returns `false`.
   """
   @doc since: "1.0"
-  @callback moved_temporarily?(Plug.Conn.t) :: true | false
+  @callback moved_temporarily?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the resource is no longer available, for legal reasons.
@@ -613,7 +613,7 @@ defmodule Liberator.Resource do
   By default, always returns `false`.
   """
   @doc since: "1.2"
-  @callback unavailable_for_legal_reasons?(Plug.Conn.t) :: true | false
+  @callback unavailable_for_legal_reasons?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the request method is `POST` for resources that do not exist anymore.
@@ -621,7 +621,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback post_to_gone?(Plug.Conn.t) :: true | false
+  @callback post_to_gone?(Plug.Conn.t()) :: true | false
 
   @doc """
   Decide if we can process a `POST` to a resource that existed before, or return a 410 Gone response.
@@ -629,7 +629,7 @@ defmodule Liberator.Resource do
   By default, always returns `false`.
   """
   @doc since: "1.0"
-  @callback can_post_to_gone?(Plug.Conn.t) :: true | false
+  @callback can_post_to_gone?(Plug.Conn.t()) :: true | false
 
   @doc """
   Decide if a `PUT` request should be made to a different URL.
@@ -637,7 +637,7 @@ defmodule Liberator.Resource do
   By default, always returns `false`.
   """
   @doc since: "1.0"
-  @callback put_to_different_url?(Plug.Conn.t) :: true | false
+  @callback put_to_different_url?(Plug.Conn.t()) :: true | false
 
   @doc """
   Decide if we can `PUT` to a resource that does not exist, or return 501 Not Implemented.
@@ -645,7 +645,7 @@ defmodule Liberator.Resource do
   By default, always returns `true`.
   """
   @doc since: "1.0"
-  @callback can_put_to_missing?(Plug.Conn.t) :: true | false
+  @callback can_put_to_missing?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `If-None-Match` header exists.
@@ -653,7 +653,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback if_none_match_exists?(Plug.Conn.t) :: true | false
+  @callback if_none_match_exists?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `If-None-Match` header is `*`.
@@ -661,7 +661,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback if_none_match_star?(Plug.Conn.t) :: true | false
+  @callback if_none_match_star?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the etag of the current resource matches the `If-Match-None` header.
@@ -669,7 +669,7 @@ defmodule Liberator.Resource do
   By default, checks the header against the value returned by `c:etag/1`.
   """
   @doc since: "1.0"
-  @callback etag_matches_for_if_none?(Plug.Conn.t) :: true | false
+  @callback etag_matches_for_if_none?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the request method to handle failed if-none-match.
@@ -677,7 +677,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback if_none_match?(Plug.Conn.t) :: true | false
+  @callback if_none_match?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `If-Match` header exists.
@@ -685,7 +685,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback if_match_exists?(Plug.Conn.t) :: true | false
+  @callback if_match_exists?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `If-Match` header is  `*`.
@@ -693,7 +693,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback if_match_star?(Plug.Conn.t) :: true | false
+  @callback if_match_star?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the etag for the current resource matches the value in the `If-Match` header.
@@ -701,7 +701,7 @@ defmodule Liberator.Resource do
   By default, checks the header against the value returned by `c:etag/1`.
   """
   @doc since: "1.0"
-  @callback etag_matches_for_if_match?(Plug.Conn.t) :: true | false
+  @callback etag_matches_for_if_match?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `If-Match *` header exists for a resource that does not exist.
@@ -709,7 +709,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback if_match_star_exists_for_missing?(Plug.Conn.t) :: true | false
+  @callback if_match_star_exists_for_missing?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `If-Modified-Since` header exists.
@@ -717,7 +717,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback if_modified_since_exists?(Plug.Conn.t) :: true | false
+  @callback if_modified_since_exists?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `If-Modified-Since` header is a valid HTTP date.
@@ -725,7 +725,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback if_modified_since_valid_date?(Plug.Conn.t) :: true | false
+  @callback if_modified_since_valid_date?(Plug.Conn.t()) :: true | false
 
   @doc """
   Checks if the resource was modified since the date given in the `If-Modified-Since` header.
@@ -733,7 +733,7 @@ defmodule Liberator.Resource do
   By default, checks the header against the value returned by `c:last_modified/1`.
   """
   @doc since: "1.0"
-  @callback modified_since?(Plug.Conn.t) :: true | false
+  @callback modified_since?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `If-Unmodified-Since` header exists.
@@ -741,7 +741,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback if_unmodified_since_exists?(Plug.Conn.t) :: true | false
+  @callback if_unmodified_since_exists?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `If-Unmodified-Since` header is a valid HTTP date.
@@ -749,7 +749,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback if_unmodified_since_valid_date?(Plug.Conn.t) :: true | false
+  @callback if_unmodified_since_valid_date?(Plug.Conn.t()) :: true | false
 
   @doc """
   Checks if the resource was not modified since the date given in the `If-Unmodified-Since` header.
@@ -757,7 +757,7 @@ defmodule Liberator.Resource do
   By default, checks the header against the value returned by `c:last_modified/1`.
   """
   @doc since: "1.0"
-  @callback unmodified_since?(Plug.Conn.t) :: true | false
+  @callback unmodified_since?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the request method is `DELETE`.
@@ -765,7 +765,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback method_delete?(Plug.Conn.t) :: true | false
+  @callback method_delete?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `DELETE` request was processed.
@@ -776,7 +776,7 @@ defmodule Liberator.Resource do
   By default, always returns `true`.
   """
   @doc since: "1.0"
-  @callback delete_enacted?(Plug.Conn.t) :: true | false
+  @callback delete_enacted?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the request method is `PATCH`.
@@ -784,7 +784,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback method_patch?(Plug.Conn.t) :: true | false
+  @callback method_patch?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `PATCH` request was processed.
@@ -795,7 +795,7 @@ defmodule Liberator.Resource do
   By default, always returns `true`.
   """
   @doc since: "1.0"
-  @callback patch_enacted?(Plug.Conn.t) :: true | false
+  @callback patch_enacted?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the request method is `POST`.
@@ -803,7 +803,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback method_post?(Plug.Conn.t) :: true | false
+  @callback method_post?(Plug.Conn.t()) :: true | false
 
   @doc """
   Decide if the response should redirect after a `POST`.
@@ -811,7 +811,7 @@ defmodule Liberator.Resource do
   By default, always returns `false`.
   """
   @doc since: "1.0"
-  @callback post_redirect?(Plug.Conn.t) :: true | false
+  @callback post_redirect?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the request method is `POST` for a resource that already exists.
@@ -819,7 +819,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback post_to_existing?(Plug.Conn.t) :: true | false
+  @callback post_to_existing?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `POST` request was processed.
@@ -830,13 +830,13 @@ defmodule Liberator.Resource do
   By default, always returns `true`.
   """
   @doc since: "1.0"
-  @callback post_enacted?(Plug.Conn.t) :: true | false
+  @callback post_enacted?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the request method is a `PUT` for a resource that already exists.
   """
   @doc since: "1.0"
-  @callback put_to_existing?(Plug.Conn.t) :: true | false
+  @callback put_to_existing?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `PUT` request was processed.
@@ -847,31 +847,31 @@ defmodule Liberator.Resource do
   By default, always returns `true`.
   """
   @doc since: "1.0"
-  @callback put_enacted?(Plug.Conn.t) :: true | false
+  @callback put_enacted?(Plug.Conn.t()) :: true | false
 
   @doc """
   Should the response contain a representation of the resource?
   """
   @doc since: "1.0"
-  @callback respond_with_entity?(Plug.Conn.t) :: true | false
+  @callback respond_with_entity?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if there are multiple representations of the resource.
   """
   @doc since: "1.0"
-  @callback multiple_representations?(Plug.Conn.t) :: true | false
+  @callback multiple_representations?(Plug.Conn.t()) :: true | false
 
   @doc """
   Does the `PUT` or `POST` request result in a conflict?
   """
   @doc since: "1.0"
-  @callback conflict?(Plug.Conn.t) :: true | false
+  @callback conflict?(Plug.Conn.t()) :: true | false
 
   @doc """
   Was the resource created by this request?
   """
   @doc since: "1.0"
-  @callback new?(Plug.Conn.t) :: true | false
+  @callback new?(Plug.Conn.t()) :: true | false
 
   @doc """
   A hook invoked at the beginning of the decision tree to set up anything you may need.
@@ -879,104 +879,103 @@ defmodule Liberator.Resource do
   You can return a map here and it will be merged with the given conn's `:assigns` map.
   """
   @doc since: "1.0"
-  @callback initialize(Plug.Conn.t) :: any()
+  @callback initialize(Plug.Conn.t()) :: any()
 
   @doc """
   Called for `DELETE` requests.
   """
   @doc since: "1.0"
-  @callback delete!(Plug.Conn.t) :: any()
+  @callback delete!(Plug.Conn.t()) :: any()
 
   @doc """
   Called for `PUT` requests.
   """
   @doc since: "1.0"
-  @callback put!(Plug.Conn.t) :: any()
+  @callback put!(Plug.Conn.t()) :: any()
 
   @doc """
   Called for `PATCH` requests.
   """
   @doc since: "1.0"
-  @callback patch!(Plug.Conn.t) :: any()
+  @callback patch!(Plug.Conn.t()) :: any()
 
   @doc """
   Called for `POST` requests.
   """
   @doc since: "1.0"
-  @callback post!(Plug.Conn.t) :: any()
-
+  @callback post!(Plug.Conn.t()) :: any()
 
   @doc """
   Returns content for a `200 OK` response.
   """
   @doc since: "1.0"
-  @callback handle_ok(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_ok(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `200 OK` response to an `OPTIONS` request.
   """
   @doc since: "1.0"
-  @callback handle_options(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_options(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `201 Created` response.
   """
   @doc since: "1.0"
-  @callback handle_created(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_created(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `202 Accepted` response.
   """
   @doc since: "1.0"
-  @callback handle_accepted(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_accepted(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `204 No Content` response.
   """
   @doc since: "1.0"
-  @callback handle_no_content(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_no_content(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `300 Multiple Representations` response.
   """
   @doc since: "1.0"
-  @callback handle_multiple_representations(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_multiple_representations(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `301 Moved Permanently` response.
   """
   @doc since: "1.0"
-  @callback handle_moved_permanently(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_moved_permanently(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `303 See Other` response.
   """
   @doc since: "1.0"
-  @callback handle_see_other(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_see_other(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `304 Not Modified` response.
   """
   @doc since: "1.0"
-  @callback handle_not_modified(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_not_modified(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `307 Moved Permanently` response.
   """
   @doc since: "1.0"
-  @callback handle_moved_temporarily(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_moved_temporarily(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `400 Malformed` response.
   """
   @doc since: "1.0"
-  @callback handle_malformed(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_malformed(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `401 Unauthorized` response.
   """
   @doc since: "1.0"
-  @callback handle_unauthorized(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_unauthorized(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `402 Payment Required` response.
@@ -984,73 +983,73 @@ defmodule Liberator.Resource do
   Please note that the 402 status code is experimental, and is "reserved for future use."
   """
   @doc since: "1.2"
-  @callback handle_payment_required(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_payment_required(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `403 Forbidden` response.
   """
   @doc since: "1.0"
-  @callback handle_forbidden(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_forbidden(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `404 Not Found` response.
   """
   @doc since: "1.0"
-  @callback handle_not_found(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_not_found(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `405 Method Not Allowed` response.
   """
   @doc since: "1.0"
-  @callback handle_method_not_allowed(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_method_not_allowed(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `406 Not Acceptable` response.
   """
   @doc since: "1.0"
-  @callback handle_not_acceptable(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_not_acceptable(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `409 Conflict` response.
   """
   @doc since: "1.0"
-  @callback handle_conflict(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_conflict(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `410 Gone` response.
   """
   @doc since: "1.0"
-  @callback handle_gone(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_gone(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `412 Precondition Failed` response.
   """
   @doc since: "1.0"
-  @callback handle_precondition_failed(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_precondition_failed(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `413 Entity Too Large` response.
   """
   @doc since: "1.0"
-  @callback handle_request_entity_too_large(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_request_entity_too_large(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `414 URI Too Long` response.
   """
   @doc since: "1.0"
-  @callback handle_uri_too_long(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_uri_too_long(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `415 Unsuppported Media Type` response.
   """
   @doc since: "1.0"
-  @callback handle_unsupported_media_type(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_unsupported_media_type(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `422 Unprocesable Entity` response.
   """
   @doc since: "1.0"
-  @callback handle_unprocessable_entity(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_unprocessable_entity(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `429 Too Many Requests` response.
@@ -1058,7 +1057,7 @@ defmodule Liberator.Resource do
   For more information on this response type, see [RFC 6585, section 4](https://tools.ietf.org/html/rfc6585#section-4).
   """
   @doc since: "1.2"
-  @callback handle_too_many_requests(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_too_many_requests(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `451 Unavailable for Legal Reasons` response.
@@ -1066,25 +1065,25 @@ defmodule Liberator.Resource do
   For more information on this response type, see [RFC 7725](https://tools.ietf.org/html/rfc7725).
   """
   @doc since: "1.2"
-  @callback handle_unavailable_for_legal_reasons(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_unavailable_for_legal_reasons(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `501 Unknown Method` response.
   """
   @doc since: "1.0"
-  @callback handle_unknown_method(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_unknown_method(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `501 Not Implemented` response.
   """
   @doc since: "1.0"
-  @callback handle_not_implemented(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_not_implemented(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Returns content for a `503 Service Unavailable` response.
   """
   @doc since: "1.0"
-  @callback handle_service_unavailable(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_service_unavailable(Plug.Conn.t()) :: Plug.Conn.t()
 
   defmacro __using__(usage_opts) do
     # I wish I could find a way to make this shorter, but I don't think I can!
@@ -1093,7 +1092,7 @@ defmodule Liberator.Resource do
       use Plug.Builder
       @behaviour Liberator.Resource
 
-      plug Liberator.Evaluator, Keyword.merge([module: __MODULE__], unquote(usage_opts))
+      plug(Liberator.Evaluator, Keyword.merge([module: __MODULE__], unquote(usage_opts)))
 
       @impl true
       def allowed_methods(_conn) do
@@ -1141,12 +1140,14 @@ defmodule Liberator.Resource do
       def known_method?(conn) do
         conn.method in known_methods(conn)
       end
+
       @impl true
       def uri_too_long?(_conn), do: false
       @impl true
       def method_allowed?(conn) do
         conn.method in allowed_methods(conn)
       end
+
       @impl true
       def malformed?(_conn), do: false
       @impl true
@@ -1180,14 +1181,17 @@ defmodule Liberator.Resource do
       def accept_exists?(conn) do
         get_req_header(conn, "accept") |> Enum.any?()
       end
+
       @impl true
       def accept_language_exists?(conn) do
         get_req_header(conn, "accept-language") |> Enum.any?()
       end
+
       @impl true
       def accept_charset_exists?(conn) do
         get_req_header(conn, "accept-charset") |> Enum.any?()
       end
+
       @impl true
       def accept_encoding_exists?(conn) do
         get_req_header(conn, "accept-encoding") |> Enum.any?()
@@ -1195,20 +1199,43 @@ defmodule Liberator.Resource do
 
       @impl true
       def media_type_available?(conn) do
-        Liberator.ContentNegotiation.accept_something(conn, :media_type, "accept", available_media_types(conn), "*/*")
+        Liberator.ContentNegotiation.accept_something(
+          conn,
+          :media_type,
+          "accept",
+          available_media_types(conn),
+          "*/*"
+        )
       end
+
       @impl true
       def language_available?(conn) do
-        Liberator.ContentNegotiation.accept_something(conn, :language, "accept-language", available_languages(conn))
+        Liberator.ContentNegotiation.accept_something(
+          conn,
+          :language,
+          "accept-language",
+          available_languages(conn)
+        )
       end
 
       @impl true
       def charset_available?(conn) do
-        Liberator.ContentNegotiation.accept_something(conn, :charset, "accept-charset", available_charsets(conn))
+        Liberator.ContentNegotiation.accept_something(
+          conn,
+          :charset,
+          "accept-charset",
+          available_charsets(conn)
+        )
       end
+
       @impl true
       def encoding_available?(conn) do
-        Liberator.ContentNegotiation.accept_something(conn, :encoding, "accept-encoding", available_encodings(conn))
+        Liberator.ContentNegotiation.accept_something(
+          conn,
+          :encoding,
+          "accept-encoding",
+          available_encodings(conn)
+        )
       end
 
       @impl true
@@ -1247,18 +1274,22 @@ defmodule Liberator.Resource do
       def if_match_exists?(conn) do
         get_req_header(conn, "if-match") |> Enum.any?()
       end
+
       @impl true
       def if_match_star?(conn) do
         get_req_header(conn, "if-match") |> Enum.any?(&(&1 == "*"))
       end
+
       @impl true
       def if_none_match_exists?(conn) do
         get_req_header(conn, "if-none-match") |> Enum.any?()
       end
+
       @impl true
       def if_none_match_star?(conn) do
         get_req_header(conn, "if-none-match") |> Enum.any?(&(&1 == "*"))
       end
+
       @impl true
       def if_none_match?(_conn), do: false
 
@@ -1284,6 +1315,7 @@ defmodule Liberator.Resource do
       def if_modified_since_exists?(conn) do
         get_req_header(conn, "if-modified-since") |> Enum.any?()
       end
+
       @impl true
       def if_modified_since_valid_date?(conn) do
         conn
@@ -1291,6 +1323,7 @@ defmodule Liberator.Resource do
         |> Enum.at(0)
         |> Liberator.HTTPDateTime.valid?()
       end
+
       @impl true
       def modified_since?(conn) do
         conn
@@ -1299,10 +1332,12 @@ defmodule Liberator.Resource do
         |> Liberator.HTTPDateTime.parse!()
         |> Timex.before?(last_modified(conn))
       end
+
       @impl true
       def if_unmodified_since_exists?(conn) do
         get_req_header(conn, "if-unmodified-since") |> Enum.any?()
       end
+
       @impl true
       def if_unmodified_since_valid_date?(conn) do
         conn
@@ -1310,6 +1345,7 @@ defmodule Liberator.Resource do
         |> Enum.at(0)
         |> Liberator.HTTPDateTime.valid?()
       end
+
       @impl true
       def unmodified_since?(conn) do
         conn
@@ -1338,7 +1374,6 @@ defmodule Liberator.Resource do
       @impl true
       def multiple_representations?(_conn), do: false
 
-
       @impl true
       def initialize(_conn), do: nil
 
@@ -1361,7 +1396,6 @@ defmodule Liberator.Resource do
       def post!(_conn) do
         nil
       end
-
 
       @impl true
       def handle_ok(conn) do

@@ -15,6 +15,7 @@ defmodule Liberator.ResourceTest do
     assert conn.state == :sent
     assert conn.status == 200
     assert conn.resp_body == "OK"
+
     assert conn.private.liberator_trace == [
       initialize: nil,
       service_available?: true,
@@ -106,7 +107,7 @@ defmodule Liberator.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 501
-    assert  conn.resp_body == "Unknown Method"
+    assert conn.resp_body == "Unknown Method"
   end
 
   test "returns 414 when uri_too_long? returns true" do
@@ -411,11 +412,12 @@ defmodule Liberator.ResourceTest do
 
     expected_message =
       "Value for :retry_after was not a valid DateTime, integer, or String, but was <<255, 255>>. " <>
-      "Make sure the too_many_requests/1 function of " <>
-      "Liberator.ResourceTest.RateLimitedByUnicodeConsortiumResource is setting " <>
-      "that key to one of those types. Remember that you can also just return true or false."
+        "Make sure the too_many_requests/1 function of " <>
+        "Liberator.ResourceTest.RateLimitedByUnicodeConsortiumResource is setting " <>
+        "that key to one of those types. Remember that you can also just return true or false."
 
     conn = conn(:get, "/")
+
     assert_raise RuntimeError, expected_message, fn ->
       RateLimitedByUnicodeConsortiumResource.call(conn, [])
     end

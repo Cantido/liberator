@@ -103,6 +103,7 @@ defmodule Liberator.ResourceDefaultsTest do
 
       assert MyDefaultResource.accept_exists?(conn)
     end
+
     test "returns true if the accept header is */*" do
       conn =
         conn(:get, "/")
@@ -110,6 +111,7 @@ defmodule Liberator.ResourceDefaultsTest do
 
       assert MyDefaultResource.accept_exists?(conn)
     end
+
     test "returns false if the accept header is not present" do
       refute MyDefaultResource.accept_exists?(conn(:get, "/"))
     end
@@ -123,6 +125,7 @@ defmodule Liberator.ResourceDefaultsTest do
 
       assert MyDefaultResource.accept_language_exists?(conn)
     end
+
     test "returns false if the accept-language header is not present" do
       refute MyDefaultResource.accept_language_exists?(conn(:get, "/"))
     end
@@ -172,6 +175,7 @@ defmodule Liberator.ResourceDefaultsTest do
 
       assert MyDefaultResource.accept_charset_exists?(conn)
     end
+
     test "returns false if the accept-charset header is not present" do
       refute MyDefaultResource.accept_charset_exists?(conn(:get, "/"))
     end
@@ -185,6 +189,7 @@ defmodule Liberator.ResourceDefaultsTest do
 
       assert MyDefaultResource.accept_encoding_exists?(conn)
     end
+
     test "returns false if the accept-encoding header is not present" do
       refute MyDefaultResource.accept_encoding_exists?(conn(:get, "/"))
     end
@@ -198,7 +203,10 @@ defmodule Liberator.ResourceDefaultsTest do
     end
 
     test "disallows UTF-16" do
-      refute Utf8EncodingAvailableResource.encoding_available?(conn(:get, "/") |> put_req_header("accept-encoding", "UTF-16"))
+      refute Utf8EncodingAvailableResource.encoding_available?(
+               conn(:get, "/")
+               |> put_req_header("accept-encoding", "UTF-16")
+             )
     end
 
     test "returns a map containing the matching encoding" do
@@ -218,7 +226,10 @@ defmodule Liberator.ResourceDefaultsTest do
     end
 
     test "disallows text/nonexistent-media-type" do
-      refute MyDefaultResource.media_type_available?(conn(:get, "/") |> put_req_header("accept", "text/nonexistent-media-type"))
+      refute MyDefaultResource.media_type_available?(
+               conn(:get, "/")
+               |> put_req_header("accept", "text/nonexistent-media-type")
+             )
     end
 
     test "returns a map containing the matching media type" do
@@ -226,7 +237,9 @@ defmodule Liberator.ResourceDefaultsTest do
         conn(:get, "/")
         |> put_req_header("accept", "application/json")
 
-      assert JsonMediaTypeAvailableResource.media_type_available?(conn) == %{media_type: "application/json"}
+      assert JsonMediaTypeAvailableResource.media_type_available?(conn) == %{
+               media_type: "application/json"
+             }
     end
 
     test "returns a map containing the matching media type with the highest q" do
@@ -234,7 +247,9 @@ defmodule Liberator.ResourceDefaultsTest do
         conn(:get, "/")
         |> put_req_header("accept", "application/json;q=1.0, text/html;q=0.8")
 
-      assert JsonMediaTypeAvailableResource.media_type_available?(conn) == %{media_type: "application/json"}
+      assert JsonMediaTypeAvailableResource.media_type_available?(conn) == %{
+               media_type: "application/json"
+             }
     end
 
     test "returns a map containing the matching media type with the highest q even if they're out of order" do
@@ -242,7 +257,9 @@ defmodule Liberator.ResourceDefaultsTest do
         conn(:get, "/")
         |> put_req_header("accept", "text/html;q=0.8, application/json;q=1.0")
 
-      assert JsonMediaTypeAvailableResource.media_type_available?(conn) == %{media_type: "application/json"}
+      assert JsonMediaTypeAvailableResource.media_type_available?(conn) == %{
+               media_type: "application/json"
+             }
     end
 
     test "values with plus modifiers aren't the same" do
@@ -250,7 +267,9 @@ defmodule Liberator.ResourceDefaultsTest do
         conn(:get, "/")
         |> put_req_header("accept", "text/html;q=0.8, application/json+myspecialschema;q=1.0")
 
-      assert JsonMediaTypeAvailableResource.media_type_available?(conn) == %{media_type: "text/html"}
+      assert JsonMediaTypeAvailableResource.media_type_available?(conn) == %{
+               media_type: "text/html"
+             }
     end
 
     test "values with no q are the highest ranked" do
@@ -258,7 +277,9 @@ defmodule Liberator.ResourceDefaultsTest do
         conn(:get, "/")
         |> put_req_header("accept", "text/html;q=0.8, application/json")
 
-      assert JsonMediaTypeAvailableResource.media_type_available?(conn) == %{media_type: "application/json"}
+      assert JsonMediaTypeAvailableResource.media_type_available?(conn) == %{
+               media_type: "application/json"
+             }
     end
   end
 
@@ -314,6 +335,7 @@ defmodule Liberator.ResourceDefaultsTest do
 
       assert MyDefaultResource.if_modified_since_exists?(conn)
     end
+
     test "returns false if the if-modified-since header is not present" do
       refute MyDefaultResource.if_modified_since_exists?(conn(:get, "/"))
     end
@@ -326,18 +348,21 @@ defmodule Liberator.ResourceDefaultsTest do
         |> Timex.now()
         |> Timex.shift(days: -1)
         |> HTTPDateTime.format!()
+
       conn =
         conn(:get, "/")
         |> put_req_header("if-modified-since", time_str)
 
       assert MyDefaultResource.modified_since?(conn)
     end
+
     test "returns false if last modification date is before modification_since" do
       time_str =
         Timex.Timezone.get("GMT")
         |> Timex.now()
         |> Timex.shift(days: 1)
         |> HTTPDateTime.format!()
+
       conn =
         conn(:get, "/")
         |> put_req_header("if-modified-since", time_str)
@@ -351,12 +376,14 @@ defmodule Liberator.ResourceDefaultsTest do
       time_str =
         Timex.now()
         |> HTTPDateTime.format!()
+
       conn =
         conn(:get, "/")
         |> put_req_header("if-modified-since", time_str)
 
       assert MyDefaultResource.if_modified_since_valid_date?(conn)
     end
+
     test "returns false if if_modified_since header contains an invalid date" do
       conn =
         conn(:get, "/")
@@ -374,6 +401,7 @@ defmodule Liberator.ResourceDefaultsTest do
 
       assert MyDefaultResource.if_unmodified_since_exists?(conn)
     end
+
     test "returns false if the if-unmodified-since header is not present" do
       refute MyDefaultResource.if_unmodified_since_exists?(conn(:get, "/"))
     end
@@ -384,12 +412,14 @@ defmodule Liberator.ResourceDefaultsTest do
       time_str =
         Timex.now()
         |> HTTPDateTime.format!()
+
       conn =
         conn(:get, "/")
         |> put_req_header("if-unmodified-since", time_str)
 
       assert MyDefaultResource.if_unmodified_since_valid_date?(conn)
     end
+
     test "returns false if if_unmodified_since header contains an invalid date" do
       conn =
         conn(:get, "/")
@@ -406,18 +436,21 @@ defmodule Liberator.ResourceDefaultsTest do
         |> Timex.now()
         |> Timex.shift(days: -1)
         |> HTTPDateTime.format!()
+
       conn =
         conn(:get, "/")
         |> put_req_header("if-unmodified-since", time_str)
 
       refute MyDefaultResource.unmodified_since?(conn)
     end
+
     test "returns true if last modification date is before modification_since" do
       time_str =
         Timex.Timezone.get("GMT")
         |> Timex.now()
         |> Timex.shift(days: 1)
         |> HTTPDateTime.format!()
+
       conn =
         conn(:get, "/")
         |> put_req_header("if-unmodified-since", time_str)
@@ -434,6 +467,7 @@ defmodule Liberator.ResourceDefaultsTest do
 
       assert MyDefaultResource.if_match_exists?(conn)
     end
+
     test "returns false if the if-match header is not present" do
       refute MyDefaultResource.if_match_exists?(conn(:get, "/"))
     end
@@ -447,6 +481,7 @@ defmodule Liberator.ResourceDefaultsTest do
 
       assert MyDefaultResource.if_match_star?(conn)
     end
+
     test "returns false if the if-match * header is not present" do
       conn =
         conn(:get, "/")
@@ -464,6 +499,7 @@ defmodule Liberator.ResourceDefaultsTest do
 
       assert MyDefaultResource.if_match_star_exists_for_missing?(conn)
     end
+
     test "returns false if the if-match * header is not present" do
       conn =
         conn(:get, "/")
@@ -481,6 +517,7 @@ defmodule Liberator.ResourceDefaultsTest do
 
       assert MyDefaultResource.if_none_match_exists?(conn)
     end
+
     test "returns false if the if-none-match header is not present" do
       refute MyDefaultResource.if_none_match_exists?(conn(:get, "/"))
     end
@@ -494,6 +531,7 @@ defmodule Liberator.ResourceDefaultsTest do
 
       assert MyDefaultResource.if_none_match_star?(conn)
     end
+
     test "returns false if the if-none-match header is not *" do
       conn =
         conn(:get, "/")
@@ -547,6 +585,7 @@ defmodule Liberator.ResourceDefaultsTest do
     test "returns true for POST" do
       assert MyDefaultResource.post_to_missing?(conn(:post, "/"))
     end
+
     test "returns true for GET" do
       refute MyDefaultResource.post_to_missing?(conn(:get, "/"))
     end
@@ -556,6 +595,7 @@ defmodule Liberator.ResourceDefaultsTest do
     test "returns true for POST" do
       assert MyDefaultResource.post_to_existing?(conn(:post, "/"))
     end
+
     test "returns true for GET" do
       refute MyDefaultResource.post_to_existing?(conn(:get, "/"))
     end
@@ -565,6 +605,7 @@ defmodule Liberator.ResourceDefaultsTest do
     test "returns true for POST" do
       assert MyDefaultResource.post_to_gone?(conn(:post, "/"))
     end
+
     test "returns true for GET" do
       refute MyDefaultResource.post_to_gone?(conn(:get, "/"))
     end
@@ -574,6 +615,7 @@ defmodule Liberator.ResourceDefaultsTest do
     test "returns true for PUT" do
       assert MyDefaultResource.put_to_existing?(conn(:put, "/"))
     end
+
     test "returns true for GET" do
       refute MyDefaultResource.put_to_existing?(conn(:get, "/"))
     end

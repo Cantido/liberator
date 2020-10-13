@@ -45,9 +45,9 @@ defmodule Liberator.MixProject do
           Liberator.Encoding.Deflate,
           Liberator.Encoding.Gzip,
           Liberator.Encoding.Identity,
-          Liberator.MediaType.TextPlainCodec,
+          Liberator.MediaType.TextPlainCodec
         ],
-        "Debugging": [
+        Debugging: [
           Liberator.Trace
         ]
       ]

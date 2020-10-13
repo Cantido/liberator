@@ -131,6 +131,7 @@ defmodule Liberator.Evaluator do
     cond do
       Map.has_key?(@decisions, next_step) ->
         {true_step, false_step} = @decisions[next_step]
+
         if result = apply(module, next_step, [conn]) do
           conn = merge_map_assigns(conn, result)
           conn = Trace.update_trace(conn, next_step, result)
@@ -139,25 +140,28 @@ defmodule Liberator.Evaluator do
           conn = Trace.update_trace(conn, next_step, result)
           continue(conn, module, false_step, opts)
         end
+
       Map.has_key?(@actions, next_step) ->
         conn = Trace.update_trace(conn, next_step, nil)
 
         apply(module, next_step, [conn])
         continue(conn, module, @actions[next_step], opts)
+
       Map.has_key?(@handlers, next_step) ->
         conn = Trace.update_trace(conn, next_step, nil)
 
-        conn = if Keyword.get(opts, :trace) == :headers do
-          trace =
-            Trace.get_trace(conn)
-            |> Enum.map(fn {key, val} ->
-              {"x-liberator-trace", "#{Atom.to_string(key)}: #{inspect val}"}
-            end)
+        conn =
+          if Keyword.get(opts, :trace) == :headers do
+            trace =
+              Trace.get_trace(conn)
+              |> Enum.map(fn {key, val} ->
+                {"x-liberator-trace", "#{Atom.to_string(key)}: #{inspect(val)}"}
+              end)
 
-          prepend_resp_headers(conn, trace)
-        else
-          conn
-        end
+            prepend_resp_headers(conn, trace)
+          else
+            conn
+          end
 
         conn = apply_retry_header(conn)
 
@@ -175,8 +179,9 @@ defmodule Liberator.Evaluator do
         conn = put_resp_header(conn, "content-encoding", content_encoding)
 
         send_resp(conn, status, compressed_body)
+
       true ->
-        raise "Unknown step #{inspect next_step}"
+        raise "Unknown step #{inspect(next_step)}"
     end
   end
 
@@ -186,10 +191,13 @@ defmodule Liberator.Evaluator do
         cond do
           Timex.is_valid?(retry_after) ->
             Liberator.HTTPDateTime.format!(retry_after)
+
           is_integer(retry_after) ->
             Integer.to_string(retry_after)
+
           String.valid?(retry_after) ->
             retry_after
+
           true ->
             raise "Value for :retry_after was not a valid DateTime, integer, or String, but was #{inspect retry_after}. " <>
               "Make sure the too_many_requests/1 function of #{inspect module} is setting that key to one of those types. " <>
@@ -208,8 +216,10 @@ defmodule Liberator.Evaluator do
     |> case do
       nil ->
         raise "No codec found for media type #{media_type}. " <>
-          " Add a codec module to the :media_types map under the :liberator config in config.exs."
-      codec -> codec
+                " Add a codec module to the :media_types map under the :liberator config in config.exs."
+
+      codec ->
+        codec
     end
   end
 
@@ -219,8 +229,10 @@ defmodule Liberator.Evaluator do
     |> case do
       nil ->
         raise "No codec found for encoding #{encoding}. " <>
-          "Add a codec module to the :encodings map under the :liberator config in config.exs."
-      codec -> codec
+                "Add a codec module to the :encodings map under the :liberator config in config.exs."
+
+      codec ->
+        codec
     end
   end
 
