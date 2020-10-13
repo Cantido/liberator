@@ -221,7 +221,7 @@ defmodule Liberator.Evaluator do
     |> case do
       nil ->
         raise "No codec found for media type #{media_type}. " <>
-                " Add a codec module to the :media_types map under the :liberator config in config.exs."
+          "Add a codec module to the :media_types map under the :liberator config in config.exs."
 
       codec ->
         codec
@@ -234,7 +234,7 @@ defmodule Liberator.Evaluator do
     |> case do
       nil ->
         raise "No codec found for encoding #{encoding}. " <>
-                "Add a codec module to the :encodings map under the :liberator config in config.exs."
+          "Add a codec module to the :encodings map under the :liberator config in config.exs."
 
       codec ->
         codec
