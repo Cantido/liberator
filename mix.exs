@@ -67,7 +67,6 @@ defmodule Liberator.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:jason, "~> 1.2"},
       {:timex, "~> 3.5"},
-      {:mox, "~> 1.0", only: :test},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false}
     ]
   end
