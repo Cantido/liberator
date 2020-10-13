@@ -184,7 +184,9 @@ defmodule Liberator.Evaluator do
         send_resp(conn, status, compressed_body)
 
       true ->
-        raise "Unknown step #{inspect(next_step)}"
+        raise "Liberator encountered an unknown step called #{inspect(next_step)}. " <>
+          "If you have overridden part of the decision tree with :decision_tree_overrides, " <>
+          "make sure that the atoms in the {true, false} tuple value have their own entries in the map."
     end
   end
 
