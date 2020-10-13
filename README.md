@@ -27,7 +27,7 @@ Install it by adding `liberator` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:liberator, "~> 1.2.0"}
+    {:liberator, "~> 1.3.0"}
   ]
 end
 ```
