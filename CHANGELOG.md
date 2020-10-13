@@ -8,14 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- The `451 Unavailable for Legal Reasons` status.
-  Implement the callbacks `unavailable_for_legal_reasons?/1` and
-  `handle_unavailable_for_legal_reasons/1` to see it work.
-- The `429 Too Many Requests` status.
-  Implement the callbacks `too_many_requests?/1` and
-  `handle_too_many_requests/1` to see it work.
+- The `451 Unavailable for Legal Reasons` status,
+  along with related callbacks `unavailable_for_legal_reasons?/1` and
+  `handle_unavailable_for_legal_reasons/1`.
+- The `429 Too Many Requests` status,
+  along with related callbacks `too_many_requests?/1` and
+  `handle_too_many_requests/1`.
   If you return a map containing a `:retry_after` value,
   Liberator will use that to set a `retry-after` header.
+- You can also return a `:retry_after` value from any other decision function,
+  like `service_available?/1`, or `moved_permanently?/1`, for the same effect.
+  See [MDN's docs on the retry-after header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After)
+  for more information on why you'd want to do this.
+- The `402 Payment Required` status,
+  along with related callbacks `payment_required?` and
+  `handle_payment_required/1`.
 
 ### Fixed
 - Dates in headers are now parsed properly. ([#1](https://github.com/Cantido/liberator/issues/1))
