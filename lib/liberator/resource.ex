@@ -313,7 +313,7 @@ defmodule Liberator.Resource do
   and the second element of the tuple is the function to call if the function returns `false`.
   Your argument to `:decision_tree_overrides` will be merged into the default decision tree.
   For example, here's me overriding the first chunk of the decision tree so that the decision `c:uri_too_long?/1` is completely skipped.
-  That decisions happens right after `c:known_method?/1`, so just update that key to call the next decision instead, which is `c:known_method?/1`
+  That decisions happens right after `c:known_method?/1`, so just update that key to call the next decision instead, which is `c:method_allowed?/1`
 
       defmodule LongUrisResource do
         use Liberator.Resource,
