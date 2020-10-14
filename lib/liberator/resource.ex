@@ -339,7 +339,7 @@ defmodule Liberator.Resource do
 
   If you are adding a new status code to Liberator,
   you'll also need to set `:decision_tree_overrides` in order to actually call this new handler,
-  as well as a functions of those name defined in the module that called `use`.
+  as well as a functions of those names defined in the module that called `use`.
   Here's an example of adding a handler for a new status code:
 
       defmodule ResourceLikesToParty do
