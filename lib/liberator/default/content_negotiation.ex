@@ -1,8 +1,59 @@
-defmodule Liberator.ContentNegotiation do
+defmodule Liberator.Default.ContentNegotiation do
   import Plug.Conn
   @moduledoc false
 
-  def accept_something(conn, key, header_name, available_values, wildcard \\ "*") do
+  def media_type_available?(module, conn) do
+    accept_something(
+      conn,
+      :media_type,
+      "accept",
+      apply(module, :available_media_types, [conn]),
+      "*/*"
+    )
+  end
+
+  def language_available?(module, conn) do
+    assigns =
+      accept_something(
+        conn,
+        :language,
+        "accept-language",
+        apply(module, :available_languages, [conn])
+      )
+    language =
+      if is_map(assigns) do
+        Map.get(assigns, :language)
+      else
+        nil
+      end
+
+    unless is_nil(language) or language == "*" do
+      assigns.language
+      |> String.replace("-", "_")
+      |> Gettext.put_locale()
+    end
+    assigns
+  end
+
+  def charset_available?(module, conn) do
+    accept_something(
+      conn,
+      :charset,
+      "accept-charset",
+      apply(module, :available_charsets, [conn])
+    )
+  end
+
+  def encoding_available?(module, conn) do
+    accept_something(
+      conn,
+      :encoding,
+      "accept-encoding",
+      apply(module, :available_encodings, [conn])
+    )
+  end
+
+  defp accept_something(conn, key, header_name, available_values, wildcard \\ "*") do
     vals =
       get_req_header(conn, header_name)
       |> Enum.flat_map(&String.split(&1, ","))

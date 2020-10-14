@@ -142,12 +142,25 @@ defmodule Liberator.ResourceDefaultsTest do
       def available_languages(_conn), do: ["en"]
     end
 
-    test "returns true if acceptable languges is *" do
+    defmodule GermanOnlyResource do
+      use Liberator.Resource
+      def available_languages(_conn), do: ["de"]
+    end
+
+    test "returns the user's requested language if acceptable languges is *" do
       conn =
         conn(:get, "/")
-        |> put_req_header("accept-language", "en")
+        |> put_req_header("accept-language", "de")
 
-      assert LanguageAgnosticResource.language_available?(conn)
+      assert LanguageAgnosticResource.language_available?(conn) == %{language: "de"}
+    end
+
+    test "returns * if the user accepts * and only * is available" do
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept-language", "*")
+
+      assert LanguageAgnosticResource.language_available?(conn) == %{language: "*"}
     end
 
     test "returns false if acceptable languges is different from requested language" do
@@ -164,6 +177,29 @@ defmodule Liberator.ResourceDefaultsTest do
         |> put_req_header("accept-language", "en")
 
       assert EnglishOnlyResource.language_available?(conn) == %{language: "en"}
+    end
+
+    test "sets the Gettext locale to the given locale when it is available" do
+      # Using the GermanOnlyResource here just in case my default language is set to "en".
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept-language", "de")
+
+      GermanOnlyResource.language_available?(conn)
+
+      assert Gettext.get_locale() == "de"
+    end
+
+    test "does not set the Gettext locale if language is *" do
+      # The best I can do is assert that Gettext.get_locale() is "en",
+      # because it always returns the default locale if one isn't set
+      conn =
+        conn(:get, "/")
+        |> put_req_header("accept-language", "*")
+
+      LanguageAgnosticResource.language_available?(conn)
+
+      assert Gettext.get_locale() == "en"
     end
   end
 

@@ -10,6 +10,7 @@ defmodule Liberator.MixProject do
       version: "1.3.0",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
+      compilers: [:gettext] ++ Mix.compilers,
       deps: deps()
     ]
   end
@@ -65,6 +66,7 @@ defmodule Liberator.MixProject do
   defp deps do
     [
       {:plug_cowboy, "~> 2.0"},
+      {:gettext, "~> 0.18.2"},
       {:jason, "~> 1.2"},
       {:timex, "~> 3.5"},
       {:credo, "~> 1.5.0-rc.2", only: [:dev, :test], runtime: false},

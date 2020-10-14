@@ -265,6 +265,24 @@ defmodule Liberator.Resource do
 
   This will add a header called `x-liberator-trace` that will show you the entire set of decisions, in the order they were made.
 
+  ## Internationalization and Localization (i18n and l10n)
+
+  During content negotiation (specifically, in the call to `c:language_available?/1`)
+  the `accept-language` header is inspected, and the `:language` key is added to `conn.assigns`.
+  This callback also sets the `Gettext` locale for the current process to the value it finds, using `Gettext.put_locale/1`.
+  So, in your handler functions, all you need to do is make your usual `gettext` calls.
+  Everything else is handled for you.
+
+      defmodule MyInternationalizedResource do
+        use Liberator.Resource
+
+        def available_languages(_): ["en", "es", "de", "fr"]
+        def handle_ok(_), do: gettext("Hello world!")
+      end
+
+  All of the default handler messages are internationalized, but we need help with translations!
+  If you can help with this, please submit a pull request on [Liberator's GitHub page](https://github.com/Cantido/liberator)!
+
   ## Advanced Overrides
 
   Liberator tries to give you access to as much of the program as possible.
@@ -657,7 +675,9 @@ defmodule Liberator.Resource do
   @doc """
   Check if the requested language is available.
 
-  By default, uses the values returned by `c:available_languages/1`.
+  By default, uses the values returned by `c:available_languages/1`,
+  and returns a map with the key `:language` set to the negotiated language,
+  which will be merged into `conn.assigns`.
   """
   @doc since: "1.0"
   @callback language_available?(Plug.Conn.t()) :: true | false
@@ -673,7 +693,9 @@ defmodule Liberator.Resource do
   @doc """
   Check of the requested charset is available.
 
-  By default, uses the values returned by `c:available_charsets/1`.
+  By default, uses the values returned by `c:available_charsets/1`,
+  and returns a map with the key `:charset` set to the negotiated charset,
+  which will be merged into `conn.assigns`.
   """
   @doc since: "1.0"
   @callback charset_available?(Plug.Conn.t()) :: true | false
@@ -689,7 +711,9 @@ defmodule Liberator.Resource do
   @doc """
   Check of the requested encoding is available.
 
-  By default, uses the values returned by `c:available_encodings/1`.
+  By default, uses the values returned by `c:available_encodings/1`,
+  and returns a map with the key `:encoding` set to the negotiated encoding,
+  which will be merged into `conn.assigns`.
   """
   @doc since: "1.0"
   @callback encoding_available?(Plug.Conn.t()) :: true | false
@@ -1359,43 +1383,22 @@ defmodule Liberator.Resource do
 
       @impl true
       def media_type_available?(conn) do
-        Liberator.ContentNegotiation.accept_something(
-          conn,
-          :media_type,
-          "accept",
-          available_media_types(conn),
-          "*/*"
-        )
+        Liberator.Default.ContentNegotiation.media_type_available?(__MODULE__, conn)
       end
 
       @impl true
       def language_available?(conn) do
-        Liberator.ContentNegotiation.accept_something(
-          conn,
-          :language,
-          "accept-language",
-          available_languages(conn)
-        )
+        Liberator.Default.ContentNegotiation.language_available?(__MODULE__, conn)
       end
 
       @impl true
       def charset_available?(conn) do
-        Liberator.ContentNegotiation.accept_something(
-          conn,
-          :charset,
-          "accept-charset",
-          available_charsets(conn)
-        )
+        Liberator.Default.ContentNegotiation.charset_available?(__MODULE__, conn)
       end
 
       @impl true
       def encoding_available?(conn) do
-        Liberator.ContentNegotiation.accept_something(
-          conn,
-          :encoding,
-          "accept-encoding",
-          available_encodings(conn)
-        )
+        Liberator.Default.ContentNegotiation.encoding_available?(__MODULE__, conn)
       end
 
       @impl true
@@ -1558,149 +1561,91 @@ defmodule Liberator.Resource do
       end
 
       @impl true
-      def handle_ok(conn) do
-        "OK"
-      end
+      defdelegate handle_ok(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_options(conn) do
-        "Options"
-      end
+      defdelegate handle_options(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_created(conn) do
-        "Created"
-      end
+      defdelegate handle_created(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_accepted(conn) do
-        "Accepted"
-      end
+      defdelegate handle_accepted(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_no_content(conn) do
-        "No Content"
-      end
+      defdelegate handle_no_content(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_multiple_representations(conn) do
-        "Multiple Representations"
-      end
+      defdelegate handle_multiple_representations(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_moved_permanently(conn) do
-        "Moved Permanently"
-      end
+      defdelegate handle_moved_permanently(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_see_other(conn) do
-        "See Other"
-      end
+      defdelegate handle_see_other(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_not_modified(conn) do
-        "Not Modified"
-      end
+      defdelegate handle_not_modified(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_moved_temporarily(conn) do
-        "Moved Temporarily"
-      end
+      defdelegate handle_moved_temporarily(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_malformed(conn) do
-        "Malformed"
-      end
+      defdelegate handle_malformed(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_payment_required(_conn) do
-        "Payment Required"
-      end
+      defdelegate handle_payment_required(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_unauthorized(conn) do
-        "Unauthorized"
-      end
+      defdelegate handle_unauthorized(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_forbidden(conn) do
-        "Forbidden"
-      end
+      defdelegate handle_forbidden(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_not_found(conn) do
-        "Not Found"
-      end
+      defdelegate handle_not_found(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_method_not_allowed(conn) do
-        "Method Not Allowed"
-      end
+      defdelegate handle_method_not_allowed(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_not_acceptable(conn) do
-        "Not Acceptable"
-      end
+      defdelegate handle_not_acceptable(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_conflict(conn) do
-        "Conflict"
-      end
+      defdelegate handle_conflict(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_gone(conn) do
-        "Gone"
-      end
+      defdelegate handle_gone(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_precondition_failed(conn) do
-        "Precondition Failed"
-      end
+      defdelegate handle_precondition_failed(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_request_entity_too_large(conn) do
-        "Request Entity Too Large"
-      end
+      defdelegate handle_request_entity_too_large(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_uri_too_long(conn) do
-        "URI Too Long"
-      end
+      defdelegate handle_uri_too_long(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_unsupported_media_type(conn) do
-        "Unsupported Media Type"
-      end
+      defdelegate handle_unsupported_media_type(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_unprocessable_entity(conn) do
-        "Unprocessable Entity"
-      end
+      defdelegate handle_unprocessable_entity(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_too_many_requests(conn) do
-        "Too Many Requests"
-      end
+      defdelegate handle_too_many_requests(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_unavailable_for_legal_reasons(_conn) do
-        "Unavailable for Legal Reasons"
-      end
+      defdelegate handle_unavailable_for_legal_reasons(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_not_implemented(conn) do
-        "Not Implemented"
-      end
+      defdelegate handle_not_implemented(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_unknown_method(conn) do
-        "Unknown Method"
-      end
+      defdelegate handle_unknown_method(_conn), to: Liberator.Default.Handlers
 
       @impl true
-      def handle_service_unavailable(conn) do
-        "Service Unavailable"
-      end
+      defdelegate handle_service_unavailable(_conn), to: Liberator.Default.Handlers
 
       defoverridable Liberator.Resource
     end

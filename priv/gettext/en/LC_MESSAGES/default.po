@@ -1,0 +1,157 @@
+## "msgid"s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove "msgid"s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use "mix gettext.extract --merge" or "mix gettext.merge"
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+"Plural-Forms: nplurals=2\n"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:19
+msgid "Accepted"
+msgstr "Accepted"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:75
+msgid "Conflict"
+msgstr "Conflict"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:15
+msgid "Created"
+msgstr "Created"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:59
+msgid "Forbidden"
+msgstr "Forbidden"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:79
+msgid "Gone"
+msgstr "Gone"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:47
+msgid "Malformed"
+msgstr "Malformed"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:67
+msgid "Method Not Allowed"
+msgstr "Method Not Allowed"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:31
+msgid "Moved Permanently"
+msgstr "Moved Permanently"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:43
+msgid "Moved Temporarily"
+msgstr "Moved Temporarily"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:27
+msgid "Multiple Representations"
+msgstr "Multiple Representations"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:23
+msgid "No Content"
+msgstr "No Content"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:71
+msgid "Not Acceptable"
+msgstr "Not Acceptable"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:63
+msgid "Not Found"
+msgstr "Not Found"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:111
+msgid "Not Implemented"
+msgstr "Not Implemented"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:39
+msgid "Not Modified"
+msgstr "Not Modified"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:7
+msgid "OK"
+msgstr "OK"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:11
+msgid "Options"
+msgstr "Options"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:51
+msgid "Payment Required"
+msgstr "Payment Required"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:83
+msgid "Precondition Failed"
+msgstr "Precondition Failed"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:87
+msgid "Request Entity Too Large"
+msgstr "Request Entity Too Large"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:35
+msgid "See Other"
+msgstr "See Other"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:119
+msgid "Service Unavailable"
+msgstr "Service Unavailable"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:103
+msgid "Too Many Requests"
+msgstr "Too Many Requests"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:91
+msgid "URI Too Long"
+msgstr "URI Too Long"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:55
+msgid "Unauthorized"
+msgstr "Unauthorized"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:107
+msgid "Unavailable for Legal Reasons"
+msgstr "Unavailable for Legal Reasons"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:115
+msgid "Unknown Method"
+msgstr "Unknown Method"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:99
+msgid "Unprocessable Entity"
+msgstr "Unprocessable Entity"
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:95
+msgid "Unsupported Media Type"
+msgstr "Unsupported Media Type"
