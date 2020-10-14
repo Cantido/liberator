@@ -1,5 +1,5 @@
 defmodule Liberator.Encoding.Deflate do
-  @behaviour Liberator.Codec
+  @behaviour Liberator.Encoding
 
   @moduledoc """
   An implementation of the `deflate` compression used in HTTP.

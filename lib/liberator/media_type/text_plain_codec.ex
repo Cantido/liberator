@@ -1,5 +1,5 @@
 defmodule Liberator.MediaType.TextPlainCodec do
-  @behaviour Liberator.Codec
+  @behaviour Liberator.MediaType
 
   @moduledoc """
   An implementation of a `text/plain` encoder for HTTP.
