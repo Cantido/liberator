@@ -115,19 +115,16 @@ defmodule HelloWeb.PostsResource do
   @impl true
   def exists?(conn) do
     id = List.last(conn.path_info)
-    post = Hello.Repo.get(Hello.Blog.Post, id)
-
-    if is_nil(post) do
-      false
-    else
-      %{post: post}
+    case Hello.Repo.get(Hello.Blog.Post, id) do
+      nil -> false
+      post -> %{post: post}
     end
   end
 
   @impl true
   def handle_ok(conn) do
     post = conn.assigns[:post]
-    post.title <> post.content
+    "TITLE: " <> post.title <> "\nCONTENT: " <> post.content
   end
 end
 ```
