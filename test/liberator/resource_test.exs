@@ -197,7 +197,7 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "OK"
   end
 
-  test "strinfies return values from the handler" do
+  test "stringifies return values from the handler" do
     defmodule GetAMapResource do
       use Liberator.Resource
 
