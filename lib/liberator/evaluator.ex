@@ -188,6 +188,15 @@ defmodule Liberator.Evaluator do
         encoded_body = mediatype_codec.encode!(body)
         conn = put_resp_header(conn, "content-type", content_type)
 
+        unless is_binary(encoded_body) do
+          raise """
+          The media type codec module #{inspect mediatype_codec} did not return a binary.
+          Media type codecs must return a binary.
+
+          #{inspect mediatype_codec} returned #{inspect encoded_body}
+          """
+        end
+
         content_encoding = Map.get(conn.assigns, :encoding, "identity")
         compression_codec = get_compression_codec(content_encoding)
         compressed_body = compression_codec.encode!(encoded_body)

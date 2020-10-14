@@ -214,6 +214,40 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "%{a: 1, b: 2}"
   end
 
+  test "if a media type codec does not return a binary, throws an exception with a nice message" do
+    defmodule BrokenMediaType do
+      def encode!(_), do: %{a: 1, b: 2}
+    end
+
+    media_types = Application.fetch_env!(:liberator, :media_types)
+    on_exit(fn ->
+      Application.put_env(:liberator, :media_types, media_types)
+    end)
+    Application.put_env(:liberator, :media_types, %{
+      "text/plain" => BrokenMediaType
+    })
+
+    defmodule BadMediaTypeCodecResource do
+      use Liberator.Resource
+
+      @impl true
+      def handle_ok(_), do: %{a: 1, b: 2}
+    end
+
+    expected_message = """
+    The media type codec module Liberator.ResourceTest.BrokenMediaType did not return a binary.
+    Media type codecs must return a binary.
+
+    Liberator.ResourceTest.BrokenMediaType returned %{a: 1, b: 2}
+    """
+
+    conn = conn(:get, "/")
+
+    assert_raise RuntimeError, expected_message, fn ->
+      BadMediaTypeCodecResource.call(conn, [])
+    end
+  end
+
   test "can override the decision tree" do
     defmodule ShortcutResource do
       use Liberator.Resource,
