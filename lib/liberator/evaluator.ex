@@ -157,44 +157,22 @@ defmodule Liberator.Evaluator do
         continue(conn, module, actions[next_step], opts)
 
       Map.has_key?(handlers, next_step) ->
-        conn = Trace.update_trace(conn, next_step, nil)
-
-        conn =
-          cond do
-            Keyword.get(opts, :trace) == :headers ->
-              trace =
-                conn
-                |> Trace.get_trace()
-                |> Trace.headers()
-
-              prepend_resp_headers(conn, trace)
-            Keyword.get(opts, :trace) == :log ->
-              conn
-              |> Trace.get_trace()
-              |> Trace.log(conn.request_path, Logger.metadata[:request_id])
-
-              conn
-            true ->
-              conn
-          end
-
-        conn = apply_retry_header(conn, module)
-
         status = handlers[next_step]
-        body = apply(module, next_step, [conn])
-
         content_type = Map.get(conn.assigns, :media_type, "text/plain")
-        mediatype_codec = get_mediatype_codec(content_type)
-        encoded_body = mediatype_codec.encode!(body)
-        conn = put_resp_header(conn, "content-type", content_type)
-
         content_encoding = Map.get(conn.assigns, :encoding, "identity")
-        compression_codec = get_compression_codec(content_encoding)
-        compressed_body = compression_codec.encode!(encoded_body)
-        conn = put_resp_header(conn, "content-encoding", content_encoding)
 
-        send_resp(conn, status, compressed_body)
+        encoded_body =
+          apply(module, next_step, [conn])
+          |> encode_media_type!(content_type)
+          |> encode_compression!(content_encoding)
 
+        conn
+        |> Trace.update_trace(next_step, nil)
+        |> do_trace(Keyword.get(opts, :trace))
+        |> apply_retry_header(module)
+        |> put_resp_header("content-type", content_type)
+        |> put_resp_header("content-encoding", content_encoding)
+        |> send_resp(status, encoded_body)
       true ->
         raise """
           Liberator encountered an unknown step called #{inspect(next_step)}
@@ -211,6 +189,26 @@ defmodule Liberator.Evaluator do
             make sure that the handler the atoms you passed in are spelled correctly,
             and match what the decision tree is calling.
         """
+    end
+  end
+
+  defp do_trace(conn, trace_opt) do
+    cond do
+      trace_opt == :headers ->
+        trace =
+          conn
+          |> Trace.get_trace()
+          |> Trace.headers()
+
+        prepend_resp_headers(conn, trace)
+      trace_opt == :log ->
+        conn
+        |> Trace.get_trace()
+        |> Trace.log(conn.request_path, Logger.metadata[:request_id])
+
+        conn
+      true ->
+        conn
     end
   end
 
@@ -252,6 +250,21 @@ defmodule Liberator.Evaluator do
     end
   end
 
+  defp encode_media_type!(body, media_type) do
+    mediatype_codec = get_mediatype_codec(media_type)
+    encoded_body = mediatype_codec.encode!(body)
+
+    unless is_binary(encoded_body) do
+      raise """
+      The media type codec module #{inspect mediatype_codec} did not return a binary.
+      Media type codecs must return a binary.
+
+      #{inspect mediatype_codec}.encode!/1 returned #{inspect encoded_body}
+      """
+    end
+    encoded_body
+  end
+
   defp get_compression_codec(encoding) do
     Application.get_env(:liberator, :encodings, @compression_codecs)
     |> Map.get(encoding)
@@ -263,6 +276,21 @@ defmodule Liberator.Evaluator do
       codec ->
         codec
     end
+  end
+
+  defp encode_compression!(body, content_encoding) do
+    compression_codec = get_compression_codec(content_encoding)
+    compressed_body = compression_codec.encode!(body)
+
+    unless is_binary(compressed_body) do
+      raise """
+      The compression codec module #{inspect compression_codec} did not return a binary.
+      Compression codecs must return a binary.
+
+      #{inspect compression_codec}.encode!/1 returned #{inspect compressed_body}
+      """
+    end
+    compressed_body
   end
 
   defp merge_map_assigns(conn, result) do

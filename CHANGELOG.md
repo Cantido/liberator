@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([#8](https://github.com/Cantido/liberator/issues/8),
   [#10](https://github.com/Cantido/liberator/pull/10))
 
+## Fixed
+- Non-printable-`String` return values from handlers will now be passed through `inspect/1` when the content type is `text/plain`.
+  Printable strings will be passed through without hassle. ([#7](https://github.com/Cantido/liberator/issues/7))
+
 ## [1.3.0] - 2020-10-13
 
 ### Added

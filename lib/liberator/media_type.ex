@@ -1,13 +1,13 @@
-defmodule Liberator.Codec do
+defmodule Liberator.MediaType do
   @moduledoc """
-  A behaviour module for media type and compression codecs.
+  A behaviour module for media type codecs.
 
   Liberator uses this behaviour to help make sure at compile-time that codecs will be called successfully.
   Include it in your own module for the same peace of mind.
   """
 
   @doc """
-  Encode a binary into an encoded form, and raises if there's an error.
+  Encode an Elixir term into an encoded binary, and raise if there's an error.
   """
-  @callback encode!(binary()) :: binary()
+  @callback encode!(term()) :: binary()
 end
