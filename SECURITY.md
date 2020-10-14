@@ -15,7 +15,7 @@ All versions of Liberator are currently supported with security updates.
 If you find a security vulnerability, do _not_ open an issue.
 Directly contact [Rosa on keybase.io](https://keybase.io/cantido) instead.
 Here is the [signed proof of ownership](https://gist.github.com/Cantido/a76b9900c3b579020d3c)
-that proves both the GitHub and Keybase are owned by the same person.
+that proves both the GitHub and Keybase accounts are owned by the same person.
 
 You can also send an encrypted email to the primary UID of the PGP key [`60BA2A8BFD583641`].
 The signatures on Keybase were made with that key.
