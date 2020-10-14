@@ -78,10 +78,10 @@ A Liberator Resource implements the [Plug](https://github.com/elixir-plug/plug) 
 so you can forward requests to it in frameworks like Phoenix:
 
 ```elixir
-scope "/", MyApp do
-  pipe_through [:browser]
+scope "/api", MyApp do
+  pipe_through [:api]
 
-  forward "/api/resource", MyFirstResource
+  forward "/resources", MyFirstResource
 end
 ```
 
