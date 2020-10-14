@@ -3,9 +3,13 @@ defmodule Liberator.MediaType.TextPlainCodec do
 
   @moduledoc """
   An implementation of a `text/plain` encoder for HTTP.
-  That is to say, a no-op that returns its argument.
   """
 
   @impl true
-  def encode!(str), do: str
+  def encode!(body) do
+    if String.printable?(body) do
+      body
+    else
+      inspect(body, pretty: true)
+  end
 end
