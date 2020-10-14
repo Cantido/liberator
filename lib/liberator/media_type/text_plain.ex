@@ -1,4 +1,4 @@
-defmodule Liberator.MediaType.TextPlainCodec do
+defmodule Liberator.MediaType.TextPlain do
   @behaviour Liberator.MediaType
 
   @moduledoc """
