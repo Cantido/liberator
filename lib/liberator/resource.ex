@@ -265,6 +265,21 @@ defmodule Liberator.Resource do
 
   This will add a header called `x-liberator-trace` that will show you the entire set of decisions, in the order they were made.
 
+  ## Internationalization and Localization (i18n and l10n)
+
+  During content negotiation (specifically, in the call to `c:language_available?/1`)
+  the `accept-language` header is inspected, and the `:language` key is added to `conn.assigns`.
+  This callback also sets the `Gettext` locale for the current process to the value it finds, using `Gettext.put_locale/1`.
+  So, in your handler functions, all you need to do is make your usual `gettext` calls.
+  Everything else is handled for you.
+
+      defmodule MyInternationalizedResource do
+        use Liberator.Resource
+
+        def available_languages(_): ["en", "es", "de", "fr"]
+        def handle_ok(_), do: gettext("Hello world!")
+      end
+
   ## Advanced Overrides
 
   Liberator tries to give you access to as much of the program as possible.
@@ -657,7 +672,9 @@ defmodule Liberator.Resource do
   @doc """
   Check if the requested language is available.
 
-  By default, uses the values returned by `c:available_languages/1`.
+  By default, uses the values returned by `c:available_languages/1`,
+  and returns a map with the key `:language` set to the negotiated language,
+  which will be merged into `conn.assigns`.
   """
   @doc since: "1.0"
   @callback language_available?(Plug.Conn.t()) :: true | false
@@ -673,7 +690,9 @@ defmodule Liberator.Resource do
   @doc """
   Check of the requested charset is available.
 
-  By default, uses the values returned by `c:available_charsets/1`.
+  By default, uses the values returned by `c:available_charsets/1`,
+  and returns a map with the key `:charset` set to the negotiated charset,
+  which will be merged into `conn.assigns`.
   """
   @doc since: "1.0"
   @callback charset_available?(Plug.Conn.t()) :: true | false
@@ -689,7 +708,9 @@ defmodule Liberator.Resource do
   @doc """
   Check of the requested encoding is available.
 
-  By default, uses the values returned by `c:available_encodings/1`.
+  By default, uses the values returned by `c:available_encodings/1`,
+  and returns a map with the key `:encoding` set to the negotiated encoding,
+  which will be merged into `conn.assigns`.
   """
   @doc since: "1.0"
   @callback encoding_available?(Plug.Conn.t()) :: true | false
