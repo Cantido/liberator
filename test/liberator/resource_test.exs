@@ -238,13 +238,47 @@ defmodule Liberator.ResourceTest do
     The media type codec module Liberator.ResourceTest.BrokenMediaType did not return a binary.
     Media type codecs must return a binary.
 
-    Liberator.ResourceTest.BrokenMediaType returned %{a: 1, b: 2}
+    Liberator.ResourceTest.BrokenMediaType.encode!/1 returned %{a: 1, b: 2}
     """
 
     conn = conn(:get, "/")
 
     assert_raise RuntimeError, expected_message, fn ->
       BadMediaTypeCodecResource.call(conn, [])
+    end
+  end
+
+  test "if compression codec does not return a binary, throws an exception with a nice message" do
+    defmodule BrokenEncoding do
+      def encode!(_), do: %{a: 1, b: 2}
+    end
+
+    encodings = Application.fetch_env!(:liberator, :encodings)
+    on_exit(fn ->
+      Application.put_env(:liberator, :encodings, encodings)
+    end)
+    Application.put_env(:liberator, :encodings, %{
+      "identity" => BrokenEncoding
+    })
+
+    defmodule BadCompressionCodecResource do
+      use Liberator.Resource
+
+      @impl true
+      def handle_ok(_), do: %{a: 1, b: 2}
+    end
+
+    expected_message = """
+    The compression codec module Liberator.ResourceTest.BrokenEncoding did not return a binary.
+    Compression codecs must return a binary.
+
+    Liberator.ResourceTest.BrokenEncoding.encode!/1 returned %{a: 1, b: 2}
+    """
+
+    conn = conn(:get, "/")
+
+    assert_raise RuntimeError, expected_message, fn ->
+      BadCompressionCodecResource.call(conn, [])
     end
   end
 

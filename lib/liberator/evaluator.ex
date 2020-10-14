@@ -193,7 +193,7 @@ defmodule Liberator.Evaluator do
           The media type codec module #{inspect mediatype_codec} did not return a binary.
           Media type codecs must return a binary.
 
-          #{inspect mediatype_codec} returned #{inspect encoded_body}
+          #{inspect mediatype_codec}.encode!/1 returned #{inspect encoded_body}
           """
         end
 
@@ -201,6 +201,15 @@ defmodule Liberator.Evaluator do
         compression_codec = get_compression_codec(content_encoding)
         compressed_body = compression_codec.encode!(encoded_body)
         conn = put_resp_header(conn, "content-encoding", content_encoding)
+
+        unless is_binary(compressed_body) do
+          raise """
+          The compression codec module #{inspect compression_codec} did not return a binary.
+          Compression codecs must return a binary.
+
+          #{inspect compression_codec}.encode!/1 returned #{inspect compressed_body}
+          """
+        end
 
         send_resp(conn, status, compressed_body)
 
