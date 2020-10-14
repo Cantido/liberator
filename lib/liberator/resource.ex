@@ -280,6 +280,9 @@ defmodule Liberator.Resource do
         def handle_ok(_), do: gettext("Hello world!")
       end
 
+  All of the default handler messages are internationalized, but we need help with translations!
+  If you can help with this, please submit a pull request on [Liberator's GitHub page](https://github.com/Cantido/liberator)!
+
   ## Advanced Overrides
 
   Liberator tries to give you access to as much of the program as possible.
