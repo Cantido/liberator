@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+- Internationalization is now supported via `Gettext`!
+  Liberator already finds the best language for each request,
+  now it also sets the locale using `Gettext.put_locale/1`.
+  Just call `gettext` directly in your Resources.
+  ([#8](https://github.com/Cantido/liberator/issues/8),
+  [#10](https://github.com/Cantido/liberator/pull/10))
+
 ## [1.3.0] - 2020-10-13
 
 ### Added
