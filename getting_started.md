@@ -47,7 +47,7 @@ In `lib/hello_web/router.ex`, forward any `/posts` requests to the resource we'r
 defmodule HelloWeb.Router do
   use HelloWeb, :router
 
-  forward "/posts", HelloWeb.PostResource
+  forward "/posts", HelloWeb.PostsResource
 end
 ```
 
