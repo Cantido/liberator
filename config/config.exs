@@ -2,7 +2,7 @@ import Config
 
 config :liberator,
   media_types: %{
-    "text/plain" => Liberator.MediaType.TextPlainCodec,
+    "text/plain" => Liberator.MediaType.TextPlain,
     "application/json" => Jason
   },
   encodings: %{

@@ -197,6 +197,23 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "OK"
   end
 
+  test "strinfies return values from the handler" do
+    defmodule GetAMapResource do
+      use Liberator.Resource
+
+      @impl true
+      def handle_ok(_), do: %{a: 1, b: 2}
+    end
+
+    conn = conn(:get, "/")
+
+    conn = GetAMapResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "%{a: 1, b: 2}"
+  end
+
   test "can override the decision tree" do
     defmodule ShortcutResource do
       use Liberator.Resource,
