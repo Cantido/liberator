@@ -68,7 +68,7 @@ then you're probably dealing with a security issue.
 Note that even if you answer "no" to both questions,
 you may still be dealing with a security issue, so if you're unsure,
 [message me directly](https://keybase.io/cantido).
-This project helps developers expose data, but we only want it exposing the correct data!
+For more information on security, see [SECURITY.md](SECURITY.md).
 
 Please [open an issue](https://github.com/Cantido/liberator/issues/new) and
 follow the directions in the issue template.
