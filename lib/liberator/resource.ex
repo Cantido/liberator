@@ -1359,22 +1359,22 @@ defmodule Liberator.Resource do
 
       @impl true
       def media_type_available?(conn) do
-        Liberator.ContentNegotiation.media_type_available?(__MODULE__, conn)
+        Liberator.Default.ContentNegotiation.media_type_available?(__MODULE__, conn)
       end
 
       @impl true
       def language_available?(conn) do
-        Liberator.ContentNegotiation.language_available?(__MODULE__, conn)
+        Liberator.Default.ContentNegotiation.language_available?(__MODULE__, conn)
       end
 
       @impl true
       def charset_available?(conn) do
-        Liberator.ContentNegotiation.charset_available?(__MODULE__, conn)
+        Liberator.Default.ContentNegotiation.charset_available?(__MODULE__, conn)
       end
 
       @impl true
       def encoding_available?(conn) do
-        Liberator.ContentNegotiation.encoding_available?(__MODULE__, conn)
+        Liberator.Default.ContentNegotiation.encoding_available?(__MODULE__, conn)
       end
 
       @impl true

@@ -1,4 +1,4 @@
-defmodule Liberator.ContentNegotiation do
+defmodule Liberator.Default.ContentNegotiation do
   import Plug.Conn
   @moduledoc false
 
