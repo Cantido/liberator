@@ -169,6 +169,7 @@ defmodule Liberator.Evaluator do
         conn
         |> Trace.update_trace(next_step, nil)
         |> do_trace(Keyword.get(opts, :trace))
+        |> apply_allow_header(module)
         |> apply_retry_header(module)
         |> put_resp_header("content-type", content_type)
         |> put_resp_header("content-encoding", content_encoding)
@@ -210,6 +211,10 @@ defmodule Liberator.Evaluator do
       true ->
         conn
     end
+  end
+
+  defp apply_allow_header(conn, module) do
+    put_resp_header(conn, "allow", Enum.join(module.allowed_methods(conn), ", "))
   end
 
   defp apply_retry_header(conn, module) do
