@@ -299,7 +299,7 @@ defmodule Liberator.Evaluator do
     compressed_body
   end
 
-  defp handle_decision_result(conn, %Plug.Conn{} = result) do
+  defp handle_decision_result(_conn, %Plug.Conn{} = result) do
     result
   end
 
