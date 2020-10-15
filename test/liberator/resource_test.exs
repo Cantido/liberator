@@ -447,6 +447,25 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "Method Not Allowed"
   end
 
+  test "sets the allow header when returning a 405" do
+    defmodule MethodNotAllowedAllowHeaderResource do
+      use Liberator.Resource
+
+      @impl true
+      def allowed_methods(_conn), do: ["OPTIONS", "HEAD", "GET"]
+
+      @impl true
+      def method_allowed?(_conn), do: false
+    end
+
+    conn = conn(:get, "/")
+    conn = MethodNotAllowedAllowHeaderResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 405
+    assert get_resp_header(conn, "allow") |> Enum.at(0) == "OPTIONS, HEAD, GET"
+  end
+
   test "returns 400 when malformed? returns true" do
     defmodule MalformedResource do
       use Liberator.Resource
@@ -551,6 +570,22 @@ defmodule Liberator.ResourceTest do
     assert conn.state == :sent
     assert conn.status == 200
     assert conn.resp_body == "Options"
+  end
+
+  test "response headers contain contents from allowed_methods for an options request" do
+    defmodule OptionsAllowResource do
+      use Liberator.Resource
+      @impl true
+      def allowed_methods(_conn), do: ["OPTIONS", "HEAD", "GET"]
+      def is_options?(_conn), do: true
+    end
+
+    conn = conn(:options, "/")
+    conn = OptionsAllowResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert get_resp_header(conn, "allow") |> Enum.at(0) == "OPTIONS, HEAD, GET"
   end
 
   test "returns 402 when payment_required? returns true" do
