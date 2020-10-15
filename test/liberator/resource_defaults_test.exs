@@ -95,6 +95,17 @@ defmodule Liberator.ResourceDefaultsTest do
     end
   end
 
+  describe "body_exists?/1" do
+    test "returns true if the body is present" do
+      conn = conn(:get, "/", "test body") |> put_req_header("content-type", "text/plain")
+      assert MyDefaultResource.body_exists?(conn)
+    end
+
+    test "returns false if the body is not present" do
+      refute MyDefaultResource.body_exists?(conn(:get, "/"))
+    end
+  end
+
   describe "accept_exists?/1" do
     test "returns true if the accept header is present" do
       conn =
