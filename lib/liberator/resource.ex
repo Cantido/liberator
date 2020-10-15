@@ -477,7 +477,7 @@ defmodule Liberator.Resource do
   @doc """
   Configures the maximum length that a request body can be.
   """
-  @callback maximum_entity_length(Plug.Conn.t()) :: non_negative_integer()
+  @callback maximum_entity_length(Plug.Conn.t()) :: non_neg_integer()
 
   @doc """
   Returns the last modified date of your resource.
@@ -1360,7 +1360,7 @@ defmodule Liberator.Resource do
 
       @impl true
       def valid_entity_length?(conn)do
-        conn = Liberator.Conn.read_body(conn, length: maximum_entity_length())
+        conn = Liberator.Conn.read_body(conn, length: maximum_entity_length(conn))
         unless conn.assigns[:raw_body] == :too_large do
           conn
         end
