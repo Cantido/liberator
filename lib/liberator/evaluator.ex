@@ -153,7 +153,8 @@ defmodule Liberator.Evaluator do
       Map.has_key?(actions, next_step) ->
         conn = Trace.update_trace(conn, next_step, nil)
 
-        apply(module, next_step, [conn])
+        result = apply(module, next_step, [conn])
+        conn = handle_decision_result(conn, result)
         continue(conn, module, actions[next_step], opts)
 
       Map.has_key?(handlers, next_step) ->
@@ -306,7 +307,7 @@ defmodule Liberator.Evaluator do
     merge_assigns(conn, Enum.to_list(result))
   end
 
-  defp handle_decision_result(conn, result) when is_boolean(result) or is_nil(result) do
+  defp handle_decision_result(conn, _result) do
     conn
   end
 end

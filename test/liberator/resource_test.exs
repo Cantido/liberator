@@ -177,6 +177,46 @@ defmodule Liberator.ResourceTest do
     assert conn.assigns[:test_value] == "Hello!"
   end
 
+  test "action functions can return a map and have it merged into the conn.assigns" do
+    defmodule InitializedMapResource do
+      use Liberator.Resource
+
+      @impl true
+      def initialize(_conn) do
+        %{test_value: "Hello!"}
+      end
+    end
+
+    conn = conn(:get, "/")
+
+    conn = InitializedMapResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "OK"
+    assert conn.assigns[:test_value] == "Hello!"
+  end
+
+  test "action functions can return the conn" do
+    defmodule InitializedConnResource do
+      use Liberator.Resource
+
+      @impl true
+      def initialize(conn) do
+        assign(conn, :test_value, "Hello!")
+      end
+    end
+
+    conn = conn(:get, "/")
+
+    conn = InitializedConnResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "OK"
+    assert conn.assigns[:test_value] == "Hello!"
+  end
+
   test "decision functions can return the conn" do
     defmodule ReturnsConnResource do
       use Liberator.Resource

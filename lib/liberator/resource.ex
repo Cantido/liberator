@@ -105,6 +105,8 @@ defmodule Liberator.Resource do
   ## Actions
 
   Actions make the necessary changes to the requested entity.
+  You can return either a `Plug.Conn` struct, or a map, from these functions.
+  However, unlike the decision functions, a nil or false return value does nothing different.
 
   | Function          | Description |
   |-------------------|-------------|
