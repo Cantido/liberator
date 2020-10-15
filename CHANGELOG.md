@@ -26,10 +26,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   which reads the request body and stores it in `conn.assigns[:raw_body]`.
   This is called by the new default implementation of `valid_entity_length?/1` (see **Changed**, below),
   so you will have the body content in `conn.assigns` by default.
+- Added the `body_exists?/1` function.
+  This is an internal function that, uh, checks to see if the body exists.
+  If it does, it'll grab it, and call `valid_entity_length?/1` and
+  the new `well_formed?/1` function.
+  So now you can parse the body if it's there,
+  without worrying about conditional logic if it's not there.
 
 ## Changed
-- `valid_entity_length?/1` now requests the body content by default,
-  and stores it in `conn.assigns[:raw_body]`
+- Some decision functions were rearranged.
+
+## Deprecated
+- The `malformed?/1` is now deprecated, use `well_formed?/1` instead.
+  This lets that decision function return data,
+  and it's the ideal place for parsing the body. ([#15](https://github.com/Cantido/liberator/issues/15))
 
 ## Fixed
 - Non-printable-`String` return values from handlers will now be passed through `inspect/1` when the content type is `text/plain`.
