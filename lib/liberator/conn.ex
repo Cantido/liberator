@@ -8,16 +8,20 @@ defmodule Liberator.Conn do
   @doc """
   Reads the body from the conn, and puts it in the assigns under the key `:raw_body`.
 
-  Reading the body of a request takes more steps than you may think.
+  Accepts the same headers as `Plug.Conn.read_body/2`:
+
+  * `:length` - sets the maximum number of bytes to read from the body for
+    each chunk, defaults to `64_000` bytes
+  * `:read_length` - sets the amount of bytes to read at one time from the
+    underlying socket to fill the chunk, defaults to `64_000` bytes
+  * `:read_timeout` - sets the timeout for each socket read, defaults to
+    `5_000` milliseconds
   """
-  def read_body(%Plug.Conn{} = conn) do
-    {body, conn} =
-      Stream.repeatedly(fn -> Plug.Conn.read_body(conn) end)
-      |> Enum.reduce_while([], fn {{key, body, conn}, {body_so_far, _conn}} ->
-        case key do
-          :more -> {:cont, {body_so_far <> body, conn}}
-          :ok ->   {:halt, {body_so_far <> body, conn}}
-      end)
-    assign(conn, :raw_body, body)
+  def read_body(%Plug.Conn{} = conn, opts \\ []) do
+    {key, body, conn} = Plug.Conn.read_body(conn, opts)
+    case key do
+      :more -> assign(conn, :raw_body, :too_large)
+      :ok ->   assign(conn, :raw_body, body)
+    end
   end
 end

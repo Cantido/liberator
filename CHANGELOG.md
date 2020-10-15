@@ -17,6 +17,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - You can now return the given conn in decision functions to serve as an affirmative response,
   as an alternative to returning a plain map, or `true`.
   Now you can modify the conn as you see fit.
+- The `maximum_entity_length/1` function.
+  This is used by the `valid_entity_length?/1` callback.
+  If the size of the request body is above this size,
+  Liberator will return a status of `413 Request Entity Too Large`.
+- The `Liberator.Conn` module, for working with `Plug.Conn` structs.
+  Right now it contains only one function: `read_body/1`,
+  which reads the request body and stores it in `conn.assigns[:raw_body]`.
+  This is called by the new default implementation of `valid_entity_length?/1` (see **Changed**, below),
+  so you will have the body content in `conn.assigns` by default.
+
+## Changed
+- `valid_entity_length?/1` now requests the body content by default,
+  and stores it in `conn.assigns[:raw_body]`
 
 ## Fixed
 - Non-printable-`String` return values from handlers will now be passed through `inspect/1` when the content type is `text/plain`.

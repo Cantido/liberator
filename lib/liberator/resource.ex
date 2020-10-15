@@ -57,6 +57,7 @@ defmodule Liberator.Resource do
   | `c:available_languages/1`   | `["*"]`                             |
   | `c:available_charsets/1`    | `["UTF-8"]`                         |
   | `c:available_encodings/1`   | `["gzip", "deflate","identity"]`    |
+  | `c:maximum_entity_length/1` | `64_000`                            |
 
   Liberator supports a few basic defaults to help you get up and running.
   It uses `Jason` for `application/json` media responses,
@@ -199,7 +200,7 @@ defmodule Liberator.Resource do
   | `c:unavailable_for_legal_reasons?/1` | Is the resource not available, for legal reasons?                          | false |
   | `c:uri_too_long?/1`         | Is the request URI too long?                                                        | false |
   | `c:valid_content_header?/1` | Is the `Content-Type` of the body valid?                                            | true |
-  | `c:valid_entity_length?/1`  | Is the length of the body valid?                                                    | true |
+  | `c:valid_entity_length?/1`  | Is the length of the body valid?                                                    | Uses value at `c:maximum_entity_length/1` |
 
   ## Debugging
 
@@ -472,6 +473,11 @@ defmodule Liberator.Resource do
   """
   @doc since: "1.0"
   @callback available_charsets(Plug.Conn.t()) :: list()
+
+  @doc """
+  Configures the maximum length that a request body can be.
+  """
+  @callback maximum_entity_length(Plug.Conn.t()) :: non_negative_integer()
 
   @doc """
   Returns the last modified date of your resource.
@@ -1309,6 +1315,11 @@ defmodule Liberator.Resource do
       end
 
       @impl true
+      def maximum_entity_length(_conn) do
+        64_000
+      end
+
+      @impl true
       def last_modified(_conn) do
         DateTime.utc_now()
       end
@@ -1346,8 +1357,16 @@ defmodule Liberator.Resource do
       def valid_content_header?(_conn), do: true
       @impl true
       def known_content_type?(_conn), do: true
+
       @impl true
-      def valid_entity_length?(_conn), do: true
+      def valid_entity_length?(conn)do
+        conn = Liberator.Conn.read_body(conn, length: maximum_entity_length())
+        unless conn.assigns[:raw_body] == :too_large do
+          conn
+        end
+      end
+
+
       @impl true
 
       @impl true
