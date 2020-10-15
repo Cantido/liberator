@@ -23,14 +23,14 @@ defmodule Liberator.ResourceTest do
     assert Enum.at(trace, 2) == {:known_method?, true}
     assert Enum.at(trace, 3) == {:uri_too_long?, false}
     assert Enum.at(trace, 4) == {:method_allowed?, true}
-    assert Enum.at(trace, 5) == {:malformed?, false}
-    assert Enum.at(trace, 6) == {:authorized?, true}
-    assert Enum.at(trace, 7) == {:allowed?, true}
-    assert Enum.at(trace, 8) == {:too_many_requests?, false}
-    assert Enum.at(trace, 9) == {:payment_required?, false}
-    assert Enum.at(trace, 10) == {:valid_content_header?, true}
-    assert Enum.at(trace, 11) == {:known_content_type?, true}
-    assert Enum.at(trace, 12) |> elem(0) == :valid_entity_length?
+    assert Enum.at(trace, 5) |> elem(0) == :valid_entity_length?
+    assert Enum.at(trace, 6) == {:malformed?, false}
+    assert Enum.at(trace, 7) == {:authorized?, true}
+    assert Enum.at(trace, 8) == {:allowed?, true}
+    assert Enum.at(trace, 9) == {:too_many_requests?, false}
+    assert Enum.at(trace, 10) == {:payment_required?, false}
+    assert Enum.at(trace, 11) == {:valid_content_header?, true}
+    assert Enum.at(trace, 12) == {:known_content_type?, true}
     assert Enum.at(trace, 13) == {:is_options?, false}
     assert Enum.at(trace, 14) == {:accept_exists?, false}
     assert Enum.at(trace, 15) == {:accept_language_exists?, false}
@@ -70,14 +70,14 @@ defmodule Liberator.ResourceTest do
     assert Enum.at(trace, 2) == "known_method?: true"
     assert Enum.at(trace, 3) == "uri_too_long?: false"
     assert Enum.at(trace, 4) == "method_allowed?: true"
-    assert Enum.at(trace, 5) == "malformed?: false"
-    assert Enum.at(trace, 6) == "authorized?: true"
-    assert Enum.at(trace, 7) == "allowed?: true"
-    assert Enum.at(trace, 8) == "too_many_requests?: false"
-    assert Enum.at(trace, 9) == "payment_required?: false"
-    assert Enum.at(trace, 10) == "valid_content_header?: true"
-    assert Enum.at(trace, 11) == "known_content_type?: true"
-    assert Enum.at(trace, 12) |> String.starts_with?("valid_entity_length?: %Plug.Conn{")
+    assert Enum.at(trace, 5) |> String.starts_with?("valid_entity_length?: %Plug.Conn{")
+    assert Enum.at(trace, 6) == "malformed?: false"
+    assert Enum.at(trace, 7) == "authorized?: true"
+    assert Enum.at(trace, 8) == "allowed?: true"
+    assert Enum.at(trace, 9) == "too_many_requests?: false"
+    assert Enum.at(trace, 10) == "payment_required?: false"
+    assert Enum.at(trace, 11) == "valid_content_header?: true"
+    assert Enum.at(trace, 12) == "known_content_type?: true"
     assert Enum.at(trace, 13) == "is_options?: false"
     assert Enum.at(trace, 14) == "accept_exists?: false"
     assert Enum.at(trace, 15) == "accept_language_exists?: false"
