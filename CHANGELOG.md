@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 - Non-printable-`String` return values from handlers will now be passed through `inspect/1` when the content type is `text/plain`.
   Printable strings will be passed through without hassle. ([#7](https://github.com/Cantido/liberator/issues/7))
+- All responses now include an `allow` header, fixing the cases where one was required but not provided,
+  like in an `OPTIONS` request, and when returning a 405 Method Not Allowed.
 
 ## [1.3.0] - 2020-10-13
 
