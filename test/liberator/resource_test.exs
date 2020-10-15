@@ -8,7 +8,7 @@ defmodule Liberator.ResourceTest do
       use Liberator.Resource
     end
 
-    conn = conn(:get, "/")
+    conn = conn(:get, "/", "hello!") |> put_req_header("content-type", "text/plain")
 
     conn = TracingResource.call(conn, [])
 
@@ -23,33 +23,34 @@ defmodule Liberator.ResourceTest do
     assert Enum.at(trace, 2) == {:known_method?, true}
     assert Enum.at(trace, 3) == {:uri_too_long?, false}
     assert Enum.at(trace, 4) == {:method_allowed?, true}
-    assert Enum.at(trace, 5) |> elem(0) == :valid_entity_length?
-    assert Enum.at(trace, 6) == {:well_formed?, true}
-    assert Enum.at(trace, 7) == {:malformed?, false}
-    assert Enum.at(trace, 8) == {:authorized?, true}
-    assert Enum.at(trace, 9) == {:allowed?, true}
-    assert Enum.at(trace, 10) == {:too_many_requests?, false}
-    assert Enum.at(trace, 11) == {:payment_required?, false}
-    assert Enum.at(trace, 12) == {:valid_content_header?, true}
-    assert Enum.at(trace, 13) == {:known_content_type?, true}
-    assert Enum.at(trace, 14) == {:is_options?, false}
-    assert Enum.at(trace, 15) == {:accept_exists?, false}
-    assert Enum.at(trace, 16) == {:accept_language_exists?, false}
-    assert Enum.at(trace, 17) == {:accept_charset_exists?, false}
-    assert Enum.at(trace, 18) == {:accept_encoding_exists?, false}
-    assert Enum.at(trace, 19) == {:processable?, true}
-    assert Enum.at(trace, 20) == {:unavailable_for_legal_reasons?, false}
-    assert Enum.at(trace, 21) == {:exists?, true}
-    assert Enum.at(trace, 22) == {:if_match_exists?, false}
-    assert Enum.at(trace, 23) == {:if_unmodified_since_exists?, false}
-    assert Enum.at(trace, 24) == {:if_none_match_exists?, false}
-    assert Enum.at(trace, 25) == {:if_modified_since_exists?, false}
-    assert Enum.at(trace, 26) == {:method_delete?, false}
-    assert Enum.at(trace, 27) == {:method_patch?, false}
-    assert Enum.at(trace, 28) == {:post_to_existing?, false}
-    assert Enum.at(trace, 29) == {:put_to_existing?, false}
-    assert Enum.at(trace, 30) == {:multiple_representations?, false}
-    assert Enum.at(trace, 31) == {:handle_ok, nil}
+    assert Enum.at(trace, 5) |> elem(0) == :body_exists?
+    assert Enum.at(trace, 6) |> elem(0) == :valid_entity_length?
+    assert Enum.at(trace, 7) == {:well_formed?, true}
+    assert Enum.at(trace, 8) == {:malformed?, false}
+    assert Enum.at(trace, 9) == {:authorized?, true}
+    assert Enum.at(trace, 10) == {:allowed?, true}
+    assert Enum.at(trace, 11) == {:too_many_requests?, false}
+    assert Enum.at(trace, 12) == {:payment_required?, false}
+    assert Enum.at(trace, 13) == {:valid_content_header?, true}
+    assert Enum.at(trace, 14) == {:known_content_type?, true}
+    assert Enum.at(trace, 15) == {:is_options?, false}
+    assert Enum.at(trace, 16) == {:accept_exists?, false}
+    assert Enum.at(trace, 17) == {:accept_language_exists?, false}
+    assert Enum.at(trace, 18) == {:accept_charset_exists?, false}
+    assert Enum.at(trace, 19) == {:accept_encoding_exists?, false}
+    assert Enum.at(trace, 20) == {:processable?, true}
+    assert Enum.at(trace, 21) == {:unavailable_for_legal_reasons?, false}
+    assert Enum.at(trace, 22) == {:exists?, true}
+    assert Enum.at(trace, 23) == {:if_match_exists?, false}
+    assert Enum.at(trace, 24) == {:if_unmodified_since_exists?, false}
+    assert Enum.at(trace, 25) == {:if_none_match_exists?, false}
+    assert Enum.at(trace, 26) == {:if_modified_since_exists?, false}
+    assert Enum.at(trace, 27) == {:method_delete?, false}
+    assert Enum.at(trace, 28) == {:method_patch?, false}
+    assert Enum.at(trace, 29) == {:post_to_existing?, false}
+    assert Enum.at(trace, 30) == {:put_to_existing?, false}
+    assert Enum.at(trace, 31) == {:multiple_representations?, false}
+    assert Enum.at(trace, 32) == {:handle_ok, nil}
   end
 
   test "traces decisions to header when trace: :headers" do
@@ -71,33 +72,34 @@ defmodule Liberator.ResourceTest do
     assert Enum.at(trace, 2) == "known_method?: true"
     assert Enum.at(trace, 3) == "uri_too_long?: false"
     assert Enum.at(trace, 4) == "method_allowed?: true"
-    assert Enum.at(trace, 5) |> String.starts_with?("valid_entity_length?: %Plug.Conn{")
-    assert Enum.at(trace, 6) == "well_formed?: true"
-    assert Enum.at(trace, 7) == "malformed?: false"
-    assert Enum.at(trace, 8) == "authorized?: true"
-    assert Enum.at(trace, 9) == "allowed?: true"
-    assert Enum.at(trace, 10) == "too_many_requests?: false"
-    assert Enum.at(trace, 11) == "payment_required?: false"
-    assert Enum.at(trace, 12) == "valid_content_header?: true"
-    assert Enum.at(trace, 13) == "known_content_type?: true"
-    assert Enum.at(trace, 14) == "is_options?: false"
-    assert Enum.at(trace, 15) == "accept_exists?: false"
-    assert Enum.at(trace, 16) == "accept_language_exists?: false"
-    assert Enum.at(trace, 17) == "accept_charset_exists?: false"
-    assert Enum.at(trace, 18) == "accept_encoding_exists?: false"
-    assert Enum.at(trace, 19) == "processable?: true"
-    assert Enum.at(trace, 20) == "unavailable_for_legal_reasons?: false"
-    assert Enum.at(trace, 21) == "exists?: true"
-    assert Enum.at(trace, 22) == "if_match_exists?: false"
-    assert Enum.at(trace, 23) == "if_unmodified_since_exists?: false"
-    assert Enum.at(trace, 24) == "if_none_match_exists?: false"
-    assert Enum.at(trace, 25) == "if_modified_since_exists?: false"
-    assert Enum.at(trace, 26) == "method_delete?: false"
-    assert Enum.at(trace, 27) == "method_patch?: false"
-    assert Enum.at(trace, 28) == "post_to_existing?: false"
-    assert Enum.at(trace, 29) == "put_to_existing?: false"
-    assert Enum.at(trace, 30) == "multiple_representations?: false"
-    assert Enum.at(trace, 31) == "handle_ok: nil"
+    assert Enum.at(trace, 5) |> String.starts_with?("body_exists?: %Plug.Conn{")
+    assert Enum.at(trace, 6) |> String.starts_with?("valid_entity_length?: %Plug.Conn{")
+    assert Enum.at(trace, 7) == "well_formed?: true"
+    assert Enum.at(trace, 8) == "malformed?: false"
+    assert Enum.at(trace, 9) == "authorized?: true"
+    assert Enum.at(trace, 10) == "allowed?: true"
+    assert Enum.at(trace, 11) == "too_many_requests?: false"
+    assert Enum.at(trace, 12) == "payment_required?: false"
+    assert Enum.at(trace, 13) == "valid_content_header?: true"
+    assert Enum.at(trace, 14) == "known_content_type?: true"
+    assert Enum.at(trace, 15) == "is_options?: false"
+    assert Enum.at(trace, 16) == "accept_exists?: false"
+    assert Enum.at(trace, 17) == "accept_language_exists?: false"
+    assert Enum.at(trace, 18) == "accept_charset_exists?: false"
+    assert Enum.at(trace, 19) == "accept_encoding_exists?: false"
+    assert Enum.at(trace, 20) == "processable?: true"
+    assert Enum.at(trace, 21) == "unavailable_for_legal_reasons?: false"
+    assert Enum.at(trace, 22) == "exists?: true"
+    assert Enum.at(trace, 23) == "if_match_exists?: false"
+    assert Enum.at(trace, 24) == "if_unmodified_since_exists?: false"
+    assert Enum.at(trace, 25) == "if_none_match_exists?: false"
+    assert Enum.at(trace, 26) == "if_modified_since_exists?: false"
+    assert Enum.at(trace, 27) == "method_delete?: false"
+    assert Enum.at(trace, 28) == "method_patch?: false"
+    assert Enum.at(trace, 29) == "post_to_existing?: false"
+    assert Enum.at(trace, 30) == "put_to_existing?: false"
+    assert Enum.at(trace, 31) == "multiple_representations?: false"
+    assert Enum.at(trace, 32) == "handle_ok: nil"
   end
 
   test "logs the trace to the logger when trace: :log" do
@@ -508,6 +510,21 @@ defmodule Liberator.ResourceTest do
     assert get_resp_header(conn, "allow") |> Enum.at(0) == "OPTIONS, HEAD, GET"
   end
 
+  test "does not call well_formed? when body is nil" do
+    defmodule RaisingWellFormedResource do
+      use Liberator.Resource
+      @impl true
+      def well_formed?(_conn), do: raise "shouldn't have called me!"
+    end
+
+    conn = conn(:get, "/")
+    conn = RaisingWellFormedResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "OK"
+  end
+
   test "returns 400 when well_formed? returns false" do
     defmodule NotWellFormedResource do
       use Liberator.Resource
@@ -515,7 +532,7 @@ defmodule Liberator.ResourceTest do
       def well_formed?(_conn), do: false
     end
 
-    conn = conn(:get, "/")
+    conn = conn(:get, "/", "test") |> put_req_header("content-type", "text/plain")
     conn = NotWellFormedResource.call(conn, [])
 
     assert conn.state == :sent
@@ -530,7 +547,7 @@ defmodule Liberator.ResourceTest do
       def malformed?(_conn), do: true
     end
 
-    conn = conn(:get, "/")
+    conn = conn(:get, "/", "test") |> put_req_header("content-type", "text/plain")
     conn = MalformedResource.call(conn, [])
 
     assert conn.state == :sent
@@ -605,7 +622,7 @@ defmodule Liberator.ResourceTest do
       def valid_entity_length?(_conn), do: false
     end
 
-    conn = conn(:get, "/")
+    conn = conn(:get, "/", "test") |> put_req_header("content-type", "text/plain")
     conn = EntityTooLongResource.call(conn, [])
 
     assert conn.state == :sent

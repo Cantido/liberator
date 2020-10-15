@@ -304,6 +304,7 @@ defmodule Liberator.Resource do
   | `c:accept_encoding_exists?/1`            | Checks if header `Accept-Encoding` exists.                                     |
   | `c:accept_exists?/1`                     | Checks if header `Accept` exists.                                              |
   | `c:accept_language_exists?/1`            | Checks if header `Accept-Language` exists.                                     |
+  | `c:body_exists?/1`                       | Checks if the request has a body.                                              |
   | `c:if_match_exists?/1`                   | Checks if header `If-Match` exists.                                            |
   | `c:if_match_star?/1`                     | Checks if header `If-Match` is `*`.                                            |
   | `c:if_match_star_exists_for_missing?/1`  | Checks if header `If-Match` exists for a resource that does not exist.         |
@@ -551,6 +552,13 @@ defmodule Liberator.Resource do
   """
   @doc since: "1.0"
   @callback method_allowed?(Plug.Conn.t()) :: true | false
+
+  @doc """
+  Check if the request has a body.
+
+  Used internally; it is not advised to override this function.
+  """
+  @callback body_exists?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check the request for general adherence to some form.
@@ -1379,13 +1387,18 @@ defmodule Liberator.Resource do
       def known_content_type?(_conn), do: true
 
       @impl true
-      def valid_entity_length?(conn)do
+      def body_exists?(conn) do
         conn = Liberator.Conn.read_body(conn, length: maximum_entity_length(conn))
-        unless conn.assigns[:raw_body] == :too_large do
+        body = conn.assigns[:raw_body]
+        unless body == :too_large or is_nil(body) or body == <<>> do
           conn
         end
       end
 
+      @impl true
+      def valid_entity_length?(conn)do
+        conn.assigns[:raw_body] != :too_large
+      end
 
       @impl true
 
