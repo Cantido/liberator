@@ -86,9 +86,9 @@ defmodule HelloWeb.PostsResource do
   @impl true
   def handle_ok(conn) do
     id = List.last(conn.path_info)
-    post = Hello.Repo.get!(Hello.Blog.Post, id)
+    post = Hello.Blog.get_post!(id)
 
-    post.title <> post.content
+    post.title <> "\n\n" <> post.content
   end
 end
 ```
@@ -115,7 +115,7 @@ defmodule HelloWeb.PostsResource do
   @impl true
   def exists?(conn) do
     id = List.last(conn.path_info)
-    case Hello.Repo.get(Hello.Blog.Post, id) do
+    case Hello.Blog.get_post!(id) do
       nil -> false
       post -> %{post: post}
     end
@@ -124,9 +124,24 @@ defmodule HelloWeb.PostsResource do
   @impl true
   def handle_ok(conn) do
     post = conn.assigns[:post]
-    "TITLE: " <> post.title <> "\nCONTENT: " <> post.content
+    post.title <> "\n\n " <> post.content
   end
 end
 ```
 
 Now we get a nice "Not Found" response!
+So, last, we want to be able to POST something.
+That introduces us to the concept of actions,
+which are just another kind of overridable function.
+The difference is that the return value from these functions are ignored.
+There are four actions in Liberator:
+
+- `delete!`
+- `patch!`
+- `post!`
+- `put!`
+
+As you could guess, these actions will be called based on the request's HTTP method.
+For now, we'll set up `post!`.
+Implement `c:Liberator.Resource.processable?/1` to parse the body,
+and `c:Liberator.Resource.post!/1` to insert the params.
