@@ -155,9 +155,9 @@ defmodule Liberator.Resource do
   Some of them are needed for next to every resource definition.
   Others are seldom used or there is no other sensible implementation.
 
-  Return any truthy value for a `true` response.
-  If you return a map, Liberator will merge that map with the conn's `:assigns` map,
-  allowing you to cache data and do work when it makes sense.
+  Return any truthy value for a `true` response, including the conn itself.
+  If you return a map, Liberator will merge that map with the conn's `:assigns` map.
+  Use this feature to cache data and do work when it makes sense.
   For example, the `exists?/1` callback is a great place to fetch your resource,
   and you can return it as a map for your later functions to act upon.
 

@@ -142,7 +142,7 @@ defmodule Liberator.Evaluator do
         {true_step, false_step} = decisions[next_step]
 
         if result = apply(module, next_step, [conn]) do
-          conn = merge_map_assigns(conn, result)
+          conn = handle_decision_result(conn, result)
           conn = Trace.update_trace(conn, next_step, result)
           continue(conn, module, true_step, opts)
         else
@@ -298,11 +298,15 @@ defmodule Liberator.Evaluator do
     compressed_body
   end
 
-  defp merge_map_assigns(conn, result) do
-    if is_map(result) do
-      merge_assigns(conn, Enum.to_list(result))
-    else
-      conn
-    end
+  defp handle_decision_result(conn, %Plug.Conn{} = result) do
+    result
+  end
+
+  defp handle_decision_result(conn, result) when is_map(result) do
+    merge_assigns(conn, Enum.to_list(result))
+  end
+
+  defp handle_decision_result(conn, result) when is_boolean(result) or is_nil(result) do
+    conn
   end
 end

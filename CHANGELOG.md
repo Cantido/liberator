@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Just call `gettext` directly in your Resources.
   ([#8](https://github.com/Cantido/liberator/issues/8),
   [#10](https://github.com/Cantido/liberator/pull/10))
+- You can now return the given conn in decision functions to serve as an affirmative response,
+  as an alternative to returning a plain map, or `true`.
+  Now you can modify the conn as you see fit.
 
 ## Fixed
 - Non-printable-`String` return values from handlers will now be passed through `inspect/1` when the content type is `text/plain`.

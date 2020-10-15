@@ -197,6 +197,46 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "OK"
   end
 
+  test "decision functions can return a map and have it merged into the conn.assigns" do
+    defmodule ReturnsMapResource do
+      use Liberator.Resource
+
+      @impl true
+      def service_available?(_conn) do
+        %{test_value: "Hello!"}
+      end
+    end
+
+    conn = conn(:get, "/")
+
+    conn = ReturnsMapResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "OK"
+    assert conn.assigns[:test_value] == "Hello!"
+  end
+
+  test "decision functions can return the conn" do
+    defmodule ReturnsConnResource do
+      use Liberator.Resource
+
+      @impl true
+      def service_available?(conn) do
+        assign(conn, :test_value, "Hello!")
+      end
+    end
+
+    conn = conn(:get, "/")
+
+    conn = ReturnsConnResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "OK"
+    assert conn.assigns[:test_value] == "Hello!"
+  end
+
   test "stringifies return values from the handler" do
     defmodule GetAMapResource do
       use Liberator.Resource
