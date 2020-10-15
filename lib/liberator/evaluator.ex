@@ -110,7 +110,7 @@ defmodule Liberator.Evaluator do
   }
 
   @mediatype_codecs %{
-    "text/plain" => Liberator.MediaType.TextPlainCodec,
+    "text/plain" => Liberator.MediaType.TextPlain,
     "application/json" => Jason
   }
 

@@ -68,7 +68,7 @@ defmodule Liberator.Resource do
 
       config :liberator,
         media_types: %{
-          "text/plain" => Liberator.MediaType.TextPlainCodec,
+          "text/plain" => Liberator.MediaType.TextPlain,
           "application/json" => Jason
         },
         encodings: %{
@@ -79,10 +79,10 @@ defmodule Liberator.Resource do
 
   As long as your codec module implements an `encode!/1` function that accepts and returns a response body,
   Liberator will call it at the right place in the pipeline.
-  Implement the `Liberator.Codec` behaviour for some compile-time assurance that you've implemented the correct function.
+  Implement the `Liberator.MediaType` or `Liberator.Encoding` behaviour for some compile-time assurance that you've implemented the correct function.
 
       defmodule MyXmlCodec do
-        @behaviour Liberator.Codec
+        @behaviour Liberator.MediaType
 
         @impl true
         def encode!(body) do
