@@ -180,8 +180,7 @@ defmodule Liberator.Evaluator do
         |> apply_location_header()
         |> put_resp_header("content-type", content_type)
         |> put_resp_header("content-encoding", content_encoding)
-        |> put_resp_header("vary", "accept-encoding")
-        |> put_resp_header("vary", "accept-language")
+        |> put_resp_header("vary", "accept, accept-encoding, accept-language")
         |> send_resp(status, encoded_body)
       true ->
         raise """
