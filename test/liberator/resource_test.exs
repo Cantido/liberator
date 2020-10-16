@@ -37,7 +37,6 @@ defmodule Liberator.ResourceTest do
 
     trace = get_resp_header(conn, "x-liberator-trace")
     assert Enum.at(trace, 0) == "initialize: nil"
-    assert Enum.at(trace, 32) == "handle_ok: nil"
   end
 
   test "logs the trace to the logger when trace: :log" do
