@@ -51,6 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([#9](https://github.com/Cantido/liberator/issues/9), [#12](https://github.com/Cantido/liberator/issues/12))
 - The `etag` header is now included in the response, if you have overridden it.
   ([#17](https://github.com/Cantido/liberator/issues/17))
+- Now serves the `last-modified` header based on the return value from the `last_modified/1` callback.
+  ([#18](https://github.com/Cantido/liberator/issues/18))
 
 ## [1.3.0] - 2020-10-13
 

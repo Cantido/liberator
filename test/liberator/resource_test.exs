@@ -367,6 +367,22 @@ defmodule Liberator.ResourceTest do
     assert conn.status == 200
     assert Jason.decode!(conn.resp_body) == "OK"
   end
+  
+  test "serves the last-modified header" do
+    defmodule LastModifiedResource do
+      use Liberator.Resource
+      @impl true
+      def last_modified(_conn), do: ~U[2015-10-21 07:28:00Z]
+    end
+
+    conn = conn(:get, "/")
+    conn = LastModifiedResource.call(conn, [])
+    
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "OK"
+    assert Enum.at(get_resp_header(conn, "last-modified"), 0) == "Wed, 21 Oct 2015 07:28:00 GMT"
+  end
 
   test "sets etag if etag is provided" do
     defmodule EtagResource do
@@ -382,9 +398,8 @@ defmodule Liberator.ResourceTest do
     assert conn.status == 200
     assert conn.resp_body == "OK"
     assert Enum.at(get_resp_header(conn, "etag"), 0) == ~s("very-strong-etag")
-  end
 
-  test "does not set etag if etag callback returns nil" do
+test "does not set etag if etag callback returns nil" do
     defmodule NoEtagResource do
       use Liberator.Resource
     end
