@@ -174,6 +174,7 @@ defmodule Liberator.Evaluator do
         |> do_trace(Keyword.get(opts, :trace))
         |> apply_allow_header(module)
         |> apply_retry_header(module)
+        |> apply_etag(module)
         |> put_resp_header("content-type", content_type)
         |> put_resp_header("content-encoding", content_encoding)
         |> put_resp_header("vary", "accept-encoding")
@@ -242,6 +243,14 @@ defmodule Liberator.Evaluator do
         end
 
       put_resp_header(conn, "retry-after", retry_after_value)
+    else
+      conn
+    end
+  end
+
+  defp apply_etag(conn, module) do
+    if etag = module.etag(conn) do
+      put_resp_header(conn, "etag", <<?">> <> to_string(etag) <> <<?">>)
     else
       conn
     end

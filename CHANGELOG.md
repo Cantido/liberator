@@ -49,6 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All responses now include an `allow` header, fixing the cases where one was required but not provided,
   like in an `OPTIONS` request, and when returning a 405 Method Not Allowed.
   ([#9](https://github.com/Cantido/liberator/issues/9), [#12](https://github.com/Cantido/liberator/issues/12))
+- The `etag` header is now included in the response, if you have overridden it.
+  ([#17](https://github.com/Cantido/liberator/issues/17))
 
 ## [1.3.0] - 2020-10-13
 
