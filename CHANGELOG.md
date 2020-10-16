@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `malformed?/1` is now deprecated, use `well_formed?/1` instead.
   This lets that decision function return data,
   and it's the ideal place for parsing the body. ([#15](https://github.com/Cantido/liberator/issues/15))
+- The `etag` header is now included in the response, if you have overridden it.
 
 ## Fixed
 - Non-printable-`String` return values from handlers will now be passed through `inspect/1` when the content type is `text/plain`.
