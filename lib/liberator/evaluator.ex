@@ -1,5 +1,6 @@
 defmodule Liberator.Evaluator do
   alias Liberator.Trace
+  alias Liberator.HTTPDateTime
   import Plug.Conn
 
   @moduledoc false
@@ -174,6 +175,7 @@ defmodule Liberator.Evaluator do
         |> do_trace(Keyword.get(opts, :trace))
         |> apply_allow_header(module)
         |> apply_retry_header(module)
+        |> apply_last_modified_header(module)
         |> put_resp_header("content-type", content_type)
         |> put_resp_header("content-encoding", content_encoding)
         |> put_resp_header("vary", "accept-encoding")
@@ -245,6 +247,23 @@ defmodule Liberator.Evaluator do
     else
       conn
     end
+  end
+
+  defp apply_last_modified_header(conn, module) do
+    last_modified_result = module.last_modified(conn)
+      try do
+        HTTPDateTime.format!(last_modified_result)
+      rescue
+        ArgumentError ->
+          raise """
+          Value from #{inspect module}.last_modified/1 could not be formatted into an HTTP DateTime string.
+          Make sure that last_modified/1 is returning an Elixir DateTime object.
+          Got: #{inspect last_modified_result}.
+          """
+      else
+        formatted ->
+          put_resp_header(conn, "last-modified", formatted)
+      end
   end
 
   defp get_mediatype_codec(media_type) do

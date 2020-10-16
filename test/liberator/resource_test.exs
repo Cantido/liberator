@@ -368,6 +368,22 @@ defmodule Liberator.ResourceTest do
     assert Jason.decode!(conn.resp_body) == "OK"
   end
 
+  test "serves the last-modified header" do
+    defmodule LastModifiedResource do
+      use Liberator.Resource
+      @impl true
+      def last_modified(_conn), do: ~U[2015-10-21 07:28:00Z]
+    end
+
+    conn = conn(:get, "/")
+    conn = LastModifiedResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "OK"
+    assert Enum.at(get_resp_header(conn, "last-modified"), 0) == "Wed, 21 Oct 2015 07:28:00 GMT"
+  end
+
   test "returns 503 when service_available? returns false" do
     defmodule UnavailableResource do
       use Liberator.Resource

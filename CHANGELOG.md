@@ -49,6 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All responses now include an `allow` header, fixing the cases where one was required but not provided,
   like in an `OPTIONS` request, and when returning a 405 Method Not Allowed.
   ([#9](https://github.com/Cantido/liberator/issues/9), [#12](https://github.com/Cantido/liberator/issues/12))
+- Now serves the `last-modified` header based on the return value from the `last_modified/1` callback.
+  ([#18](https://github.com/Cantido/liberator/issues/18))
 
 ## [1.3.0] - 2020-10-13
 
