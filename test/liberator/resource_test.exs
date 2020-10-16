@@ -413,6 +413,23 @@ test "does not set etag if etag callback returns nil" do
     assert get_resp_header(conn, "etag") == []
   end
 
+  test "sets location if location is provided in assigns" do
+    defmodule LocationResource do
+      use Liberator.Resource
+      @impl true
+      def allowed_methods(_), do: ["POST"]
+      def post!(_), do: %{location: "somewhere safe and sound"}
+    end
+
+    conn = conn(:post, "/")
+    conn = LocationResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 201
+    assert conn.resp_body == "Created"
+    assert Enum.at(get_resp_header(conn, "location"), 0) == "somewhere safe and sound"
+  end
+
   test "returns 503 when service_available? returns false" do
     defmodule UnavailableResource do
       use Liberator.Resource

@@ -177,6 +177,7 @@ defmodule Liberator.Evaluator do
         |> apply_retry_header(module)
         |> apply_last_modified_header(module)
         |> apply_etag(module)
+        |> apply_location_header()
         |> put_resp_header("content-type", content_type)
         |> put_resp_header("content-encoding", content_encoding)
         |> put_resp_header("vary", "accept-encoding")
@@ -270,6 +271,14 @@ defmodule Liberator.Evaluator do
   defp apply_etag(conn, module) do
     if etag = module.etag(conn) do
       put_resp_header(conn, "etag", <<?">> <> to_string(etag) <> <<?">>)
+    else
+      conn
+    end
+  end
+
+  defp apply_location_header(conn) do
+    if location = Map.get(conn.assigns, :location) do
+      put_resp_header(conn, "location", location)
     else
       conn
     end

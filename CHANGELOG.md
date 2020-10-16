@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([#17](https://github.com/Cantido/liberator/issues/17))
 - Now serves the `last-modified` header based on the return value from the `last_modified/1` callback.
   ([#18](https://github.com/Cantido/liberator/issues/18))
+- Now serves the `location` header if you've returned a map with the `:location` key, or assigned it on the conn.
 
 ## Changed
 - Some decision functions were rearranged.
