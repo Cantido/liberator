@@ -102,7 +102,8 @@ defmodule MaybeExistingResource do
 end
 ```
 
-See more in the [documentation for `Liberator.Resource`](https://hexdocs.pm/liberator/Liberator.Resource.html).
+See more in the [Getting Started guide](guides/getting_started.md),
+and in the [documentation for `Liberator.Resource`](https://hexdocs.pm/liberator/Liberator.Resource.html).
 
 ## Maintainer
 
