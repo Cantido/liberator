@@ -176,6 +176,8 @@ defmodule Liberator.Evaluator do
         |> apply_retry_header(module)
         |> put_resp_header("content-type", content_type)
         |> put_resp_header("content-encoding", content_encoding)
+        |> put_resp_header("vary", "accept-encoding")
+        |> put_resp_header("vary", "accept-language")
         |> send_resp(status, encoded_body)
       true ->
         raise """

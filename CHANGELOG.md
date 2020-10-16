@@ -32,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the new `well_formed?/1` function.
   So now you can parse the body if it's there,
   without worrying about conditional logic if it's not there.
+- The `Vary` header is now served by default,
+  with a value of `Accept-Encoding` and `Accept-Language`.
 
 ## Changed
 - Some decision functions were rearranged.
