@@ -8,7 +8,7 @@ defmodule Liberator.Evaluator do
     service_available?: {:known_method?, :handle_service_unavailable},
     known_method?: {:uri_too_long?, :handle_unknown_method},
     uri_too_long?: {:handle_uri_too_long, :method_allowed?},
-    method_allowed?: {:body_exists?, :handle_method_not_allowed},
+    method_allowed?: {:valid_content_header?, :handle_method_not_allowed},
     valid_content_header?: {:known_content_type?, :handle_not_implemented},
     known_content_type?: {:is_options?, :handle_unsupported_media_type},
     is_options?: {:handle_options, :body_exists?},
