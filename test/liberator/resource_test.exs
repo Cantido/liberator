@@ -367,7 +367,7 @@ defmodule Liberator.ResourceTest do
     assert conn.status == 200
     assert Jason.decode!(conn.resp_body) == "OK"
   end
-
+  
   test "serves the last-modified header" do
     defmodule LastModifiedResource do
       use Liberator.Resource
@@ -377,11 +377,40 @@ defmodule Liberator.ResourceTest do
 
     conn = conn(:get, "/")
     conn = LastModifiedResource.call(conn, [])
-
+    
     assert conn.state == :sent
     assert conn.status == 200
     assert conn.resp_body == "OK"
     assert Enum.at(get_resp_header(conn, "last-modified"), 0) == "Wed, 21 Oct 2015 07:28:00 GMT"
+  end
+
+  test "sets etag if etag is provided" do
+    defmodule EtagResource do
+      use Liberator.Resource
+      @impl true
+      def etag(_), do: ["very-strong-etag"]
+    end
+
+    conn = conn(:get, "/")
+    conn = EtagResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "OK"
+    assert Enum.at(get_resp_header(conn, "etag"), 0) == ~s("very-strong-etag")
+
+test "does not set etag if etag callback returns nil" do
+    defmodule NoEtagResource do
+      use Liberator.Resource
+    end
+
+    conn = conn(:get, "/")
+    conn = NoEtagResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "OK"
+    assert get_resp_header(conn, "etag") == []
   end
 
   test "returns 503 when service_available? returns false" do

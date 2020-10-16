@@ -176,6 +176,7 @@ defmodule Liberator.Evaluator do
         |> apply_allow_header(module)
         |> apply_retry_header(module)
         |> apply_last_modified_header(module)
+        |> apply_etag(module)
         |> put_resp_header("content-type", content_type)
         |> put_resp_header("content-encoding", content_encoding)
         |> put_resp_header("vary", "accept-encoding")
@@ -251,19 +252,27 @@ defmodule Liberator.Evaluator do
 
   defp apply_last_modified_header(conn, module) do
     last_modified_result = module.last_modified(conn)
-      try do
-        HTTPDateTime.format!(last_modified_result)
-      rescue
-        ArgumentError ->
-          raise """
-          Value from #{inspect module}.last_modified/1 could not be formatted into an HTTP DateTime string.
-          Make sure that last_modified/1 is returning an Elixir DateTime object.
-          Got: #{inspect last_modified_result}.
-          """
-      else
-        formatted ->
-          put_resp_header(conn, "last-modified", formatted)
-      end
+    try do
+      HTTPDateTime.format!(last_modified_result)
+    rescue
+      ArgumentError ->
+        raise """
+        Value from #{inspect module}.last_modified/1 could not be formatted into an HTTP DateTime string.
+        Make sure that last_modified/1 is returning an Elixir DateTime object.
+        Got: #{inspect last_modified_result}.
+        """
+    else
+      formatted ->
+        put_resp_header(conn, "last-modified", formatted)
+    end
+  end
+
+  defp apply_etag(conn, module) do
+    if etag = module.etag(conn) do
+      put_resp_header(conn, "etag", <<?">> <> to_string(etag) <> <<?">>)
+    else
+      conn
+    end
   end
 
   defp get_mediatype_codec(media_type) do
