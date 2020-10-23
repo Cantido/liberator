@@ -278,4 +278,4 @@ You've done it!
 You've just built JSON endpoint with a fair amount of built-in smarts.
 There's so much more to customize, but now you've got a base to work from.
 Check out the documentation for [`Liberator.Resource`](https://hexdocs.pm/liberator/Liberator.Resource.html)
-to see all the stuff you do can do!
+to see all the stuff you can do!
