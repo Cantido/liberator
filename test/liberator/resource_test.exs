@@ -18,8 +18,8 @@ defmodule Liberator.ResourceTest do
 
     trace = conn.private.liberator_trace
 
-    assert List.first(trace)[:step] == :initialize
-    assert List.last(trace)[:step] == :handle_ok
+    assert List.first(trace)[:step] == :start
+    assert List.last(trace)[:step] == :stop
   end
 
   test "traces decisions to header when trace: :headers" do
@@ -279,7 +279,7 @@ defmodule Liberator.ResourceTest do
     assert conn.status == 200
     assert conn.resp_body == "OK"
 
-    assert List.last(conn.private.liberator_trace)[:step] == :handle_ok
+    assert List.last(conn.private.liberator_trace)[:step] == :stop
   end
 
   test "exception test" do

@@ -128,7 +128,9 @@ defmodule Liberator.Evaluator do
   def call(conn, opts) do
     module = Keyword.get(opts, :module)
 
-    continue(conn, module, :initialize, opts)
+    conn
+    |> Trace.start(DateTime.utc_now())
+    |> continue(module, :initialize, opts)
   end
 
   defp continue(conn, module, next_step, opts) do
@@ -143,8 +145,9 @@ defmodule Liberator.Evaluator do
 
     cond do
       Map.has_key?(decisions, next_step) ->
+        called_at = DateTime.utc_now()
         {duration, result} = :timer.tc(module, next_step, [conn])
-        conn = Trace.update_trace(conn, next_step, result, duration)
+        conn = Trace.update_trace(conn, next_step, result, called_at, duration)
 
         {true_step, false_step} = decisions[next_step]
 
@@ -156,14 +159,16 @@ defmodule Liberator.Evaluator do
         end
 
       Map.has_key?(actions, next_step) ->
+        called_at = DateTime.utc_now()
         {duration, result} = :timer.tc(module, next_step, [conn])
 
         conn
-        |> Trace.update_trace(next_step, result, duration)
+        |> Trace.update_trace(next_step, result, called_at, duration)
         |> handle_decision_result(result)
         |> continue(module, actions[next_step], opts)
 
       Map.has_key?(handlers, next_step) ->
+        called_at = DateTime.utc_now()
         {duration, result} = :timer.tc(module, next_step, [conn])
 
         status = handlers[next_step]
@@ -176,8 +181,6 @@ defmodule Liberator.Evaluator do
           |> encode_compression!(content_encoding)
 
         conn
-        |> Trace.update_trace(next_step, nil, duration)
-        |> do_trace(Keyword.get(opts, :trace))
         |> apply_allow_header(module)
         |> apply_retry_header(module)
         |> apply_last_modified_header(module)
@@ -186,6 +189,9 @@ defmodule Liberator.Evaluator do
         |> put_resp_header("content-type", content_type)
         |> put_resp_header("content-encoding", content_encoding)
         |> put_resp_header("vary", "accept, accept-encoding, accept-language")
+        |> Trace.update_trace(next_step, nil, called_at, duration)
+        |> Trace.stop(DateTime.utc_now())
+        |> do_trace(Keyword.get(opts, :trace))
         |> send_resp(status, encoded_body)
       true ->
         raise Liberator.UnknownStep, {next_step, module}
