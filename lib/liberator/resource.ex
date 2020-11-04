@@ -222,37 +222,37 @@ defmodule Liberator.Resource do
   ```comment
   14:57:04.861 [debug] Liberator trace for request "my-very-specific-request-id" to /:
 
-      1. initialize: nil
-      2. service_available?: true
-      3. known_method?: true
-      4. uri_too_long?: false
-      5. method_allowed?: true
-      6. well_formed?: true
-      7. authorized?: true
-      8. allowed?: true
-      9. too_many_requests?: false
-      10. payment_required?: false
-      11. valid_content_header?: true
-      12. known_content_type?: true
-      13. valid_entity_length?: true
-      14. is_options?: false
-      15. accept_exists?: false
-      16. accept_language_exists?: false
-      17. accept_charset_exists?: false
-      18. accept_encoding_exists?: false
-      19. processable?: true
-      20. unavailable_for_legal_reasons?: false
-      21. exists?: true
-      22. if_match_exists?: false
-      23. if_unmodified_since_exists?: false
-      24. if_none_match_exists?: false
-      25. if_modified_since_exists?: false
-      26. method_delete?: false
-      27. method_patch?: false
-      28. post_to_existing?: false
-      29. put_to_existing?: false
-      30. multiple_representations?: false
-      31. handle_ok: nil
+      1. initialize: nil (took 1 µs)
+      2. service_available?: true (took 1 µs)
+      3. known_method?: true (took 1 µs)
+      4. uri_too_long?: false (took 1 µs)
+      5. method_allowed?: true (took 1 µs)
+      6. well_formed?: true (took 1 µs)
+      7. authorized?: true (took 1 µs)
+      8. allowed?: true (took 1 µs)
+      9. too_many_requests?: false (took 1 µs)
+      10. payment_required?: false (took 1 µs)
+      11. valid_content_header?: true (took 1 µs)
+      12. known_content_type?: true (took 1 µs)
+      13. valid_entity_length?: true (took 1 µs)
+      14. is_options?: false (took 1 µs)
+      15. accept_exists?: false (took 1 µs)
+      16. accept_language_exists?: false (took 1 µs)
+      17. accept_charset_exists?: false (took 1 µs)
+      18. accept_encoding_exists?: false (took 1 µs)
+      19. processable?: true (took 1 µs)
+      20. unavailable_for_legal_reasons?: false (took 1 µs)
+      21. exists?: true (took 1 µs)
+      22. if_match_exists?: false (took 1 µs)
+      23. if_unmodified_since_exists?: false (took 1 µs)
+      24. if_none_match_exists?: false (took 1 µs)
+      25. if_modified_since_exists?: false (took 1 µs)
+      26. method_delete?: false (took 1 µs)
+      27. method_patch?: false (took 1 µs)
+      28. post_to_existing?: false (took 1 µs)
+      29. put_to_existing?: false (took 1 µs)
+      30. multiple_representations?: false (took 1 µs)
+      31. handle_ok: nil (took 3 µs)
   ```
 
   Liberator will include the request ID set by the `Plug.RequestId` plug,

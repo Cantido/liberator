@@ -15,9 +15,13 @@ defmodule Liberator.Trace do
   end
 
   @doc false
-  def update_trace(conn, next_step, result) do
+  def update_trace(conn, next_step, result, duration) do
     current_trace = get_trace(conn)
-    updated_trace = current_trace ++ [{next_step, result}]
+    updated_trace = current_trace ++ [%{
+      step: next_step,
+      result: result,
+      duration: duration
+    }]
 
     put_private(conn, :liberator_trace, updated_trace)
   end
@@ -29,8 +33,10 @@ defmodule Liberator.Trace do
   @doc since: "1.3"
   def headers(trace) do
     trace
-    |> Enum.map(fn {key, val} ->
-      {"x-liberator-trace", "#{Atom.to_string(key)}: #{inspect(val)}"}
+    |> Enum.map(fn %{step: key, result: val, duration: duration_native} ->
+      duration_us = System.convert_time_unit(duration_native, :native, :microsecond)
+
+      {"x-liberator-trace", "#{Atom.to_string(key)}: #{inspect(val)} (took #{duration_us} µs)"}
     end)
   end
 
@@ -43,8 +49,9 @@ defmodule Liberator.Trace do
     trace =
       trace
       |> Enum.with_index()
-      |> Enum.map(fn {{key, val}, index} ->
-        "    #{index + 1}. #{Atom.to_string(key)}: #{inspect(val)}"
+      |> Enum.map(fn {%{step: key, result: val, duration: duration_native}, index} ->
+        duration_us = System.convert_time_unit(duration_native, :native, :microsecond)
+        "    #{index + 1}. #{Atom.to_string(key)}: #{inspect(val)} (took #{duration_us} µs)"
       end)
       |> Enum.join("\n")
 

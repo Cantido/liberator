@@ -39,11 +39,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now serves the `last-modified` header based on the return value from the `last_modified/1` callback.
   ([#18](https://github.com/Cantido/liberator/issues/18))
 - Now serves the `location` header if you've returned a map with the `:location` key, or assigned it on the conn.
+- Tracing individual step duration is now available.
+Access the `:duration` key for each decision in the tracing list to get that decision's duration, in native time units.
 
 ## Changed
 - Some decision functions were rearranged.
 - Raised errors are now wrapped in custom exceptions.
 They're the same errors with the same messages, just with different wrapper types.
+- Entries in the trace list have changed from tuples to maps in order to support more tracing information.
+The step is now a map member named `:step`, and the value is `:value`
 
 ## Deprecated
 - The `malformed?/1` is now deprecated, use `well_formed?/1` instead.

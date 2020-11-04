@@ -18,8 +18,8 @@ defmodule Liberator.ResourceTest do
 
     trace = conn.private.liberator_trace
 
-    assert Enum.at(trace, 0) == {:initialize, nil}
-    assert Enum.at(trace, 32) == {:handle_ok, nil}
+    assert List.first(trace)[:step] == :initialize
+    assert List.last(trace)[:step] == :handle_ok
   end
 
   test "traces decisions to header when trace: :headers" do
@@ -36,7 +36,7 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "OK"
 
     trace = get_resp_header(conn, "x-liberator-trace")
-    assert Enum.at(trace, 0) == "initialize: nil"
+    assert String.starts_with?(Enum.at(trace, 0), "initialize: nil (took ")
   end
 
   test "logs the trace to the logger when trace: :log" do
@@ -279,11 +279,7 @@ defmodule Liberator.ResourceTest do
     assert conn.status == 200
     assert conn.resp_body == "OK"
 
-    assert conn.private.liberator_trace == [
-      initialize: nil,
-      service_available?: true,
-      handle_ok: nil
-    ]
+    assert List.last(conn.private.liberator_trace)[:step] == :handle_ok
   end
 
   test "exception test" do

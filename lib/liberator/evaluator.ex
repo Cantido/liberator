@@ -127,6 +127,7 @@ defmodule Liberator.Evaluator do
 
   def call(conn, opts) do
     module = Keyword.get(opts, :module)
+
     continue(conn, module, :initialize, opts)
   end
 
@@ -142,36 +143,40 @@ defmodule Liberator.Evaluator do
 
     cond do
       Map.has_key?(decisions, next_step) ->
+        {duration, result} = :timer.tc(module, next_step, [conn])
+        conn = Trace.update_trace(conn, next_step, result, duration)
+
         {true_step, false_step} = decisions[next_step]
 
-        if result = apply(module, next_step, [conn]) do
+        if result do
           conn = handle_decision_result(conn, result)
-          conn = Trace.update_trace(conn, next_step, result)
           continue(conn, module, true_step, opts)
         else
-          conn = Trace.update_trace(conn, next_step, result)
           continue(conn, module, false_step, opts)
         end
 
       Map.has_key?(actions, next_step) ->
-        conn = Trace.update_trace(conn, next_step, nil)
+        {duration, result} = :timer.tc(module, next_step, [conn])
 
-        result = apply(module, next_step, [conn])
-        conn = handle_decision_result(conn, result)
-        continue(conn, module, actions[next_step], opts)
+        conn
+        |> Trace.update_trace(next_step, result, duration)
+        |> handle_decision_result(result)
+        |> continue(module, actions[next_step], opts)
 
       Map.has_key?(handlers, next_step) ->
+        {duration, result} = :timer.tc(module, next_step, [conn])
+
         status = handlers[next_step]
         content_type = Map.get(conn.assigns, :media_type, "text/plain")
         content_encoding = Map.get(conn.assigns, :encoding, "identity")
 
         encoded_body =
-          apply(module, next_step, [conn])
+          result
           |> encode_media_type!(content_type)
           |> encode_compression!(content_encoding)
 
         conn
-        |> Trace.update_trace(next_step, nil)
+        |> Trace.update_trace(next_step, nil, duration)
         |> do_trace(Keyword.get(opts, :trace))
         |> apply_allow_header(module)
         |> apply_retry_header(module)
