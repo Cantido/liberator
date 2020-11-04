@@ -9,12 +9,4 @@ defmodule Liberator.HTTPDateTimeTest do
       end
     end
   end
-
-  describe "format!/1" do
-    test "raises on error" do
-      assert_raise ArgumentError, fn ->
-        Liberator.HTTPDateTime.format!("asdf")
-      end
-    end
-  end
 end
