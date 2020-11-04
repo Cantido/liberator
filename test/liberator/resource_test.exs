@@ -398,8 +398,9 @@ defmodule Liberator.ResourceTest do
     assert conn.status == 200
     assert conn.resp_body == "OK"
     assert Enum.at(get_resp_header(conn, "etag"), 0) == ~s("very-strong-etag")
+  end
 
-test "does not set etag if etag callback returns nil" do
+  test "does not set etag if etag callback returns nil" do
     defmodule NoEtagResource do
       use Liberator.Resource
     end
