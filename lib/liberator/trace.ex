@@ -8,6 +8,14 @@ defmodule Liberator.Trace do
 
   @doc """
   Get the log of all decisions made on the given conn.
+
+  The trace is a list of maps, each map corresponding to one call to a decision function.
+  Each map has the following keys:
+
+  - `:step`: the name of the function that was executed
+  - `:result`: the value the function returned
+  - `:duration`: how long the call took, in native time units
+
   """
   @doc since: "1.1"
   def get_trace(conn) do
