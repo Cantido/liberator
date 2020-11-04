@@ -183,21 +183,7 @@ defmodule Liberator.Evaluator do
         |> put_resp_header("vary", "accept, accept-encoding, accept-language")
         |> send_resp(status, encoded_body)
       true ->
-        raise """
-          Liberator encountered an unknown step called #{inspect(next_step)}
-
-          In module: #{inspect module}
-
-          A couple things could be wrong:
-
-          - If you have overridden part of the decision tree with :decision_tree_overrides,
-            make sure that the atoms in the {true, false} tuple values have their own entries in the map.
-
-          - If you have overridden part of the handler tree with :handler_status_overrides,
-            or the action followups with :action_followup_overrides,
-            make sure that the handler the atoms you passed in are spelled correctly,
-            and match what the decision tree is calling.
-        """
+        raise Liberator.UnknownStep, {next_step, module}
     end
   end
 
@@ -239,9 +225,7 @@ defmodule Liberator.Evaluator do
             retry_after
 
           true ->
-            raise "Value for :retry_after was not a valid DateTime, integer, or String, but was #{inspect retry_after}. " <>
-              "Make sure the too_many_requests?/1 function of #{inspect module} is setting that key to one of those types. " <>
-              "Remember that you can also just return true or false."
+            raise Liberator.InvalidRetryAfterValue, {retry_after, module}
         end
 
       put_resp_header(conn, "retry-after", retry_after_value)
@@ -256,11 +240,7 @@ defmodule Liberator.Evaluator do
       HTTPDateTime.format!(last_modified_result)
     rescue
       ArgumentError ->
-        raise """
-        Value from #{inspect module}.last_modified/1 could not be formatted into an HTTP DateTime string.
-        Make sure that last_modified/1 is returning an Elixir DateTime object.
-        Got: #{inspect last_modified_result}.
-        """
+        raise InvalidLastModifiedValue, {last_modified_result, module}
     else
       formatted ->
         put_resp_header(conn, "last-modified", formatted)
@@ -288,9 +268,7 @@ defmodule Liberator.Evaluator do
     |> Map.get(media_type)
     |> case do
       nil ->
-        raise "No codec found for media type #{media_type}. " <>
-          "Add a codec module to the :media_types map under the :liberator config in config.exs."
-
+        raise Liberator.MediaTypeCodecNotFound, media_type
       codec ->
         codec
     end
@@ -301,12 +279,7 @@ defmodule Liberator.Evaluator do
     encoded_body = mediatype_codec.encode!(body)
 
     unless is_binary(encoded_body) do
-      raise """
-      The media type codec module #{inspect mediatype_codec} did not return a binary.
-      Media type codecs must return a binary.
-
-      #{inspect mediatype_codec}.encode!/1 returned #{inspect encoded_body}
-      """
+      raise Liberator.MediaTypeCodecInvalidResult, {mediatype_codec, encoded_body}
     end
     encoded_body
   end
@@ -316,9 +289,7 @@ defmodule Liberator.Evaluator do
     |> Map.get(encoding)
     |> case do
       nil ->
-        raise "No codec found for encoding #{encoding}. " <>
-          "Add a codec module to the :encodings map under the :liberator config in config.exs."
-
+        raise Liberator.CompressionCodecNotFound, encoding
       codec ->
         codec
     end
@@ -329,12 +300,7 @@ defmodule Liberator.Evaluator do
     compressed_body = compression_codec.encode!(body)
 
     unless is_binary(compressed_body) do
-      raise """
-      The compression codec module #{inspect compression_codec} did not return a binary.
-      Compression codecs must return a binary.
-
-      #{inspect compression_codec}.encode!/1 returned #{inspect compressed_body}
-      """
+      raise Liberator.CompressionCodecInvalidResult, {compression_codec, compressed_body}
     end
     compressed_body
   end

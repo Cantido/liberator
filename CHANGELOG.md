@@ -42,6 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changed
 - Some decision functions were rearranged.
+- Raised errors are now wrapped in custom exceptions.
+They're the same errors with the same messages, just with different wrapper types.
 
 ## Deprecated
 - The `malformed?/1` is now deprecated, use `well_formed?/1` instead.

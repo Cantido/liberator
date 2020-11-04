@@ -224,7 +224,7 @@ defmodule Liberator.ResourceTest do
 
     conn = conn(:get, "/")
 
-    assert_raise RuntimeError, expected_message, fn ->
+    assert_raise Liberator.MediaTypeCodecInvalidResult, expected_message, fn ->
       BadMediaTypeCodecResource.call(conn, [])
     end
   end
@@ -258,7 +258,7 @@ defmodule Liberator.ResourceTest do
 
     conn = conn(:get, "/")
 
-    assert_raise RuntimeError, expected_message, fn ->
+    assert_raise Liberator.CompressionCodecInvalidResult, expected_message, fn ->
       BadCompressionCodecResource.call(conn, [])
     end
   end
@@ -312,7 +312,7 @@ defmodule Liberator.ResourceTest do
           and match what the decision tree is calling.
       """
 
-    assert_raise RuntimeError, message, fn ->
+    assert_raise Liberator.UnknownStep, message, fn ->
       WillBreakLiberatorResource.call(conn, [])
     end
   end
@@ -834,7 +834,7 @@ defmodule Liberator.ResourceTest do
 
     conn = conn(:get, "/")
 
-    assert_raise RuntimeError, expected_message, fn ->
+    assert_raise Liberator.InvalidRetryAfterValue, expected_message, fn ->
       RateLimitedByUnicodeConsortiumResource.call(conn, [])
     end
   end

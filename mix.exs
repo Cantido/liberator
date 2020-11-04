@@ -50,6 +50,15 @@ defmodule Liberator.MixProject do
         ],
         Debugging: [
           Liberator.Trace
+        ],
+        Exceptions: [
+          Liberator.InvalidLastModifiedValue,
+          Liberator.InvalidRetryAfterValue,
+          Liberator.CompressionCodecInvalidResult,
+          Liberator.CompressionCodecNotFound,
+          Liberator.MediaTypeCodecInvalidResult,
+          Liberator.MediaTypeCodecNotFound,
+          Liberator.UnknownStep
         ]
       ]
     ]
