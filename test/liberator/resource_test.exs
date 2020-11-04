@@ -367,7 +367,7 @@ defmodule Liberator.ResourceTest do
     assert conn.status == 200
     assert Jason.decode!(conn.resp_body) == "OK"
   end
-  
+
   test "serves the last-modified header" do
     defmodule LastModifiedResource do
       use Liberator.Resource
@@ -377,7 +377,7 @@ defmodule Liberator.ResourceTest do
 
     conn = conn(:get, "/")
     conn = LastModifiedResource.call(conn, [])
-    
+
     assert conn.state == :sent
     assert conn.status == 200
     assert conn.resp_body == "OK"
