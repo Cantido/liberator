@@ -77,7 +77,7 @@ defmodule Liberator.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:gettext, "~> 0.18.2"},
       {:jason, "~> 1.2"},
-      {:timex, "~> 3.5"},
+      {:timex, "~> 3.6"},
       {:credo, "~> 1.5.0-rc.2", only: [:dev, :test], runtime: false},
       {:sobelow, "~> 0.8", only: :dev},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false}
