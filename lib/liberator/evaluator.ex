@@ -240,7 +240,7 @@ defmodule Liberator.Evaluator do
       HTTPDateTime.format!(last_modified_result)
     rescue
       ArgumentError ->
-        raise InvalidLastModifiedValue, {last_modified_result, module}
+        raise Liberator.InvalidLastModifiedValue, {last_modified_result, module}
     else
       formatted ->
         put_resp_header(conn, "last-modified", formatted)
