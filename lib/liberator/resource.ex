@@ -1310,6 +1310,24 @@ defmodule Liberator.Resource do
 
       plug(Liberator.Evaluator, Keyword.merge([module: __MODULE__], unquote(usage_opts)))
 
+      def decisions do
+        opts = unquote(usage_opts)
+        decision_tree_overrides = Keyword.get(opts, :decision_tree_overrides, %{})
+        Map.merge(Liberator.Default.DecisionTree.decisions(), decision_tree_overrides)
+      end
+
+      def actions do
+        opts = unquote(usage_opts)
+        action_followup_overrides = Keyword.get(opts, :action_followup_overrides, %{})
+        Map.merge(Liberator.Default.DecisionTree.actions(), action_followup_overrides)
+      end
+
+      def handlers do
+        opts = unquote(usage_opts)
+        handler_status_overrides = Keyword.get(opts, :handler_status_overrides, %{})
+        Map.merge(Liberator.Default.DecisionTree.handlers(), handler_status_overrides)
+      end
+
       @impl true
       def allowed_methods(_conn) do
         ["GET", "HEAD"]

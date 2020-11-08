@@ -3,9 +3,29 @@ defmodule Mix.Tasks.Chart do
 
   @shortdoc "Generates source text for a flow chart of Liberator's decision tree"
   def run(args) do
-    {opts, _argv, _errors} = OptionParser.parse(args, aliases: [o: :output], strict: [output: :string])
+    {opts, argv, _errors} = OptionParser.parse(args, aliases: [o: :output], strict: [output: :string])
 
-    chart = dot()
+    if length(argv) > 1 do
+      IO.puts(:stderr, "More than one module name given, ignoring all after the first")
+    end
+
+    base_module =
+      if Enum.empty?(argv) do
+        Liberator.Default.DecisionTree
+      else
+        "Elixir.#{List.first(argv)}"
+        |> String.to_existing_atom()
+      end
+
+    unless function_exported?(base_module, :decisions, 0) and
+           function_exported?(base_module, :actions, 0) and
+           function_exported?(base_module, :handlers, 0) do
+      raise "The given module, #{List.first(argv)}, does not implement " <>
+        "the required functions from Liberator.Resource. " <>
+        "Make sure that module has `use Liberator.Resource` in it."
+    end
+
+    chart = dot(base_module)
 
     if filename = Keyword.get(opts, :output) do
       File.write!(filename, chart)
@@ -15,9 +35,9 @@ defmodule Mix.Tasks.Chart do
     end
   end
 
-  def dot do
+  defp dot(base_module) do
     handler_rank_group =
-      Liberator.Evaluator.handlers()
+      base_module.handlers()
       |> Map.keys()
       |> Enum.map(fn handler ->
         ~s("#{handler}")
@@ -25,7 +45,7 @@ defmodule Mix.Tasks.Chart do
       |> Enum.join(" ")
 
     handler_shapes =
-      Liberator.Evaluator.handlers()
+      base_module.handlers()
       |> Map.keys()
       |> Enum.flat_map(fn handler ->
         [
@@ -35,7 +55,7 @@ defmodule Mix.Tasks.Chart do
       |> Enum.join("\n")
 
     decisions =
-      Liberator.Evaluator.decisions()
+      base_module.decisions()
       |> Enum.flat_map(fn {decision_fn, {true_step, false_step}} ->
         [
           ~s("#{decision_fn}" -> "#{true_step}" [label="yes"]),
@@ -45,7 +65,7 @@ defmodule Mix.Tasks.Chart do
       |> Enum.join("\n")
 
     actions =
-      Liberator.Evaluator.actions()
+      base_module.actions()
       |> Enum.flat_map(fn {action, after_action} ->
         [
           ~s("#{action}" [shape=box]),
