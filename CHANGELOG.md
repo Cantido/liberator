@@ -41,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now serves the `location` header if you've returned a map with the `:location` key, or assigned it on the conn.
 - Tracing individual step duration is now available.
 Access the `:duration` key for each decision in the tracing list to get that decision's duration, in native time units.
+- You can now generate a Graphviz file for either the default decision tree or your own resource's decision tree using the `mix liberator.chart` mix task.
+
 
 ## Changed
 - Some decision functions were rearranged.
