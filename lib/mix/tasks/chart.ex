@@ -1,4 +1,40 @@
 defmodule Mix.Tasks.Chart do
+  @moduledoc """
+  Generates source text for a decision tree chart for a Liberator resource.
+  The chart is compatible with the [Graphviz](https://graphviz.org/) graph visualization software.
+
+  ```sh
+  mix liberator.chart
+  ```
+
+  By default, this function will print the default decision tree to standard output.
+  This task can also take a module argument for any module that `use`s `Liberator.Resource`,
+  in which case the decision tree for the given module will be printed.
+
+  ```sh
+  mix liberator.chart MyApp.MyResource
+  ```
+
+  You can also provide the `--output` or `-o` option to print the chart source to a file.
+
+  ```sh
+  mix liberator.chart -o myresource.dot MyApp.MyResource
+  ```
+
+  ## Generating a chart with the returned source code
+
+  Unfortunately, there's not a Graphviz binding for Elixir.
+  If you want to create an actual image of your chart,
+  you will have to install [Graphviz](https://graphviz.org/),
+  or use one of its language bindings for another language.
+
+  Once you have installed Graphviz, you can run a command like the following to generate an image
+
+  ```sh
+  dot myresource.dot -Tsvg -o myresource.svg
+  ```
+  """
+
   use Mix.Task
 
   @shortdoc "Generates source text for a flow chart of Liberator's decision tree"
