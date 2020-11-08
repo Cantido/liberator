@@ -1,7 +1,7 @@
 # Liberator
 
 [![Hex.pm](https://img.shields.io/hexpm/v/liberator)](https://hex.pm/packages/liberator/)
-[![Build Status](https://travis-ci.com/Cantido/liberator.svg?branch=master)](https://travis-ci.com/Cantido/liberator)
+![Elixir CI](https://github.com/Cantido/liberator/workflows/Elixir%20CI/badge.svg)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md)
 [![Gitter](https://badges.gitter.im/liberator-elixir/community.svg)](https://gitter.im/liberator-elixir/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
