@@ -54,10 +54,11 @@ defmodule Mix.Tasks.Liberator.Chart do
         |> String.to_existing_atom()
       end
 
+    Code.ensure_loaded(base_module)
     unless function_exported?(base_module, :decisions, 0) and
            function_exported?(base_module, :actions, 0) and
            function_exported?(base_module, :handlers, 0) do
-      raise "The given module, #{List.first(argv)}, does not implement " <>
+      raise "The given module, #{base_module}, does not implement " <>
         "the required functions from Liberator.Resource. " <>
         "Make sure that module has `use Liberator.Resource` in it."
     end
