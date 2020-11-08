@@ -31,7 +31,10 @@ defmodule Liberator.MixProject do
         "README.md",
         "CHANGELOG.md",
         "CONTRIBUTING.md",
-        "code_of_conduct.md"
+        "SECURITY.md",
+        "code_of_conduct.md",
+        "guides/getting_started.md",
+        "guides/decision_tree.md"
       ],
       groups_for_modules: [
         # Ungrouped:
