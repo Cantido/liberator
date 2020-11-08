@@ -1,4 +1,6 @@
-defmodule Mix.Tasks.Chart do
+defmodule Mix.Tasks.Liberator.Chart do
+  @shortdoc "Generates source text for a chart of Liberator's decision tree"
+
   @moduledoc """
   Generates source text for a decision tree chart for a Liberator resource.
   The chart is compatible with the [Graphviz](https://graphviz.org/) graph visualization software.
@@ -37,7 +39,6 @@ defmodule Mix.Tasks.Chart do
 
   use Mix.Task
 
-  @shortdoc "Generates source text for a flow chart of Liberator's decision tree"
   def run(args) do
     {opts, argv, _errors} = OptionParser.parse(args, aliases: [o: :output], strict: [output: :string])
 
