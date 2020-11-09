@@ -80,6 +80,7 @@ defmodule Liberator.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:gettext, "~> 0.18.2"},
       {:jason, "~> 1.2"},
+      {:telemetry, "~> 0.4"},
       {:timex, "~> 3.6"},
       {:credo, "~> 1.5.0-rc.2", only: [:dev, :test], runtime: false},
       {:sobelow, "~> 0.8", only: :dev},

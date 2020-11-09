@@ -21,9 +21,20 @@ defmodule Liberator.Evaluator do
   def call(conn, opts) do
     module = Keyword.get(opts, :module)
 
-    conn
-    |> Trace.start(DateTime.utc_now())
-    |> continue(module, :initialize, opts)
+    :telemetry.span(
+      [:liberator, :request],
+      %{
+        request_path: conn.request_path,
+        request_id: Logger.metadata[:request_id]
+        },
+      fn ->
+        conn =
+          conn
+          |> Trace.start(DateTime.utc_now())
+          |> continue(module, :initialize, opts)
+        {conn, %{metadata: Trace.get_trace(conn)}}
+      end
+    )
   end
 
   defp continue(conn, module, next_step, opts) do
