@@ -42,7 +42,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tracing individual step duration is now available.
 Access the `:duration` key for each decision in the tracing list to get that decision's duration, in native time units.
 - You can now generate a Graphviz file for either the default decision tree or your own resource's decision tree using the `mix liberator.chart` mix task.
-
+- Telemetry is now sent upon each request.
+Three events `[:liberator, :request, :start]`, `[:liberator, :request, :stop]`,
+and [:liberator, :request, :exception] are sent.
+See the docs for `Liberator.Resource` for more information.
 
 ## Changed
 - Some decision functions were rearranged.

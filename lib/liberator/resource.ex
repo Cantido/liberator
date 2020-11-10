@@ -268,6 +268,24 @@ defmodule Liberator.Resource do
 
   This will add a header called `x-liberator-trace` that will show you the entire set of decisions, in the order they were made.
 
+  Lastly, Liberator is instrumented with the [Telemetry](https://github.com/beam-telemetry/telemetry) library,
+  and emits events upon the completion of every request.
+  A Resource will emit the following events:
+
+  - `[:liberator, :request, :start]`
+  - `[:liberator, :request, :stop]`
+  - `[:liberator, :request, :exception]`
+
+  All Telemetry events will contain the request ID and request path as metadata.
+  The measurements for `:start` will contain a key called `system_time` which is derived by calling `:erlang.systme_time()`
+  The measurements for `:stop` and `:exception` will both contain a key called `:duration`, which is the duration of the request in native time units.
+  The metadata for the `:stop` event will also contain the execution trace, which is a list of maps with the following keys:
+
+  - `:step`: the name of the function that was executed, or the atoms `:start` or `:stop`
+  - `:result`: the value the function returned
+  - `:timestamp`: the time the function was called, as an Elixir date struct
+  - `:duration`: how long the call took, in native time units
+
   ## Internationalization and Localization (i18n and l10n)
 
   During content negotiation (specifically, in the call to `c:language_available?/1`)

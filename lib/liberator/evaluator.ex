@@ -32,7 +32,7 @@ defmodule Liberator.Evaluator do
           conn
           |> Trace.start(DateTime.utc_now())
           |> continue(module, :initialize, opts)
-        {conn, %{metadata: Trace.get_trace(conn)}}
+        {conn, %{trace: Trace.get_trace(conn)}}
       end
     )
   end
