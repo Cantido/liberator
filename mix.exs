@@ -7,7 +7,7 @@ defmodule Liberator.MixProject do
       description: "An Elixir library for building controllers that obey the HTTP spec.",
       package: package(),
       docs: docs(),
-      version: "1.3.0-rc.1",
+      version: "1.4.0-rc.1",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       compilers: [:gettext] ++ Mix.compilers,
