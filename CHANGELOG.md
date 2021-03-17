@@ -46,6 +46,10 @@ Access the `:duration` key for each decision in the tracing list to get that dec
 Three events `[:liberator, :request, :start]`, `[:liberator, :request, :stop]`,
 and [:liberator, :request, :exception] are sent.
 See the docs for `Liberator.Resource` for more information.
+- The `handle_error/3` handler has been added.
+This is a special handler that lets you manipulate the `conn` after an error is raised,
+so you can choose your status code and body yourself.
+  ([#33](https://github.com/Cantido/liberator/issues/33))
 
 ## Changed
 - Some decision functions were rearranged.

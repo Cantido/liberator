@@ -45,56 +45,101 @@ defmodule Liberator.Evaluator do
     cond do
       Map.has_key?(decisions, next_step) ->
         called_at = DateTime.utc_now()
-        {duration, result} = :timer.tc(module, next_step, [conn])
-        conn = Trace.update_trace(conn, next_step, result, called_at, duration)
 
-        {true_step, false_step} = decisions[next_step]
-
-        if result do
-          conn = handle_decision_result(conn, result)
-          continue(conn, module, true_step, opts)
+        try do
+          :timer.tc(module, next_step, [conn])
+        rescue
+          error ->
+            handle_error(conn, module, error, next_step, opts)
         else
-          continue(conn, module, false_step, opts)
+          {duration, result} ->
+            conn = Trace.update_trace(conn, next_step, result, called_at, duration)
+
+            {true_step, false_step} = decisions[next_step]
+
+            if result do
+              conn = handle_decision_result(conn, result)
+              continue(conn, module, true_step, opts)
+            else
+              continue(conn, module, false_step, opts)
+            end
         end
 
       Map.has_key?(actions, next_step) ->
         called_at = DateTime.utc_now()
-        {duration, result} = :timer.tc(module, next_step, [conn])
 
-        conn
-        |> Trace.update_trace(next_step, result, called_at, duration)
-        |> handle_decision_result(result)
-        |> continue(module, actions[next_step], opts)
+        try do
+          :timer.tc(module, next_step, [conn])
+        rescue
+          error ->
+            handle_error(conn, module, error, next_step, opts)
+        else
+          {duration, result} ->
+
+            conn
+            |> Trace.update_trace(next_step, result, called_at, duration)
+            |> handle_decision_result(result)
+            |> continue(module, actions[next_step], opts)
+        end
 
       Map.has_key?(handlers, next_step) ->
         called_at = DateTime.utc_now()
-        {duration, result} = :timer.tc(module, next_step, [conn])
 
-        status = handlers[next_step]
-        content_type = Map.get(conn.assigns, :media_type, "text/plain")
-        content_encoding = Map.get(conn.assigns, :encoding, "identity")
+        try do
+          :timer.tc(module, next_step, [conn])
+        rescue
+          error ->
+            handle_error(conn, module, error, next_step, opts)
+        else
+          {duration, result} ->
 
-        encoded_body =
-          result
-          |> encode_media_type!(content_type)
-          |> encode_compression!(content_encoding)
+            status = handlers[next_step]
+            content_type = Map.get(conn.assigns, :media_type, "text/plain")
+            content_encoding = Map.get(conn.assigns, :encoding, "identity")
 
-        conn
-        |> apply_allow_header(module)
-        |> apply_retry_header(module)
-        |> apply_last_modified_header(module)
-        |> apply_etag(module)
-        |> apply_location_header()
-        |> put_resp_header("content-type", content_type)
-        |> put_resp_header("content-encoding", content_encoding)
-        |> put_resp_header("vary", "accept, accept-encoding, accept-language")
-        |> Trace.update_trace(next_step, nil, called_at, duration)
-        |> Trace.stop(DateTime.utc_now())
-        |> do_trace(Keyword.get(opts, :trace))
-        |> send_resp(status, encoded_body)
+            encoded_body =
+              result
+              |> encode_media_type!(content_type)
+              |> encode_compression!(content_encoding)
+
+            conn
+            |> apply_allow_header(module)
+            |> apply_retry_header(module)
+            |> apply_last_modified_header(module)
+            |> apply_etag(module)
+            |> apply_location_header()
+            |> put_resp_header("content-type", content_type)
+            |> put_resp_header("content-encoding", content_encoding)
+            |> put_resp_header("vary", "accept, accept-encoding, accept-language")
+            |> Trace.update_trace(next_step, nil, called_at, duration)
+            |> Trace.stop(DateTime.utc_now())
+            |> do_trace(Keyword.get(opts, :trace))
+            |> send_resp(status, encoded_body)
+        end
       true ->
         raise Liberator.UnknownStep, {next_step, module}
     end
+  end
+
+  defp handle_error(conn, module, error, failed_step, opts) do
+    called_at = DateTime.utc_now()
+
+    content_type = Map.get(conn.assigns, :media_type, "text/plain")
+    content_encoding = Map.get(conn.assigns, :encoding, "identity")
+
+    conn =
+      conn
+      |> put_resp_header("content-type", content_type)
+      |> put_resp_header("content-encoding", content_encoding)
+      |> resp(500, "")
+
+    {duration, conn} = :timer.tc(module, :handle_error, [conn, error, failed_step])
+
+    conn
+    |> Trace.update_trace(:handle_error, nil, called_at, duration)
+    |> Trace.stop(DateTime.utc_now())
+    |> do_trace(Keyword.get(opts, :trace))
+    |> send_resp()
   end
 
   defp do_trace(conn, trace_opt) do

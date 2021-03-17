@@ -204,6 +204,27 @@ defmodule Liberator.Resource do
   | `c:valid_entity_length?/1`  | Is the length of the body valid?                                                    | Uses value at `c:maximum_entity_length/1` |
   | `c:well_formed?/1`            | Is the request parseable?                                                         | true |
 
+  ## Handling Errors
+
+  There is a special handler, named `c:handle_error/3`, that is called when any decision, action, or handler function raises an error.
+  It functions much like an [`action_fallback`](https://hexdocs.pm/phoenix/controllers.html#action-fallback) module does in Phoenix.
+
+  The `handle_error` handler is called with the `conn`, the error that was raised, and the name of the decision, action, or handler that failed.
+  Liberator expects this handler to return a `conn`, unlike other handlers.
+  This allows you to set the status and body yourself.
+
+  The default implementation of `handle_error` works something like this:
+
+      @impl true
+      def handle_error(conn, _error, _failed_step) do
+        resp(conn, 500, "Internal Server Error")
+      end
+
+  Notice that we are using `Plug.Conn.resp/3` here, instead of `Plug.Conn.send_resp/3`.
+  Liberator needs to work with the conn just a little bit after `handle_error` function is called (to wrap up some internal activities like debug tracing),
+  so it will call `Plug.Conn.send_resp/1` itself afterwards.
+  If you call `Plug.Conn.send_resp/3` yourself, `Plug` will throw an exception and your request will fail.
+
   ## Debugging
 
   For every request, Liberator builds a list of the decisions called and their answers.
@@ -1301,6 +1322,17 @@ defmodule Liberator.Resource do
   @doc since: "1.2"
   @callback handle_unavailable_for_legal_reasons(Plug.Conn.t()) :: Plug.Conn.t()
 
+
+  @doc """
+  Returns a conn for a `500 Internal Server Error` response.
+
+  This handler is special among the handlers.
+  Not only does it receive the `conn`, it also receives the error that was thrown,
+  as well as the atom name of the failed step.
+  """
+  @doc since: "1.3"
+  @callback handle_error(Plug.Conn.t(), term, atom) :: Plug.Conn.t()
+
   @doc """
   Returns content for a `501 Unknown Method` response.
   """
@@ -1725,6 +1757,9 @@ defmodule Liberator.Resource do
 
       @impl true
       defdelegate handle_unavailable_for_legal_reasons(_conn), to: Liberator.Default.Handlers
+
+      @impl true
+      defdelegate handle_error(_conn, _error, _failed_step), to: Liberator.Default.Handlers
 
       @impl true
       defdelegate handle_not_implemented(_conn), to: Liberator.Default.Handlers

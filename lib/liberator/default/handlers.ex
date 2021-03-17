@@ -107,6 +107,12 @@ defmodule Liberator.Default.Handlers do
     gettext("Unavailable for Legal Reasons")
   end
 
+  def handle_error(conn, _error, _failed_step) do
+    body = gettext("Internal Server Error")
+
+    Plug.Conn.resp(conn, 500, body)
+  end
+
   def handle_not_implemented(_conn) do
     gettext("Not Implemented")
   end

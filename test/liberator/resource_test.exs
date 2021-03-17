@@ -178,6 +178,38 @@ defmodule Liberator.ResourceTest do
     assert conn.assigns[:test_value] == "Hello!"
   end
 
+  test "handle_error will be called if an action function raises" do
+    defmodule RaisingPostResource do
+      use Liberator.Resource
+
+      @impl true
+      def allowed_methods(_conn) do
+        ["POST"]
+      end
+
+      @impl true
+      def post!(_conn) do
+        raise "That resource already exists"
+      end
+
+      @impl true
+      def handle_error(conn, error, failed_step) do
+        assert failed_step == :post!
+
+        conn
+        |> resp(400, error.message)
+      end
+    end
+
+    conn = conn(:post, "/")
+
+    conn = RaisingPostResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 400
+    assert conn.resp_body == "That resource already exists"
+  end
+
   test "stringifies return values from the handler" do
     defmodule GetAMapResource do
       use Liberator.Resource
