@@ -122,8 +122,6 @@ defmodule Liberator.Evaluator do
   end
 
   defp handle_error(conn, module, error, failed_step, opts) do
-    called_at = DateTime.utc_now()
-
     content_type = Map.get(conn.assigns, :media_type, "text/plain")
     content_encoding = Map.get(conn.assigns, :encoding, "identity")
 
@@ -132,14 +130,10 @@ defmodule Liberator.Evaluator do
       |> put_resp_header("content-type", content_type)
       |> put_resp_header("content-encoding", content_encoding)
       |> resp(500, "")
+      |> Trace.stop(DateTime.utc_now())
+      |> do_trace(Keyword.get(opts, :trace))
 
-    {duration, conn} = :timer.tc(module, :handle_error, [conn, error, failed_step])
-
-    conn
-    |> Trace.update_trace(:handle_error, nil, called_at, duration)
-    |> Trace.stop(DateTime.utc_now())
-    |> do_trace(Keyword.get(opts, :trace))
-    |> send_resp()
+    apply(module, :handle_error, [conn, error, failed_step])
   end
 
   defp do_trace(conn, trace_opt) do

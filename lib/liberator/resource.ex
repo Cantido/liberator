@@ -210,20 +210,15 @@ defmodule Liberator.Resource do
   It functions much like an [`action_fallback`](https://hexdocs.pm/phoenix/controllers.html#action-fallback) module does in Phoenix.
 
   The `handle_error` handler is called with the `conn`, the error that was raised, and the name of the decision, action, or handler that failed.
-  Liberator expects this handler to return a `conn`, unlike other handlers.
-  This allows you to set the status and body yourself.
+  Liberator expects this handler to call `Plug.Conn.send_resp/1` or `Plug.Conn.send_resp/3`, unlike other handlers.
+  This allows you to set the status and body yourself, or even use a Phoenix fallback controller.
 
   The default implementation of `handle_error` works something like this:
 
       @impl true
       def handle_error(conn, _error, _failed_step) do
-        resp(conn, 500, "Internal Server Error")
+        send_resp(conn, 500, "Internal Server Error")
       end
-
-  Notice that we are using `Plug.Conn.resp/3` here, instead of `Plug.Conn.send_resp/3`.
-  Liberator needs to work with the conn just a little bit after `handle_error` function is called (to wrap up some internal activities like debug tracing),
-  so it will call `Plug.Conn.send_resp/1` itself afterwards.
-  If you call `Plug.Conn.send_resp/3` yourself, `Plug` will throw an exception and your request will fail.
 
   ## Debugging
 
