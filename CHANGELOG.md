@@ -146,7 +146,8 @@ The step is now a map member named `:step`, and the value is `:value`
 - Basic decision tree navigation
 
 
-[Unreleased]: https://github.com/Cantido/liberator/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/Cantido/liberator/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/Cantido/liberator/releases/tag/v1.4.0
 [1.3.0]: https://github.com/Cantido/liberator/releases/tag/v1.3.0
 [1.2.0]: https://github.com/Cantido/liberator/releases/tag/v1.2.0
 [1.1.0]: https://github.com/Cantido/liberator/releases/tag/v1.1.0
