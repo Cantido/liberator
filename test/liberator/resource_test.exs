@@ -197,7 +197,7 @@ defmodule Liberator.ResourceTest do
         assert failed_step == :post!
 
         conn
-        |> resp(400, error.message)
+        |> send_resp(400, error.message)
       end
     end
 
@@ -208,6 +208,67 @@ defmodule Liberator.ResourceTest do
     assert conn.state == :sent
     assert conn.status == 400
     assert conn.resp_body == "That resource already exists"
+  end
+
+  test "handle_error will be called if an an action returns an error tuple" do
+    defmodule ErrorTuplePostResource do
+      use Liberator.Resource
+
+      @impl true
+      def allowed_methods(_conn) do
+        ["POST"]
+      end
+
+      @impl true
+      def post!(_conn) do
+        {:error, "That resource already exists"}
+      end
+
+      @impl true
+      def handle_error(conn, {:error, message}, failed_step) do
+        assert failed_step == :post!
+        assert message == "That resource already exists"
+
+        conn
+        |> send_resp(400, message)
+      end
+    end
+
+    conn = conn(:post, "/")
+
+    conn = ErrorTuplePostResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 400
+    assert conn.resp_body == "That resource already exists"
+  end
+
+  test "handle_error will be called if an a handler returns an error tuple" do
+    defmodule ErrorTupleHandlerResource do
+      use Liberator.Resource
+
+      @impl true
+      def handle_ok(_conn) do
+        {:error, "I couldn't say OK :("}
+      end
+
+      @impl true
+      def handle_error(conn, {:error, message}, failed_step) do
+        assert failed_step == :handle_ok
+        assert message == "I couldn't say OK :("
+
+        conn
+        |> send_resp(500, message)
+      end
+    end
+
+    conn = conn(:get, "/")
+
+    conn = ErrorTupleHandlerResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 500
+    assert conn.resp_body == "I couldn't say OK :("
   end
 
   test "stringifies return values from the handler" do
@@ -225,6 +286,23 @@ defmodule Liberator.ResourceTest do
     assert conn.state == :sent
     assert conn.status == 200
     assert conn.resp_body == "%{a: 1, b: 2}"
+  end
+
+  test "stringifies ok tuple values from the handler" do
+    defmodule OkTupleHandlerResource do
+      use Liberator.Resource
+
+      @impl true
+      def handle_ok(_), do: {:ok, "no ok tuple here!"}
+    end
+
+    conn = conn(:get, "/")
+
+    conn = OkTupleHandlerResource.call(conn, [])
+
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == "no ok tuple here!"
   end
 
   test "if a media type codec does not return a binary, throws an exception with a nice message" do

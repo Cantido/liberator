@@ -50,9 +50,17 @@ defmodule Liberator.Evaluator do
           :timer.tc(module, next_step, [conn])
         rescue
           error ->
-            handle_error(conn, module, error, next_step, opts)
+            conn
+            |> Trace.update_trace(next_step, error, called_at, 0)
+            |> handle_error(module, error, next_step, opts)
         else
+          {duration, {:error, err}} ->
+            conn
+            |> Trace.update_trace(next_step, {:error, err}, called_at, duration)
+            |> handle_error(module, {:error, err}, next_step, opts)
+
           {duration, result} ->
+
             conn = Trace.update_trace(conn, next_step, result, called_at, duration)
 
             {true_step, false_step} = decisions[next_step]
@@ -72,8 +80,15 @@ defmodule Liberator.Evaluator do
           :timer.tc(module, next_step, [conn])
         rescue
           error ->
-            handle_error(conn, module, error, next_step, opts)
+            conn
+            |> Trace.update_trace(next_step, error, called_at, 0)
+            |> handle_error(module, error, next_step, opts)
         else
+          {duration, {:error, err}} ->
+            conn
+            |> Trace.update_trace(next_step, {:error, err}, called_at, duration)
+            |> handle_error(module, {:error, err}, next_step, opts)
+
           {duration, result} ->
 
             conn
@@ -89,8 +104,14 @@ defmodule Liberator.Evaluator do
           :timer.tc(module, next_step, [conn])
         rescue
           error ->
-            handle_error(conn, module, error, next_step, opts)
+            conn
+            |> Trace.update_trace(next_step, error, called_at, 0)
+            |> handle_error(module, error, next_step, opts)
         else
+          {duration, {:error, result}} ->
+            conn
+            |> Trace.update_trace(next_step, {:error, result}, called_at, duration)
+            |> handle_error(module, {:error, result}, next_step, opts)
           {duration, result} ->
 
             status = handlers[next_step]
@@ -99,6 +120,7 @@ defmodule Liberator.Evaluator do
 
             encoded_body =
               result
+              |> unwrap_ok_tuple()
               |> encode_media_type!(content_type)
               |> encode_compression!(content_encoding)
 
@@ -120,6 +142,9 @@ defmodule Liberator.Evaluator do
         raise Liberator.UnknownStep, {next_step, module}
     end
   end
+
+  defp unwrap_ok_tuple({:ok, result}), do: result
+  defp unwrap_ok_tuple(result), do: result
 
   defp handle_error(conn, module, error, failed_step, opts) do
     content_type = Map.get(conn.assigns, :media_type, "text/plain")
@@ -256,6 +281,10 @@ defmodule Liberator.Evaluator do
 
   defp handle_decision_result(_conn, %Plug.Conn{} = result) do
     result
+  end
+
+  defp handle_decision_result(conn, {:ok, result}) do
+    handle_decision_result(conn, result)
   end
 
   defp handle_decision_result(conn, result) when is_map(result) do

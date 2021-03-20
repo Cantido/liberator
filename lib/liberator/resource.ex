@@ -158,11 +158,28 @@ defmodule Liberator.Resource do
   Some of them are needed for next to every resource definition.
   Others are seldom used or there is no other sensible implementation.
 
-  Return any truthy value for a `true` response, including the conn itself.
-  If you return a map, Liberator will merge that map with the conn's `:assigns` map.
+  Decision callbacks must return a truthy value, which they can optionally wrap in an `{:ok, result}` tuple.
+  Returning `{:error, result}` will always invoke the `handle_error`; see below.
+
+  If the result of the decision is a map, Liberator will merge that map with the `conn`'s `:assigns` map.
   Use this feature to cache data and do work when it makes sense.
   For example, the `exists?/1` callback is a great place to fetch your resource,
   and you can return it as a map for your later functions to act upon.
+  That would look something like this:
+
+      def exists?(conn) do
+        id = List.last(conn.path_info)
+        try do
+          Hello.Blog.get_post!(id)
+        rescue
+          Ecto.NoResultsError -> false
+          ArgumentError -> false
+        else
+          post -> %{post: post}
+        end
+      end
+
+  Here are all the decision functions you can override:
 
   | Function                    | Description                                                                         | Default  |
   |---                          |---                                                                                  |---       |
@@ -206,7 +223,7 @@ defmodule Liberator.Resource do
 
   ## Handling Errors
 
-  There is a special handler, named `c:handle_error/3`, that is called when any decision, action, or handler function raises an error.
+  There is a special handler, named `c:handle_error/3`, that is called when any decision, action, or handler function raises an error or returns `{:error, result}`.
   It functions much like an [`action_fallback`](https://hexdocs.pm/phoenix/controllers.html#action-fallback) module does in Phoenix.
 
   The `handle_error` handler is called with the `conn`, the error that was raised, and the name of the decision, action, or handler that failed.

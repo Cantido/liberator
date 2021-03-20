@@ -8,50 +8,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## Added
-- Internationalization is now supported via `Gettext`!
-  Liberator already finds the best language for each request,
-  now it also sets the locale using `Gettext.put_locale/1`.
-  Just call `gettext` directly in your Resources.
-  ([#8](https://github.com/Cantido/liberator/issues/8),
-  [#10](https://github.com/Cantido/liberator/pull/10))
-- You can now return the given conn in decision functions and actions to serve as an affirmative response,
-  as an alternative to returning a plain map, or `true`.
-  Now you can modify the conn as you see fit.
+
+### New Callbacks
+
+- The `handle_error/3` handler has been added.
+  This is a special handler that lets you manipulate the `conn` after an error is raised,
+  so you can choose your status code and body yourself.
+  ([#33](https://github.com/Cantido/liberator/issues/33))
 - The `maximum_entity_length/1` function.
   This is used by the `valid_entity_length?/1` callback.
   If the size of the request body is above this size,
   Liberator will return a status of `413 Request Entity Too Large`.
-- The `Liberator.Conn` module, for working with `Plug.Conn` structs.
-  Right now it contains only one function: `read_body/1`,
-  which reads the request body and stores it in `conn.assigns[:raw_body]`.
-  This is called by the new default implementation of `valid_entity_length?/1` (see **Changed**, below),
-  so you will have the body content in `conn.assigns` by default.
 - Added the `body_exists?/1` function.
   This is an internal function that, uh, checks to see if the body exists.
   If it does, it'll grab it, and call `valid_entity_length?/1` and
   the new `well_formed?/1` function.
   So now you can parse the body if it's there,
   without worrying about conditional logic if it's not there.
-- The `Vary` header is now served by default,
-  with a value of `Accept-Encoding` and `Accept-Language`.
-- The `etag` header is now included in the response, if you have overridden it.
-  ([#17](https://github.com/Cantido/liberator/issues/17))
-- Now serves the `last-modified` header based on the return value from the `last_modified/1` callback.
-  ([#18](https://github.com/Cantido/liberator/issues/18))
-- Now serves the `location` header if you've returned a map with the `:location` key, or assigned it on the conn.
+
+### Additions to callbacks
+
+- You can now return the given conn in decision functions and actions to serve as an affirmative response,
+  as an alternative to returning a plain map, or `true`.
+  Now you can modify the conn as you see fit.
+- You can now return `:ok` or `:error` tuples from decisions, actions, and handlers.
+  Returning `{:error, term}` will invoke the new `handle_error/3` function.
+
+### Added internationalization
+- Internationalization is now supported via `Gettext`!
+  Liberator already finds the best language for each request,
+  now it also sets the locale using `Gettext.put_locale/1`.
+  Just call `gettext` directly in your Resources.
+  ([#8](https://github.com/Cantido/liberator/issues/8),
+  [#10](https://github.com/Cantido/liberator/pull/10))
+
+### Debugging and tracing upgrades
+
 - Tracing individual step duration is now available.
-Access the `:duration` key for each decision in the tracing list to get that decision's duration, in native time units.
+  Access the `:duration` key for each decision in the tracing list to get that decision's duration, in native time units.
 - You can now generate a Graphviz file for either the default decision tree or your own resource's decision tree using the `mix liberator.chart` mix task.
 - Telemetry is now sent upon each request.
-Three events `[:liberator, :request, :start]`, `[:liberator, :request, :stop]`,
-and [:liberator, :request, :exception] are sent.
-See the docs for `Liberator.Resource` for more information.
-- The `handle_error/3` handler has been added.
-This is a special handler that lets you manipulate the `conn` after an error is raised,
-so you can choose your status code and body yourself.
-  ([#33](https://github.com/Cantido/liberator/issues/33))
+  Three events `[:liberator, :request, :start]`, `[:liberator, :request, :stop]`,
+  and `[:liberator, :request, :exception]` are sent.
+  See the docs for `Liberator.Resource` for more information.
 
 ## Changed
+- The `Vary` header is now served by default,
+  with a value of `Accept-Encoding` and `Accept-Language`.
+- Now serves the `location` header if you've returned a map with the `:location` key, or assigned it on the conn.
 - Some decision functions were rearranged.
 - Raised errors are now wrapped in custom exceptions.
 They're the same errors with the same messages, just with different wrapper types.
@@ -64,6 +68,10 @@ The step is now a map member named `:step`, and the value is `:value`
   and it's the ideal place for parsing the body. ([#15](https://github.com/Cantido/liberator/issues/15))
 
 ## Fixed
+- The `etag` header is now included in the response, if you have overridden it.
+  ([#17](https://github.com/Cantido/liberator/issues/17))
+- Now serves the `last-modified` header based on the return value from the `last_modified/1` callback.
+  ([#18](https://github.com/Cantido/liberator/issues/18))
 - Non-printable-`String` return values from handlers will now be passed through `inspect/1` when the content type is `text/plain`.
   Printable strings will be passed through without hassle. ([#7](https://github.com/Cantido/liberator/issues/7))
 - All responses now include an `allow` header, fixing the cases where one was required but not provided,
