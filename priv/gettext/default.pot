@@ -76,7 +76,7 @@ msgid "Not Found"
 msgstr ""
 
 #, elixir-format
-#: lib/liberator/default/handlers.ex:111
+#: lib/liberator/default/handlers.ex:117
 msgid "Not Implemented"
 msgstr ""
 
@@ -116,7 +116,7 @@ msgid "See Other"
 msgstr ""
 
 #, elixir-format
-#: lib/liberator/default/handlers.ex:119
+#: lib/liberator/default/handlers.ex:125
 msgid "Service Unavailable"
 msgstr ""
 
@@ -141,7 +141,7 @@ msgid "Unavailable for Legal Reasons"
 msgstr ""
 
 #, elixir-format
-#: lib/liberator/default/handlers.ex:115
+#: lib/liberator/default/handlers.ex:121
 msgid "Unknown Method"
 msgstr ""
 
@@ -153,4 +153,9 @@ msgstr ""
 #, elixir-format
 #: lib/liberator/default/handlers.ex:95
 msgid "Unsupported Media Type"
+msgstr ""
+
+#, elixir-format
+#: lib/liberator/default/handlers.ex:111
+msgid "Internal Server Error"
 msgstr ""
