@@ -310,7 +310,7 @@ defmodule Liberator.Resource do
   - `[:liberator, :request, :exception]`
 
   All Telemetry events will contain the request ID and request path as metadata.
-  The measurements for `:start` will contain a key called `system_time` which is derived by calling `:erlang.systme_time()`
+  The measurements for `:start` will contain a key called `system_time` which is derived by calling `:erlang.system_time()`
   The measurements for `:stop` and `:exception` will both contain a key called `:duration`, which is the duration of the request in native time units.
   The metadata for the `:stop` event will also contain the execution trace, which is a list of maps with the following keys:
 
