@@ -424,7 +424,6 @@ defmodule Liberator.Resource do
           handler_status_overrides: %{
             handle_likes_to_party: 420
           }
-        }
 
         def likes_to_party?(_conn), do: Enum.random([true, false])
         def handle_likes_to_party(_conn), do: "Hey come party with me sometime."
