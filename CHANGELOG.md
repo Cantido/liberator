@@ -14,17 +14,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `handle_error/3` handler has been added.
   This is a special handler that lets you manipulate the `conn` after an error is raised,
   so you can choose your status code and body yourself.
+  ([docs](https://hexdocs.pm/liberator/1.4.0/Liberator.Resource.html#module-handling-errors))
   ([#33](https://github.com/Cantido/liberator/issues/33))
 - The `maximum_entity_length/1` function.
   This is used by the `valid_entity_length?/1` callback.
   If the size of the request body is above this size,
   Liberator will return a status of `413 Request Entity Too Large`.
+  ([docs](https://hexdocs.pm/liberator/1.4.0/Liberator.Resource.html#c:maximum_entity_length/1))
+- Added the `well_formed?/1` function.
+  This function checks the request for general adherence to some form, like if it is valid JSON.
+  It replaces `malformed?/1` so that you can return some data after you check for form.
+  ([docs](https://hexdocs.pm/liberator/1.4.0/Liberator.Resource.html#c:well_formed?/1))
 - Added the `body_exists?/1` function.
   This is an internal function that, uh, checks to see if the body exists.
   If it does, it'll grab it, and call `valid_entity_length?/1` and
   the new `well_formed?/1` function.
   So now you can parse the body if it's there,
   without worrying about conditional logic if it's not there.
+  ([docs](https://hexdocs.pm/liberator/1.4.0/Liberator.Resource.html#c:body_exists?/1)
 
 ### Additions to callbacks
 
@@ -34,11 +41,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - You can now return `:ok` or `:error` tuples from decisions, actions, and handlers.
   Returning `{:error, term}` will invoke the new `handle_error/3` function.
 
+[Docs for callbacks](https://hexdocs.pm/liberator/1.4.0/Liberator.Resource.html#module-decisions)
+
 ### Added internationalization
 - Internationalization is now supported via `Gettext`!
   Liberator already finds the best language for each request,
   now it also sets the locale using `Gettext.put_locale/1`.
   Just call `gettext` directly in your Resources.
+  ([docs](https://hexdocs.pm/liberator/1.4.0/Liberator.Resource.html#module-internationalization-and-localization-i18n-and-l10n))
   ([#8](https://github.com/Cantido/liberator/issues/8),
   [#10](https://github.com/Cantido/liberator/pull/10))
 
@@ -51,6 +61,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Three events `[:liberator, :request, :start]`, `[:liberator, :request, :stop]`,
   and `[:liberator, :request, :exception]` are sent.
   See the docs for `Liberator.Resource` for more information.
+
+[Docs for debugging and tracing](https://hexdocs.pm/liberator/1.4.0/Liberator.Resource.html#module-debugging)
 
 ## Changed
 - The `Vary` header is now served by default,
