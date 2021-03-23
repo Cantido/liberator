@@ -624,6 +624,7 @@ defmodule Liberator.Resource do
 
   By default, always returns `true`.
   """
+  @doc since: "1.4"
   @callback well_formed?(Plug.Conn.t()) :: true | false
 
   @doc """
@@ -1342,7 +1343,7 @@ defmodule Liberator.Resource do
   Not only does it receive the `conn`, it also receives the error that was thrown,
   as well as the atom name of the failed step.
   """
-  @doc since: "1.3"
+  @doc since: "1.4"
   @callback handle_error(Plug.Conn.t(), term, atom) :: Plug.Conn.t()
 
   @doc """
