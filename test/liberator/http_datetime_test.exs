@@ -1,5 +1,5 @@
 defmodule Liberator.HTTPDateTimeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest Liberator.HTTPDateTime
 
   describe "parse!/1" do
