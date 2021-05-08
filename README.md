@@ -104,6 +104,7 @@ end
 
 See more in the [Getting Started guide](guides/getting_started.md),
 and in the [documentation for `Liberator.Resource`](https://hexdocs.pm/liberator/Liberator.Resource.html).
+You can also see an example controller built with Liberator at [the `liberator_example` project](https://github.com/Cantido/liberator_example/).
 
 ## Maintainer
 
