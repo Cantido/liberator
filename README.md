@@ -6,7 +6,7 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md)
 [![Gitter](https://badges.gitter.im/liberator-elixir/community.svg)](https://gitter.im/liberator-elixir/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-An Elixir library for building RESTful applications.
+An Elixir library for building applications with HTTP.
 
 Liberator is a port of the [Liberator](https://clojure-liberator.github.io/liberator/) Clojure library
 that allows you to define a controller that adheres to the HTTP spec by providing just a few pieces of information.
