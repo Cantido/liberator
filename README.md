@@ -1,10 +1,9 @@
 # Liberator
 
 [![Hex.pm](https://img.shields.io/hexpm/v/liberator)](https://hex.pm/packages/liberator/)
-![Elixir CI](https://github.com/Cantido/liberator/workflows/Elixir%20CI/badge.svg)
+[![builds.sr.ht status](https://builds.sr.ht/~cosmicrose/effusion.svg)](https://builds.sr.ht/~cosmicrose/effusion?)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md)
-[![Gitter](https://badges.gitter.im/liberator-elixir/community.svg)](https://gitter.im/liberator-elixir/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 An Elixir library for building applications with HTTP.
 
@@ -108,7 +107,7 @@ You can also see an example controller built with Liberator at [the `liberator_e
 
 ## Maintainer
 
-This project was developed by [Rosa Richter](https://github.com/Cantido).
+This project was developed by [Rosa Richter](https://about.me/rosa.richter).
 You can get in touch with her on [Keybase.io](https://keybase.io/cantido).
 
 ## Thanks
@@ -127,7 +126,7 @@ And thanks to the maintainers of Erlang's [webmachine](https://github.com/basho/
 
 Questions and pull requests are more than welcome.
 I follow Elixir's tenet of bad documentation being a bug,
-so if anything is unclear, please [file an issue](https://github.com/Cantido/liberator/issues/new)!
+so if anything is unclear, please [file an issue](https://todo.sr.ht/~cosmicrose/liberator)!
 Ideally, my answer to your question will be in an update to the docs.
 
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for all the details you could ever want about helping me with this project.

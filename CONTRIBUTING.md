@@ -15,8 +15,6 @@ Ideally, my answer to your question will be in an update to the docs.
 
 Please note that this project is released with a Contributor [Code of Conduct]. By participating in this project you agree to abide by its terms.
 
-**Working on your first Pull Request?** You can learn how from this *free* series [How to Contribute to an Open Source Project on GitHub](https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github).
-
 ## Ground Rules
 
 - Follow the [Code of Conduct].
@@ -36,8 +34,8 @@ Please note that this project is released with a Contributor [Code of Conduct]. 
 
 - Ask questions!
 I like writing good documentation, and questions make that work more meaningful.
-Use the issue tracker for questions.
-There's a [questions] tag on the issue tracker for that reason.
+Use the [mailing list] for questions or comments.
+I promise I'll respond promptly.
 - Tests are always welcome!
 Liberator is a project with a lot of conditional logic,
 with a lot of resulting complexity.
@@ -45,13 +43,16 @@ with a lot of resulting complexity.
 
 ## Getting Started
 
-GitHub makes it really easy to submit pull requests. Just:
+If you're on GitHub, it's really easy to submit a pull request. Just:
 
 1. Create your own fork of the code
 2. Do the changes in your fork
 3. [Submit a pull request](https://github.com/Cantido/liberator/compare)
 
 I don't require a CLA or anything like that.
+
+You can also email a patch to the [mailing list] if you like things old-school.
+
 
 ## How report a bug
 
@@ -70,8 +71,7 @@ you may still be dealing with a security issue, so if you're unsure,
 [message me directly](https://keybase.io/cantido).
 For more information on security, see [SECURITY.md](SECURITY.md).
 
-Please [open an issue](https://github.com/Cantido/liberator/issues/new) and
-follow the directions in the issue template.
+Otherwise, please [open an issue](https://todo.sr.ht/~cosmicrose/liberator).
 
 ## How to suggest a feature or enhancement
 
@@ -82,18 +82,18 @@ Help me implement the HTTP spec more closely,
 or help me do anything that lets developers do more with their valuable time.
 
 Feature requests give meaning to my work.
-[Open an issue](https://github.com/Cantido/liberator/issues/new) that decribes the feature you'd like to see,
+[Open an issue](https://todo.sr.ht/~cosmicrose/liberator) that decribes the feature you'd like to see,
 why you need it, and how you'd like it to work.
 
 ## Code review process
 
 As the primary developer, I will be the one reviewing all pull requests.
-I check GitHub almost every day, so you should be able to hear back from me quickly.
+I'm online far too much, so you should be able to hear back from me quickly.
 However, I only do this in my free time, so please allow me flexibility.
 
 ## Community
 
-Chat with me on https://gitter.im/liberator-elixir/community.
+Participate in our [mailing list](https://lists.sr.ht/~cosmicrose/liberator)!
 This is a small project, but I care about the people that care about my work.
 I'm also on [keybase](https://keybase.io/cantido) if you need to message me directly.
 
@@ -103,7 +103,7 @@ It was a great help.
 
 [Nadia Eghbal]: https://github.com/nayafia
 [`contributing-template`]: https://github.com/nayafia/contributing-template
-[help wanted]: https://github.com/Cantido/liberator/labels/help%20wanted
-[good first issue]: https://github.com/Cantido/liberator/labels/good%20first%20issue
-[questions]: https://github.com/Cantido/liberator/labels/question
+[mailing list]: https://lists.sr.ht/~cosmicrose/liberator
+[help wanted]: https://todo.sr.ht/~cosmicrose/liberator?search=label%3A"help wanted"
+[good first issue]: https://todo.sr.ht/~cosmicrose/liberator?search=label%3A"help wanted"
 [Code of Conduct]: code_of_conduct.md
