@@ -1,0 +1,6 @@
+.git
+.github
+_build
+deps
+*.md
+guides
