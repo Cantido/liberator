@@ -11,7 +11,7 @@ packages:
   - docker-ce-cli
   - containerd.io
 sources:
-  - https://git.sr.ht/~cosmicrose/effusion
+  - https://git.sr.ht/~cosmicrose/liberator
 tasks:
   - setup: |
       sudo apt-get install 
