@@ -1,0 +1,22 @@
+image: debian/stable
+repositories:
+  docker: https://download.docker.com/linux/debian stretch stable 7EA0A9C3F273FCD8
+packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+sources:
+  - https://git.sr.ht/~cosmicrose/effusion
+tasks:
+  - setup: |
+      sudo apt-get install 
+      sudo curl -L https://github.com/earthly/earthly/releases/download/v0.5.22/earthly-linux-amd64 -o /usr/local/bin/earthly
+      sudo chmod a+x /usr/local/bin/earthly
+  - build: |
+      cd effusion
+      sudo /usr/local/bin/earthly -P +all
