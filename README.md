@@ -126,7 +126,7 @@ And thanks to the maintainers of Erlang's [webmachine](https://github.com/basho/
 
 Questions and pull requests are more than welcome.
 I follow Elixir's tenet of bad documentation being a bug,
-so if anything is unclear, please [file an issue](https://todo.sr.ht/~cosmicrose/liberator)!
+so if anything is unclear, please [file an issue](https://todo.sr.ht/~cosmicrose/liberator) or ask on the [mailing list]!
 Ideally, my answer to your question will be in an update to the docs.
 
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for all the details you could ever want about helping me with this project.
@@ -160,3 +160,4 @@ SOFTWARE.
 
 [Code of Conduct]: code_of_conduct.md
 [decision graph]: https://clojure-liberator.github.io/liberator/tutorial/decision-graph.html
+[mailing list]: https://lists.sr.ht/~cosmicrose/liberator
