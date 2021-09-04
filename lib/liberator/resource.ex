@@ -1368,7 +1368,12 @@ defmodule Liberator.Resource do
       use Plug.Builder
       @behaviour Liberator.Resource
 
+      plug :put_liberator_module
       plug(Liberator.Evaluator, Keyword.merge([module: __MODULE__], unquote(usage_opts)))
+
+      def put_liberator_module(conn, _opts) do
+        put_private(conn, :liberator_module, __MODULE__)
+      end
 
       def decisions do
         opts = unquote(usage_opts)

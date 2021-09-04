@@ -84,6 +84,18 @@ defmodule Liberator.ResourceTest do
     assert_receive <<"Liberator trace for request \"my-very-specific-request-id\" to /:">> <> _
   end
 
+  test "sets conn.private.liberator_module" do
+    defmodule SetsLiberatorModuleResource do
+      use Liberator.Resource
+    end
+
+    conn = conn(:get, "/")
+
+    conn = SetsLiberatorModuleResource.call(conn, [])
+
+    assert conn.private.liberator_module == Liberator.ResourceTest.SetsLiberatorModuleResource
+  end
+
   test "gets index" do
     defmodule GetOkResource do
       use Liberator.Resource
