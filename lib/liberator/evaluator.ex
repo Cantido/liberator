@@ -19,7 +19,7 @@ defmodule Liberator.Evaluator do
   def init(opts), do: opts
 
   def call(conn, opts) do
-    module = Keyword.get(opts, :module)
+    module = conn.private.liberator_module
 
     :telemetry.span(
       [:liberator, :request],
@@ -38,9 +38,9 @@ defmodule Liberator.Evaluator do
   end
 
   defp continue(conn, module, next_step, opts) do
-    decisions = apply(module, :decisions, [])
-    handlers = apply(module, :handlers, [])
-    actions = apply(module, :actions, [])
+    decisions = conn.private.liberator_decisions
+    handlers = conn.private.liberator_handlers
+    actions = conn.private.liberator_actions
 
     cond do
       Map.has_key?(decisions, next_step) ->
