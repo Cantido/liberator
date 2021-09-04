@@ -1,6 +1,4 @@
 defmodule Liberator.Resource do
-  use Plug.Builder
-
   @moduledoc """
   A controller module that understands and respects the HTTP spec.
 
