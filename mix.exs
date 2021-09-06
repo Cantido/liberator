@@ -19,7 +19,10 @@ defmodule Liberator.MixProject do
     [
       maintainers: ["Rosa Richter"],
       licenses: ["MIT"],
-      links: %{"Github" => "https://github.com/Cantido/liberator"}
+      links: %{
+        "GitHub" => "https://github.com/Cantido/liberator",
+        "sourcehut" => "https://sr.ht/~cosmicrose/liberator"
+      }
     ]
   end
 
