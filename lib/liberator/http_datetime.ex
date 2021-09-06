@@ -68,6 +68,7 @@ defmodule Liberator.HTTPDateTime do
     # It's only available in Elixir >= 1.11.
     # In my opinion that's worth the extra complexity here.
     Code.ensure_loaded(Calendar)
+
     if function_exported?(Calendar, :strftime, 2) do
       Calendar.strftime(datetime, @strftime_format)
     else

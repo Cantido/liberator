@@ -40,7 +40,8 @@ defmodule Mix.Tasks.Liberator.Chart do
   use Mix.Task
 
   def run(args) do
-    {opts, argv, _errors} = OptionParser.parse(args, aliases: [o: :output], strict: [output: :string])
+    {opts, argv, _errors} =
+      OptionParser.parse(args, aliases: [o: :output], strict: [output: :string])
 
     if length(argv) > 1 do
       IO.puts(:stderr, "More than one module name given, ignoring all after the first")
@@ -55,12 +56,13 @@ defmodule Mix.Tasks.Liberator.Chart do
       end
 
     Code.ensure_loaded(base_module)
+
     unless function_exported?(base_module, :decisions, 0) and
-           function_exported?(base_module, :actions, 0) and
-           function_exported?(base_module, :handlers, 0) do
+             function_exported?(base_module, :actions, 0) and
+             function_exported?(base_module, :handlers, 0) do
       raise "The given module, #{base_module}, does not implement " <>
-        "the required functions from Liberator.Resource. " <>
-        "Make sure that module has `use Liberator.Resource` in it."
+              "the required functions from Liberator.Resource. " <>
+              "Make sure that module has `use Liberator.Resource` in it."
     end
 
     chart = dot(base_module)
@@ -87,7 +89,7 @@ defmodule Mix.Tasks.Liberator.Chart do
       |> Map.keys()
       |> Enum.flat_map(fn handler ->
         [
-          ~s("#{handler}" [shape=box]),
+          ~s("#{handler}" [shape=box])
         ]
       end)
       |> Enum.join("\n")

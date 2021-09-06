@@ -25,10 +25,12 @@ defmodule Liberator.Trace do
 
   @doc false
   def start(conn, start_time) do
-    first_trace = [%{
-      step: :start,
-      timestamp: start_time
-    }]
+    first_trace = [
+      %{
+        step: :start,
+        timestamp: start_time
+      }
+    ]
 
     put_private(conn, :liberator_trace, first_trace)
   end
@@ -36,12 +38,17 @@ defmodule Liberator.Trace do
   @doc false
   def update_trace(conn, next_step, result, called_at, duration) do
     current_trace = get_trace(conn)
-    updated_trace = current_trace ++ [%{
-      step: next_step,
-      result: result,
-      timestamp: called_at,
-      duration: duration
-    }]
+
+    updated_trace =
+      current_trace ++
+        [
+          %{
+            step: next_step,
+            result: result,
+            timestamp: called_at,
+            duration: duration
+          }
+        ]
 
     put_private(conn, :liberator_trace, updated_trace)
   end
@@ -49,10 +56,15 @@ defmodule Liberator.Trace do
   @doc false
   def stop(conn, end_time) do
     current_trace = get_trace(conn)
-    updated_trace = current_trace ++ [%{
-      step: :stop,
-      timestamp: end_time
-    }]
+
+    updated_trace =
+      current_trace ++
+        [
+          %{
+            step: :stop,
+            timestamp: end_time
+          }
+        ]
 
     put_private(conn, :liberator_trace, updated_trace)
   end

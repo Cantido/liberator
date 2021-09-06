@@ -25,13 +25,14 @@ defmodule Liberator.Evaluator do
       [:liberator, :request],
       %{
         request_path: conn.request_path,
-        request_id: Logger.metadata[:request_id]
-        },
+        request_id: Logger.metadata()[:request_id]
+      },
       fn ->
         conn =
           conn
           |> Trace.start(DateTime.utc_now())
           |> continue(module, :initialize, opts)
+
         {conn, %{trace: Trace.get_trace(conn)}}
       end
     )
@@ -60,7 +61,6 @@ defmodule Liberator.Evaluator do
             |> handle_error(module, {:error, err}, next_step, opts)
 
           {duration, result} ->
-
             conn = Trace.update_trace(conn, next_step, result, called_at, duration)
 
             {true_step, false_step} = decisions[next_step]
@@ -90,7 +90,6 @@ defmodule Liberator.Evaluator do
             |> handle_error(module, {:error, err}, next_step, opts)
 
           {duration, result} ->
-
             conn
             |> Trace.update_trace(next_step, result, called_at, duration)
             |> handle_decision_result(result)
@@ -112,8 +111,8 @@ defmodule Liberator.Evaluator do
             conn
             |> Trace.update_trace(next_step, {:error, result}, called_at, duration)
             |> handle_error(module, {:error, result}, next_step, opts)
-          {duration, result} ->
 
+          {duration, result} ->
             status = handlers[next_step]
             content_type = Map.get(conn.assigns, :media_type, "text/plain")
             content_encoding = Map.get(conn.assigns, :encoding, "identity")
@@ -138,6 +137,7 @@ defmodule Liberator.Evaluator do
             |> do_trace(Keyword.get(opts, :trace))
             |> send_resp(status, encoded_body)
         end
+
       true ->
         raise Liberator.UnknownStepException, {next_step, module}
     end
@@ -170,12 +170,14 @@ defmodule Liberator.Evaluator do
           |> Trace.headers()
 
         prepend_resp_headers(conn, trace)
+
       trace_opt == :log ->
         conn
         |> Trace.get_trace()
-        |> Trace.log(conn.request_path, Logger.metadata[:request_id])
+        |> Trace.log(conn.request_path, Logger.metadata()[:request_id])
 
         conn
+
       true ->
         conn
     end
@@ -210,6 +212,7 @@ defmodule Liberator.Evaluator do
 
   defp apply_last_modified_header(conn, module) do
     last_modified_result = module.last_modified(conn)
+
     try do
       HTTPDateTime.format!(last_modified_result)
     rescue
@@ -243,6 +246,7 @@ defmodule Liberator.Evaluator do
     |> case do
       nil ->
         raise Liberator.MediaTypeCodecNotFoundException, media_type
+
       codec ->
         codec
     end
@@ -255,6 +259,7 @@ defmodule Liberator.Evaluator do
     unless is_binary(encoded_body) do
       raise Liberator.MediaTypeCodecInvalidResultException, {mediatype_codec, encoded_body}
     end
+
     encoded_body
   end
 
@@ -264,6 +269,7 @@ defmodule Liberator.Evaluator do
     |> case do
       nil ->
         raise Liberator.CompressionCodecNotFoundException, encoding
+
       codec ->
         codec
     end
@@ -276,6 +282,7 @@ defmodule Liberator.Evaluator do
     unless is_binary(compressed_body) do
       raise Liberator.CompressionCodecInvalidResultException, {compression_codec, compressed_body}
     end
+
     compressed_body
   end
 

@@ -19,9 +19,10 @@ defmodule Liberator.Conn do
   """
   def read_body(%Plug.Conn{} = conn, opts \\ []) do
     {key, body, conn} = Plug.Conn.read_body(conn, opts)
+
     case key do
       :more -> assign(conn, :raw_body, :too_large)
-      :ok ->   assign(conn, :raw_body, body)
+      :ok -> assign(conn, :raw_body, body)
     end
   end
 end

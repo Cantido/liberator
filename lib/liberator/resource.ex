@@ -1333,7 +1333,6 @@ defmodule Liberator.Resource do
   @doc since: "1.2"
   @callback handle_unavailable_for_legal_reasons(Plug.Conn.t()) :: Plug.Conn.t()
 
-
   @doc """
   Returns a conn for a `500 Internal Server Error` response.
 
@@ -1367,15 +1366,27 @@ defmodule Liberator.Resource do
   end
 
   def put_decision_tree_overrides(conn, overrides) do
-    put_private(conn, :liberator_decisions, Map.merge(Liberator.Default.DecisionTree.decisions(), overrides))
+    put_private(
+      conn,
+      :liberator_decisions,
+      Map.merge(Liberator.Default.DecisionTree.decisions(), overrides)
+    )
   end
 
   def put_action_followup_overrides(conn, overrides) do
-    put_private(conn, :liberator_actions, Map.merge(Liberator.Default.DecisionTree.actions(), overrides))
+    put_private(
+      conn,
+      :liberator_actions,
+      Map.merge(Liberator.Default.DecisionTree.actions(), overrides)
+    )
   end
 
   def put_handler_status_overrides(conn, overrides) do
-    put_private(conn, :liberator_handlers, Map.merge(Liberator.Default.DecisionTree.handlers(), overrides))
+    put_private(
+      conn,
+      :liberator_handlers,
+      Map.merge(Liberator.Default.DecisionTree.handlers(), overrides)
+    )
   end
 
   defmacro __using__(usage_opts) do
@@ -1386,11 +1397,24 @@ defmodule Liberator.Resource do
       import Liberator.Resource
       @behaviour Liberator.Resource
 
-      plug :put_liberator_module, __MODULE__
-      plug :put_decision_tree_overrides, Keyword.get(unquote(usage_opts), :decision_tree_overrides, %{})
-      plug :put_action_followup_overrides, Keyword.get(unquote(usage_opts), :action_followup_overrides, %{})
-      plug :put_handler_status_overrides, Keyword.get(unquote(usage_opts), :handler_status_overrides, %{})
-      plug Liberator.Evaluator, unquote(usage_opts)
+      plug(:put_liberator_module, __MODULE__)
+
+      plug(
+        :put_decision_tree_overrides,
+        Keyword.get(unquote(usage_opts), :decision_tree_overrides, %{})
+      )
+
+      plug(
+        :put_action_followup_overrides,
+        Keyword.get(unquote(usage_opts), :action_followup_overrides, %{})
+      )
+
+      plug(
+        :put_handler_status_overrides,
+        Keyword.get(unquote(usage_opts), :handler_status_overrides, %{})
+      )
+
+      plug(Liberator.Evaluator, unquote(usage_opts))
 
       @impl true
       def allowed_methods(_conn) do
@@ -1472,13 +1496,14 @@ defmodule Liberator.Resource do
       def body_exists?(conn) do
         conn = Liberator.Conn.read_body(conn, length: maximum_entity_length(conn))
         body = conn.assigns[:raw_body]
+
         unless body == :too_large or is_nil(body) or body == <<>> do
           conn
         end
       end
 
       @impl true
-      def valid_entity_length?(conn)do
+      def valid_entity_length?(conn) do
         conn.assigns[:raw_body] != :too_large
       end
 

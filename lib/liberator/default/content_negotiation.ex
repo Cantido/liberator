@@ -20,6 +20,7 @@ defmodule Liberator.Default.ContentNegotiation do
         "accept-language",
         apply(module, :available_languages, [conn])
       )
+
     language =
       if is_map(assigns) do
         Map.get(assigns, :language)
@@ -32,6 +33,7 @@ defmodule Liberator.Default.ContentNegotiation do
       |> String.replace("-", "_")
       |> Gettext.put_locale()
     end
+
     assigns
   end
 
