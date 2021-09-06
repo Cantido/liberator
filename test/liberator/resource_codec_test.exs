@@ -34,7 +34,7 @@ defmodule Liberator.ResourceCodecTest do
 
     conn = conn(:get, "/")
 
-    assert_raise Liberator.MediaTypeCodecInvalidResult, expected_message, fn ->
+    assert_raise Liberator.MediaTypeCodecInvalidResultException, expected_message, fn ->
       BadMediaTypeCodecResource.call(conn, [])
     end
   end
@@ -70,7 +70,7 @@ defmodule Liberator.ResourceCodecTest do
 
     conn = conn(:get, "/")
 
-    assert_raise Liberator.CompressionCodecInvalidResult, expected_message, fn ->
+    assert_raise Liberator.CompressionCodecInvalidResultException, expected_message, fn ->
       BadCompressionCodecResource.call(conn, [])
     end
   end

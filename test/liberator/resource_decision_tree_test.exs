@@ -47,7 +47,7 @@ defmodule Liberator.ResourceDecisionTreeTest do
         and match what the decision tree is calling.
     """
 
-    assert_raise Liberator.UnknownStep, message, fn ->
+    assert_raise Liberator.UnknownStepException, message, fn ->
       WillBreakLiberatorResource.call(conn, [])
     end
   end

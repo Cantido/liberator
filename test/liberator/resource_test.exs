@@ -3,7 +3,6 @@ defmodule Liberator.ResourceTest do
   use Plug.Test
   doctest Liberator.Resource
 
-  
   defmodule TracingResource do
     use Liberator.Resource
   end
@@ -45,11 +44,12 @@ defmodule Liberator.ResourceTest do
 
     # The docs for the RequestId plug specify that the correct way to access it is via Logger metadata
     @impl true
-    def initialize(_), do: Logger.metadata([request_id: "my-very-specific-request-id"])
+    def initialize(_), do: Logger.metadata(request_id: "my-very-specific-request-id")
   end
 
   test "logs the trace to the logger when trace: :log" do
     parent = self()
+
     defmodule LogMessageToParentProcess do
       def init(parent), do: {:ok, parent}
 
@@ -69,7 +69,8 @@ defmodule Liberator.ResourceTest do
     end
 
     Logger.add_backend(LogMessageToParentProcess)
-    Logger.configure_backend(LogMessageToParentProcess, [parent: parent])
+    Logger.configure_backend(LogMessageToParentProcess, parent: parent)
+
     on_exit(fn ->
       Logger.remove_backend(LogMessageToParentProcess)
     end)
@@ -329,22 +330,22 @@ defmodule Liberator.ResourceTest do
     conn = conn(:get, "/")
 
     message = """
-        Liberator encountered an unknown step called :i_dont_exist
+      Liberator encountered an unknown step called :i_dont_exist
 
-        In module: Liberator.ResourceTest.WillBreakLiberatorResource
+      In module: Liberator.ResourceTest.WillBreakLiberatorResource
 
-        A couple things could be wrong:
+      A couple things could be wrong:
 
-        - If you have overridden part of the decision tree with :decision_tree_overrides,
-          make sure that the atoms in the {true, false} tuple values have their own entries in the map.
+      - If you have overridden part of the decision tree with :decision_tree_overrides,
+        make sure that the atoms in the {true, false} tuple values have their own entries in the map.
 
-        - If you have overridden part of the handler tree with :handler_status_overrides,
-          or the action followups with :action_followup_overrides,
-          make sure that the handler the atoms you passed in are spelled correctly,
-          and match what the decision tree is calling.
-      """
+      - If you have overridden part of the handler tree with :handler_status_overrides,
+        or the action followups with :action_followup_overrides,
+        make sure that the handler the atoms you passed in are spelled correctly,
+        and match what the decision tree is calling.
+    """
 
-    assert_raise Liberator.UnknownStep, message, fn ->
+    assert_raise Liberator.UnknownStepException, message, fn ->
       WillBreakLiberatorResource.call(conn, [])
     end
   end
@@ -371,6 +372,7 @@ defmodule Liberator.ResourceTest do
       action_followup_overrides: %{
         post!: :handle_ok
       }
+
     @impl true
     def allowed_methods(_conn), do: ["POST"]
   end
@@ -462,7 +464,7 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "Created"
     assert Enum.at(get_resp_header(conn, "location"), 0) == "somewhere safe and sound"
   end
-  
+
   defmodule MethodNotAllowedAllowHeaderResource do
     use Liberator.Resource
 
@@ -485,7 +487,7 @@ defmodule Liberator.ResourceTest do
   defmodule RaisingWellFormedResource do
     use Liberator.Resource
     @impl true
-    def well_formed?(_conn), do: raise "shouldn't have called me!"
+    def well_formed?(_conn), do: raise("shouldn't have called me!")
   end
 
   test "does not call well_formed? when body is nil" do
@@ -576,7 +578,7 @@ defmodule Liberator.ResourceTest do
 
     conn = conn(:get, "/")
 
-    assert_raise Liberator.InvalidRetryAfterValue, expected_message, fn ->
+    assert_raise Liberator.InvalidRetryAfterValueException, expected_message, fn ->
       RateLimitedByUnicodeConsortiumResource.call(conn, [])
     end
   end
