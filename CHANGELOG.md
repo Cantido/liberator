@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.0] - 2021-03-23
 
-## Added
+### Added
 
-### New Callbacks
+#### New Callbacks
 
 - The `handle_error/3` handler has been added.
   This is a special handler that lets you manipulate the `conn` after an error is raised,
@@ -33,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   without worrying about conditional logic if it's not there.
   ([docs](https://hexdocs.pm/liberator/1.4.0/Liberator.Resource.html#c:body_exists?/1)
 
-### Additions to callbacks
+#### Additions to callbacks
 
 - You can now return the given conn in decision functions and actions to serve as an affirmative response,
   as an alternative to returning a plain map, or `true`.
@@ -43,7 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Docs for callbacks](https://hexdocs.pm/liberator/1.4.0/Liberator.Resource.html#module-decisions)
 
-### Added internationalization
+#### Added internationalization
+
 - Internationalization is now supported via `Gettext`!
   Liberator already finds the best language for each request,
   now it also sets the locale using `Gettext.put_locale/1`.
@@ -52,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([#8](https://github.com/Cantido/liberator/issues/8),
   [#10](https://github.com/Cantido/liberator/pull/10))
 
-### Debugging and tracing upgrades
+#### Debugging and tracing upgrades
 
 - Tracing individual step duration is now available.
   Access the `:duration` key for each decision in the tracing list to get that decision's duration, in native time units.
@@ -64,7 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Docs for debugging and tracing](https://hexdocs.pm/liberator/1.4.0/Liberator.Resource.html#module-debugging)
 
-## Changed
+### Changed
 - The `Vary` header is now served by default,
   with a value of `Accept-Encoding` and `Accept-Language`.
 - Now serves the `location` header if you've returned a map with the `:location` key, or assigned it on the conn.
@@ -74,12 +75,12 @@ They're the same errors with the same messages, just with different wrapper type
 - Entries in the trace list have changed from tuples to maps in order to support more tracing information.
 The step is now a map member named `:step`, and the value is `:value`
 
-## Deprecated
+### Deprecated
 - The `malformed?/1` is now deprecated, use `well_formed?/1` instead.
   This lets that decision function return data,
   and it's the ideal place for parsing the body. ([#15](https://github.com/Cantido/liberator/issues/15))
 
-## Fixed
+### Fixed
 - The `etag` header is now included in the response, if you have overridden it.
   ([#17](https://github.com/Cantido/liberator/issues/17))
 - Now serves the `last-modified` header based on the return value from the `last_modified/1` callback.
