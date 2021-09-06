@@ -1,6 +1,7 @@
 ARG MIX_ENV=dev
 
 all:
+  BUILD +lint
   BUILD +test
 
 get-deps:
@@ -23,6 +24,11 @@ build:
   COPY lib ./lib
 
   RUN MIX_ENV=$MIX_ENV mix compile
+
+lint:
+  FROM +build
+
+  RUN MIX_ENV=$MIX_ENV mix credo list
 
 test:
   FROM --build-arg MIX_ENV=test +build
