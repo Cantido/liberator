@@ -3,11 +3,12 @@ defmodule Liberator.ResourceTest do
   use Plug.Test
   doctest Liberator.Resource
 
-  test "traces decisions" do
-    defmodule TracingResource do
-      use Liberator.Resource
-    end
+  
+  defmodule TracingResource do
+    use Liberator.Resource
+  end
 
+  test "traces decisions" do
     conn = conn(:get, "/", "hello!") |> put_req_header("content-type", "text/plain")
 
     conn = TracingResource.call(conn, [])
@@ -22,11 +23,11 @@ defmodule Liberator.ResourceTest do
     assert List.last(trace)[:step] == :stop
   end
 
-  test "traces decisions to header when trace: :headers" do
-    defmodule TracingToHeaderResource do
-      use Liberator.Resource, trace: :headers
-    end
+  defmodule TracingToHeaderResource do
+    use Liberator.Resource, trace: :headers
+  end
 
+  test "traces decisions to header when trace: :headers" do
     conn = conn(:get, "/")
 
     conn = TracingToHeaderResource.call(conn, [])
@@ -39,15 +40,15 @@ defmodule Liberator.ResourceTest do
     assert String.starts_with?(Enum.at(trace, 0), "initialize: nil (took ")
   end
 
+  defmodule TracingToLogResource do
+    use Liberator.Resource, trace: :log
+
+    # The docs for the RequestId plug specify that the correct way to access it is via Logger metadata
+    @impl true
+    def initialize(_), do: Logger.metadata([request_id: "my-very-specific-request-id"])
+  end
+
   test "logs the trace to the logger when trace: :log" do
-    defmodule TracingToLogResource do
-      use Liberator.Resource, trace: :log
-
-      # The docs for the RequestId plug specify that the correct way to access it is via Logger metadata
-      @impl true
-      def initialize(_), do: Logger.metadata([request_id: "my-very-specific-request-id"])
-    end
-
     parent = self()
     defmodule LogMessageToParentProcess do
       def init(parent), do: {:ok, parent}
@@ -84,11 +85,11 @@ defmodule Liberator.ResourceTest do
     assert_receive <<"Liberator trace for request \"my-very-specific-request-id\" to /:">> <> _
   end
 
-  test "sets conn.private.liberator_module" do
-    defmodule SetsLiberatorModuleResource do
-      use Liberator.Resource
-    end
+  defmodule SetsLiberatorModuleResource do
+    use Liberator.Resource
+  end
 
+  test "sets conn.private.liberator_module" do
     conn = conn(:get, "/")
 
     conn = SetsLiberatorModuleResource.call(conn, [])
@@ -96,11 +97,11 @@ defmodule Liberator.ResourceTest do
     assert conn.private.liberator_module == Liberator.ResourceTest.SetsLiberatorModuleResource
   end
 
-  test "gets index" do
-    defmodule GetOkResource do
-      use Liberator.Resource
-    end
+  defmodule GetOkResource do
+    use Liberator.Resource
+  end
 
+  test "gets index" do
     conn = conn(:get, "/")
 
     conn = GetOkResource.call(conn, [])
@@ -110,16 +111,16 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "OK"
   end
 
-  test "decision functions can return a map and have it merged into the conn.assigns" do
-    defmodule ReturnsMapResource do
-      use Liberator.Resource
+  defmodule ReturnsMapResource do
+    use Liberator.Resource
 
-      @impl true
-      def service_available?(_conn) do
-        %{test_value: "Hello!"}
-      end
+    @impl true
+    def service_available?(_conn) do
+      %{test_value: "Hello!"}
     end
+  end
 
+  test "decision functions can return a map and have it merged into the conn.assigns" do
     conn = conn(:get, "/")
 
     conn = ReturnsMapResource.call(conn, [])
@@ -130,16 +131,16 @@ defmodule Liberator.ResourceTest do
     assert conn.assigns[:test_value] == "Hello!"
   end
 
-  test "action functions can return a map and have it merged into the conn.assigns" do
-    defmodule InitializedMapResource do
-      use Liberator.Resource
+  defmodule InitializedMapResource do
+    use Liberator.Resource
 
-      @impl true
-      def initialize(_conn) do
-        %{test_value: "Hello!"}
-      end
+    @impl true
+    def initialize(_conn) do
+      %{test_value: "Hello!"}
     end
+  end
 
+  test "action functions can return a map and have it merged into the conn.assigns" do
     conn = conn(:get, "/")
 
     conn = InitializedMapResource.call(conn, [])
@@ -150,16 +151,16 @@ defmodule Liberator.ResourceTest do
     assert conn.assigns[:test_value] == "Hello!"
   end
 
-  test "action functions can return the conn" do
-    defmodule InitializedConnResource do
-      use Liberator.Resource
+  defmodule InitializedConnResource do
+    use Liberator.Resource
 
-      @impl true
-      def initialize(conn) do
-        assign(conn, :test_value, "Hello!")
-      end
+    @impl true
+    def initialize(conn) do
+      assign(conn, :test_value, "Hello!")
     end
+  end
 
+  test "action functions can return the conn" do
     conn = conn(:get, "/")
 
     conn = InitializedConnResource.call(conn, [])
@@ -170,16 +171,16 @@ defmodule Liberator.ResourceTest do
     assert conn.assigns[:test_value] == "Hello!"
   end
 
-  test "decision functions can return the conn" do
-    defmodule ReturnsConnResource do
-      use Liberator.Resource
+  defmodule ReturnsConnResource do
+    use Liberator.Resource
 
-      @impl true
-      def service_available?(conn) do
-        assign(conn, :test_value, "Hello!")
-      end
+    @impl true
+    def service_available?(conn) do
+      assign(conn, :test_value, "Hello!")
     end
+  end
 
+  test "decision functions can return the conn" do
     conn = conn(:get, "/")
 
     conn = ReturnsConnResource.call(conn, [])
@@ -190,29 +191,29 @@ defmodule Liberator.ResourceTest do
     assert conn.assigns[:test_value] == "Hello!"
   end
 
-  test "handle_error will be called if an action function raises" do
-    defmodule RaisingPostResource do
-      use Liberator.Resource
+  defmodule RaisingPostResource do
+    use Liberator.Resource
 
-      @impl true
-      def allowed_methods(_conn) do
-        ["POST"]
-      end
-
-      @impl true
-      def post!(_conn) do
-        raise "That resource already exists"
-      end
-
-      @impl true
-      def handle_error(conn, error, failed_step) do
-        assert failed_step == :post!
-
-        conn
-        |> send_resp(400, error.message)
-      end
+    @impl true
+    def allowed_methods(_conn) do
+      ["POST"]
     end
 
+    @impl true
+    def post!(_conn) do
+      raise "That resource already exists"
+    end
+
+    @impl true
+    def handle_error(conn, error, failed_step) do
+      assert failed_step == :post!
+
+      conn
+      |> send_resp(400, error.message)
+    end
+  end
+
+  test "handle_error will be called if an action function raises" do
     conn = conn(:post, "/")
 
     conn = RaisingPostResource.call(conn, [])
@@ -222,30 +223,30 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "That resource already exists"
   end
 
-  test "handle_error will be called if an an action returns an error tuple" do
-    defmodule ErrorTuplePostResource do
-      use Liberator.Resource
+  defmodule ErrorTuplePostResource do
+    use Liberator.Resource
 
-      @impl true
-      def allowed_methods(_conn) do
-        ["POST"]
-      end
-
-      @impl true
-      def post!(_conn) do
-        {:error, "That resource already exists"}
-      end
-
-      @impl true
-      def handle_error(conn, {:error, message}, failed_step) do
-        assert failed_step == :post!
-        assert message == "That resource already exists"
-
-        conn
-        |> send_resp(400, message)
-      end
+    @impl true
+    def allowed_methods(_conn) do
+      ["POST"]
     end
 
+    @impl true
+    def post!(_conn) do
+      {:error, "That resource already exists"}
+    end
+
+    @impl true
+    def handle_error(conn, {:error, message}, failed_step) do
+      assert failed_step == :post!
+      assert message == "That resource already exists"
+
+      conn
+      |> send_resp(400, message)
+    end
+  end
+
+  test "handle_error will be called if an an action returns an error tuple" do
     conn = conn(:post, "/")
 
     conn = ErrorTuplePostResource.call(conn, [])
@@ -255,25 +256,25 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "That resource already exists"
   end
 
-  test "handle_error will be called if an a handler returns an error tuple" do
-    defmodule ErrorTupleHandlerResource do
-      use Liberator.Resource
+  defmodule ErrorTupleHandlerResource do
+    use Liberator.Resource
 
-      @impl true
-      def handle_ok(_conn) do
-        {:error, "I couldn't say OK :("}
-      end
-
-      @impl true
-      def handle_error(conn, {:error, message}, failed_step) do
-        assert failed_step == :handle_ok
-        assert message == "I couldn't say OK :("
-
-        conn
-        |> send_resp(500, message)
-      end
+    @impl true
+    def handle_ok(_conn) do
+      {:error, "I couldn't say OK :("}
     end
 
+    @impl true
+    def handle_error(conn, {:error, message}, failed_step) do
+      assert failed_step == :handle_ok
+      assert message == "I couldn't say OK :("
+
+      conn
+      |> send_resp(500, message)
+    end
+  end
+
+  test "handle_error will be called if an a handler returns an error tuple" do
     conn = conn(:get, "/")
 
     conn = ErrorTupleHandlerResource.call(conn, [])
@@ -283,14 +284,14 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "I couldn't say OK :("
   end
 
+  defmodule GetAMapResource do
+    use Liberator.Resource
+
+    @impl true
+    def handle_ok(_), do: %{a: 1, b: 2}
+  end
+
   test "stringifies return values from the handler" do
-    defmodule GetAMapResource do
-      use Liberator.Resource
-
-      @impl true
-      def handle_ok(_), do: %{a: 1, b: 2}
-    end
-
     conn = conn(:get, "/")
 
     conn = GetAMapResource.call(conn, [])
@@ -300,14 +301,14 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "%{a: 1, b: 2}"
   end
 
+  defmodule OkTupleHandlerResource do
+    use Liberator.Resource
+
+    @impl true
+    def handle_ok(_), do: {:ok, "no ok tuple here!"}
+  end
+
   test "stringifies ok tuple values from the handler" do
-    defmodule OkTupleHandlerResource do
-      use Liberator.Resource
-
-      @impl true
-      def handle_ok(_), do: {:ok, "no ok tuple here!"}
-    end
-
     conn = conn(:get, "/")
 
     conn = OkTupleHandlerResource.call(conn, [])
@@ -317,14 +318,14 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "no ok tuple here!"
   end
 
-  test "exception test" do
-    defmodule WillBreakLiberatorResource do
-      use Liberator.Resource,
-        decision_tree_overrides: %{
-          service_available?: {:i_dont_exist, :handle_service_unavailable}
-        }
-    end
+  defmodule WillBreakLiberatorResource do
+    use Liberator.Resource,
+      decision_tree_overrides: %{
+        service_available?: {:i_dont_exist, :handle_service_unavailable}
+      }
+  end
 
+  test "exception test" do
     conn = conn(:get, "/")
 
     message = """
@@ -348,14 +349,14 @@ defmodule Liberator.ResourceTest do
     end
   end
 
-  test "can override the handlers tree" do
-    defmodule DevilsOkayResource do
-      use Liberator.Resource,
-        handler_status_overrides: %{
-          handle_ok: 666
-        }
-    end
+  defmodule DevilsOkayResource do
+    use Liberator.Resource,
+      handler_status_overrides: %{
+        handle_ok: 666
+      }
+  end
 
+  test "can override the handlers tree" do
     conn = conn(:get, "/")
 
     conn = DevilsOkayResource.call(conn, [])
@@ -365,16 +366,16 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "OK"
   end
 
-  test "can override the action followups" do
-    defmodule PostGoesToOk do
-      use Liberator.Resource,
-        action_followup_overrides: %{
-          post!: :handle_ok
-        }
-      @impl true
-      def allowed_methods(_conn), do: ["POST"]
-    end
+  defmodule PostGoesToOk do
+    use Liberator.Resource,
+      action_followup_overrides: %{
+        post!: :handle_ok
+      }
+    @impl true
+    def allowed_methods(_conn), do: ["POST"]
+  end
 
+  test "can override the action followups" do
     conn = conn(:post, "/")
 
     conn = PostGoesToOk.call(conn, [])
@@ -384,13 +385,13 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "OK"
   end
 
-  test "gets index as JSON" do
-    defmodule JsonResource do
-      use Liberator.Resource
-      @impl true
-      def available_media_types(_), do: ["application/json"]
-    end
+  defmodule JsonResource do
+    use Liberator.Resource
+    @impl true
+    def available_media_types(_), do: ["application/json"]
+  end
 
+  test "gets index as JSON" do
     conn = conn(:get, "/") |> put_req_header("accept", "application/json")
     conn = JsonResource.call(conn, [])
 
@@ -399,13 +400,13 @@ defmodule Liberator.ResourceTest do
     assert Jason.decode!(conn.resp_body) == "OK"
   end
 
-  test "serves the last-modified header" do
-    defmodule LastModifiedResource do
-      use Liberator.Resource
-      @impl true
-      def last_modified(_conn), do: ~U[2015-10-21 07:28:00Z]
-    end
+  defmodule LastModifiedResource do
+    use Liberator.Resource
+    @impl true
+    def last_modified(_conn), do: ~U[2015-10-21 07:28:00Z]
+  end
 
+  test "serves the last-modified header" do
     conn = conn(:get, "/")
     conn = LastModifiedResource.call(conn, [])
 
@@ -415,13 +416,13 @@ defmodule Liberator.ResourceTest do
     assert Enum.at(get_resp_header(conn, "last-modified"), 0) == "Wed, 21 Oct 2015 07:28:00 GMT"
   end
 
-  test "sets etag if etag is provided" do
-    defmodule EtagResource do
-      use Liberator.Resource
-      @impl true
-      def etag(_), do: ["very-strong-etag"]
-    end
+  defmodule EtagResource do
+    use Liberator.Resource
+    @impl true
+    def etag(_), do: ["very-strong-etag"]
+  end
 
+  test "sets etag if etag is provided" do
     conn = conn(:get, "/")
     conn = EtagResource.call(conn, [])
 
@@ -431,11 +432,11 @@ defmodule Liberator.ResourceTest do
     assert Enum.at(get_resp_header(conn, "etag"), 0) == ~s("very-strong-etag")
   end
 
-  test "does not set etag if etag callback returns nil" do
-    defmodule NoEtagResource do
-      use Liberator.Resource
-    end
+  defmodule NoEtagResource do
+    use Liberator.Resource
+  end
 
+  test "does not set etag if etag callback returns nil" do
     conn = conn(:get, "/")
     conn = NoEtagResource.call(conn, [])
 
@@ -445,14 +446,14 @@ defmodule Liberator.ResourceTest do
     assert get_resp_header(conn, "etag") == []
   end
 
-  test "sets location if location is provided in assigns" do
-    defmodule LocationResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_), do: ["POST"]
-      def post!(_), do: %{location: "somewhere safe and sound"}
-    end
+  defmodule LocationResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_), do: ["POST"]
+    def post!(_), do: %{location: "somewhere safe and sound"}
+  end
 
+  test "sets location if location is provided in assigns" do
     conn = conn(:post, "/")
     conn = LocationResource.call(conn, [])
 
@@ -461,18 +462,18 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "Created"
     assert Enum.at(get_resp_header(conn, "location"), 0) == "somewhere safe and sound"
   end
+  
+  defmodule MethodNotAllowedAllowHeaderResource do
+    use Liberator.Resource
+
+    @impl true
+    def allowed_methods(_conn), do: ["OPTIONS", "HEAD", "GET"]
+
+    @impl true
+    def method_allowed?(_conn), do: false
+  end
 
   test "sets the allow header when returning a 405" do
-    defmodule MethodNotAllowedAllowHeaderResource do
-      use Liberator.Resource
-
-      @impl true
-      def allowed_methods(_conn), do: ["OPTIONS", "HEAD", "GET"]
-
-      @impl true
-      def method_allowed?(_conn), do: false
-    end
-
     conn = conn(:get, "/")
     conn = MethodNotAllowedAllowHeaderResource.call(conn, [])
 
@@ -481,13 +482,13 @@ defmodule Liberator.ResourceTest do
     assert get_resp_header(conn, "allow") |> Enum.at(0) == "OPTIONS, HEAD, GET"
   end
 
-  test "does not call well_formed? when body is nil" do
-    defmodule RaisingWellFormedResource do
-      use Liberator.Resource
-      @impl true
-      def well_formed?(_conn), do: raise "shouldn't have called me!"
-    end
+  defmodule RaisingWellFormedResource do
+    use Liberator.Resource
+    @impl true
+    def well_formed?(_conn), do: raise "shouldn't have called me!"
+  end
 
+  test "does not call well_formed? when body is nil" do
     conn = conn(:get, "/")
     conn = RaisingWellFormedResource.call(conn, [])
 
@@ -496,14 +497,14 @@ defmodule Liberator.ResourceTest do
     assert conn.resp_body == "OK"
   end
 
-  test "response headers contain contents from allowed_methods for an options request" do
-    defmodule OptionsAllowResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["OPTIONS", "HEAD", "GET"]
-      def is_options?(_conn), do: true
-    end
+  defmodule OptionsAllowResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["OPTIONS", "HEAD", "GET"]
+    def is_options?(_conn), do: true
+  end
 
+  test "response headers contain contents from allowed_methods for an options request" do
     conn = conn(:options, "/")
     conn = OptionsAllowResource.call(conn, [])
 
@@ -512,13 +513,13 @@ defmodule Liberator.ResourceTest do
     assert get_resp_header(conn, "allow") |> Enum.at(0) == "OPTIONS, HEAD, GET"
   end
 
-  test "sets retry-after header of resource if too_many_requests returns %{retry_after: %DateTime{}}" do
-    defmodule RateLimitedUntilOctoberResource do
-      use Liberator.Resource
-      @impl true
-      def too_many_requests?(_conn), do: %{retry_after: ~U[2020-10-12 17:06:00Z]}
-    end
+  defmodule RateLimitedUntilOctoberResource do
+    use Liberator.Resource
+    @impl true
+    def too_many_requests?(_conn), do: %{retry_after: ~U[2020-10-12 17:06:00Z]}
+  end
 
+  test "sets retry-after header of resource if too_many_requests returns %{retry_after: %DateTime{}}" do
     conn = conn(:get, "/")
     conn = RateLimitedUntilOctoberResource.call(conn, [])
 
@@ -528,13 +529,13 @@ defmodule Liberator.ResourceTest do
     assert "Mon, 12 Oct 2020 17:06:00 GMT" in get_resp_header(conn, "retry-after")
   end
 
-  test "sets retry-after header of resource if too_many_requests returns %{retry_after: 60}" do
-    defmodule RateLimitedForAMinuteResource do
-      use Liberator.Resource
-      @impl true
-      def too_many_requests?(_conn), do: %{retry_after: 60}
-    end
+  defmodule RateLimitedForAMinuteResource do
+    use Liberator.Resource
+    @impl true
+    def too_many_requests?(_conn), do: %{retry_after: 60}
+  end
 
+  test "sets retry-after header of resource if too_many_requests returns %{retry_after: 60}" do
     conn = conn(:get, "/")
     conn = RateLimitedForAMinuteResource.call(conn, [])
 
@@ -544,13 +545,13 @@ defmodule Liberator.ResourceTest do
     assert "60" in get_resp_header(conn, "retry-after")
   end
 
-  test "sets retry-after header of resource if too_many_requests returns %{retry_after: \"whenever, man\"}" do
-    defmodule RateLimitedByLebowskiResource do
-      use Liberator.Resource
-      @impl true
-      def too_many_requests?(_conn), do: %{retry_after: "whenever, man"}
-    end
+  defmodule RateLimitedByLebowskiResource do
+    use Liberator.Resource
+    @impl true
+    def too_many_requests?(_conn), do: %{retry_after: "whenever, man"}
+  end
 
+  test "sets retry-after header of resource if too_many_requests returns %{retry_after: \"whenever, man\"}" do
     conn = conn(:get, "/")
     conn = RateLimitedByLebowskiResource.call(conn, [])
 
@@ -560,13 +561,13 @@ defmodule Liberator.ResourceTest do
     assert "whenever, man" in get_resp_header(conn, "retry-after")
   end
 
-  test "raises if the value of :retry_after is not a valid string" do
-    defmodule RateLimitedByUnicodeConsortiumResource do
-      use Liberator.Resource
-      @impl true
-      def too_many_requests?(_conn), do: %{retry_after: <<0xFFFF::16>>}
-    end
+  defmodule RateLimitedByUnicodeConsortiumResource do
+    use Liberator.Resource
+    @impl true
+    def too_many_requests?(_conn), do: %{retry_after: <<0xFFFF::16>>}
+  end
 
+  test "raises if the value of :retry_after is not a valid string" do
     expected_message =
       "Value for :retry_after was not a valid DateTime, integer, or String, but was <<255, 255>>. " <>
         "Make sure the too_many_requests?/1 function of " <>
