@@ -12,9 +12,13 @@ get-deps:
 
   RUN mix deps.get
 
+  SAVE ARTIFACT deps AS LOCAL ./deps
+
 compile-deps:
   FROM +get-deps
   RUN MIX_ENV=$MIX_ENV mix deps.compile
+
+  SAVE ARTIFACT _build/$MIX_ENV AS LOCAL ./_build/$MIX_ENV
 
 build:
   FROM +compile-deps
@@ -25,10 +29,17 @@ build:
 
   RUN MIX_ENV=$MIX_ENV mix compile
 
+  SAVE ARTIFACT _build/$MIX_ENV AS LOCAL ./_build/$MIX_ENV
+
 lint:
   FROM +build
 
   RUN MIX_ENV=$MIX_ENV mix credo list
+
+sast:
+  FROM +build
+
+  RUN MIX_ENV=$MIX_ENV mix sobelow --skip
 
 test:
   FROM --build-arg MIX_ENV=test +build
