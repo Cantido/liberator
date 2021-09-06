@@ -2,14 +2,14 @@ defmodule Liberator.ResourceDecisionTreeTest do
   use ExUnit.Case, async: true
   use Plug.Test
 
-  test "can override the decision tree" do
-    defmodule ShortcutResource do
-      use Liberator.Resource,
-        decision_tree_overrides: %{
-          service_available?: {:handle_ok, :handle_service_unavailable}
-        }
-    end
+  defmodule ShortcutResource do
+    use Liberator.Resource,
+      decision_tree_overrides: %{
+        service_available?: {:handle_ok, :handle_service_unavailable}
+      }
+  end
 
+  test "can override the decision tree" do
     conn = conn(:get, "/")
 
     conn = ShortcutResource.call(conn, [])
@@ -21,44 +21,44 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert List.last(conn.private.liberator_trace)[:step] == :stop
   end
 
-  test "exception test" do
-    defmodule WillBreakLiberatorResource do
-      use Liberator.Resource,
-        decision_tree_overrides: %{
-          service_available?: {:i_dont_exist, :handle_service_unavailable}
-        }
-    end
+  defmodule WillBreakLiberatorResource do
+    use Liberator.Resource,
+      decision_tree_overrides: %{
+        service_available?: {:i_dont_exist, :handle_service_unavailable}
+      }
+  end
 
+  test "exception test" do
     conn = conn(:get, "/")
 
     message = """
-        Liberator encountered an unknown step called :i_dont_exist
+      Liberator encountered an unknown step called :i_dont_exist
 
-        In module: Liberator.ResourceDecisionTreeTest.WillBreakLiberatorResource
+      In module: Liberator.ResourceDecisionTreeTest.WillBreakLiberatorResource
 
-        A couple things could be wrong:
+      A couple things could be wrong:
 
-        - If you have overridden part of the decision tree with :decision_tree_overrides,
-          make sure that the atoms in the {true, false} tuple values have their own entries in the map.
+      - If you have overridden part of the decision tree with :decision_tree_overrides,
+        make sure that the atoms in the {true, false} tuple values have their own entries in the map.
 
-        - If you have overridden part of the handler tree with :handler_status_overrides,
-          or the action followups with :action_followup_overrides,
-          make sure that the handler the atoms you passed in are spelled correctly,
-          and match what the decision tree is calling.
-      """
+      - If you have overridden part of the handler tree with :handler_status_overrides,
+        or the action followups with :action_followup_overrides,
+        make sure that the handler the atoms you passed in are spelled correctly,
+        and match what the decision tree is calling.
+    """
 
     assert_raise Liberator.UnknownStep, message, fn ->
       WillBreakLiberatorResource.call(conn, [])
     end
   end
 
-  test "returns 503 when service_available? returns false" do
-    defmodule UnavailableResource do
-      use Liberator.Resource
-      @impl true
-      def service_available?(_conn), do: false
-    end
+  defmodule UnavailableResource do
+    use Liberator.Resource
+    @impl true
+    def service_available?(_conn), do: false
+  end
 
+  test "returns 503 when service_available? returns false" do
     conn = conn(:get, "/")
     conn = UnavailableResource.call(conn, [])
 
@@ -67,13 +67,13 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Service Unavailable"
   end
 
-  test "returns 501 when known_method? returns false" do
-    defmodule UnknownMethodResource do
-      use Liberator.Resource
-      @impl true
-      def known_method?(_conn), do: false
-    end
+  defmodule UnknownMethodResource do
+    use Liberator.Resource
+    @impl true
+    def known_method?(_conn), do: false
+  end
 
+  test "returns 501 when known_method? returns false" do
     conn = conn(:get, "/")
     conn = UnknownMethodResource.call(conn, [])
 
@@ -82,13 +82,13 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Unknown Method"
   end
 
-  test "returns 414 when uri_too_long? returns true" do
-    defmodule UriTooLongResource do
-      use Liberator.Resource
-      @impl true
-      def uri_too_long?(_conn), do: true
-    end
+  defmodule UriTooLongResource do
+    use Liberator.Resource
+    @impl true
+    def uri_too_long?(_conn), do: true
+  end
 
+  test "returns 414 when uri_too_long? returns true" do
     conn = conn(:get, "/")
     conn = UriTooLongResource.call(conn, [])
 
@@ -97,13 +97,13 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "URI Too Long"
   end
 
-  test "returns 405 when method_allowed? returns false" do
-    defmodule MethodNotAllowedResource do
-      use Liberator.Resource
-      @impl true
-      def method_allowed?(_conn), do: false
-    end
+  defmodule MethodNotAllowedResource do
+    use Liberator.Resource
+    @impl true
+    def method_allowed?(_conn), do: false
+  end
 
+  test "returns 405 when method_allowed? returns false" do
     conn = conn(:get, "/")
     conn = MethodNotAllowedResource.call(conn, [])
 
@@ -112,13 +112,13 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Method Not Allowed"
   end
 
-  test "does not call well_formed? when body is nil" do
-    defmodule RaisingWellFormedResource do
-      use Liberator.Resource
-      @impl true
-      def well_formed?(_conn), do: raise "shouldn't have called me!"
-    end
+  defmodule RaisingWellFormedResource do
+    use Liberator.Resource
+    @impl true
+    def well_formed?(_conn), do: raise("shouldn't have called me!")
+  end
 
+  test "does not call well_formed? when body is nil" do
     conn = conn(:get, "/")
     conn = RaisingWellFormedResource.call(conn, [])
 
@@ -127,13 +127,13 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "OK"
   end
 
-  test "returns 400 when well_formed? returns false" do
-    defmodule NotWellFormedResource do
-      use Liberator.Resource
-      @impl true
-      def well_formed?(_conn), do: false
-    end
+  defmodule NotWellFormedResource do
+    use Liberator.Resource
+    @impl true
+    def well_formed?(_conn), do: false
+  end
 
+  test "returns 400 when well_formed? returns false" do
     conn = conn(:get, "/", "test") |> put_req_header("content-type", "text/plain")
     conn = NotWellFormedResource.call(conn, [])
 
@@ -142,13 +142,13 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Malformed"
   end
 
-  test "returns 400 when malformed? returns true" do
-    defmodule MalformedResource do
-      use Liberator.Resource
-      @impl true
-      def malformed?(_conn), do: true
-    end
+  defmodule MalformedResource do
+    use Liberator.Resource
+    @impl true
+    def malformed?(_conn), do: true
+  end
 
+  test "returns 400 when malformed? returns true" do
     conn = conn(:get, "/", "test") |> put_req_header("content-type", "text/plain")
     conn = MalformedResource.call(conn, [])
 
@@ -157,13 +157,13 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Malformed"
   end
 
-  test "returns 401 when authorized? returns false" do
-    defmodule UnauthorizedResource do
-      use Liberator.Resource
-      @impl true
-      def authorized?(_conn), do: false
-    end
+  defmodule UnauthorizedResource do
+    use Liberator.Resource
+    @impl true
+    def authorized?(_conn), do: false
+  end
 
+  test "returns 401 when authorized? returns false" do
     conn = conn(:get, "/")
     conn = UnauthorizedResource.call(conn, [])
 
@@ -172,13 +172,13 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Unauthorized"
   end
 
-  test "returns 403 when allowed? returns false" do
-    defmodule ForbiddenResource do
-      use Liberator.Resource
-      @impl true
-      def allowed?(_conn), do: false
-    end
+  defmodule ForbiddenResource do
+    use Liberator.Resource
+    @impl true
+    def allowed?(_conn), do: false
+  end
 
+  test "returns 403 when allowed? returns false" do
     conn = conn(:get, "/")
     conn = ForbiddenResource.call(conn, [])
 
@@ -187,13 +187,13 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Forbidden"
   end
 
-  test "returns 501 when valid_content_header? returns false" do
-    defmodule NotImplementedResource do
-      use Liberator.Resource
-      @impl true
-      def valid_content_header?(_conn), do: false
-    end
+  defmodule NotImplementedResource do
+    use Liberator.Resource
+    @impl true
+    def valid_content_header?(_conn), do: false
+  end
 
+  test "returns 501 when valid_content_header? returns false" do
     conn = conn(:get, "/")
     conn = NotImplementedResource.call(conn, [])
 
@@ -202,13 +202,13 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Not Implemented"
   end
 
-  test "returns 415 when known_content_type? returns false" do
-    defmodule UnsupportedMediaResource do
-      use Liberator.Resource, trace: :log
-      @impl true
-      def known_content_type?(_conn), do: false
-    end
+  defmodule UnsupportedMediaResource do
+    use Liberator.Resource, trace: :log
+    @impl true
+    def known_content_type?(_conn), do: false
+  end
 
+  test "returns 415 when known_content_type? returns false" do
     conn = conn(:get, "/", "body") |> put_req_header("content-type", "something weird idk")
     conn = UnsupportedMediaResource.call(conn, [])
 
@@ -217,13 +217,13 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Unsupported Media Type"
   end
 
-  test "returns 413 when valid_entity_length? returns false" do
-    defmodule EntityTooLongResource do
-      use Liberator.Resource
-      @impl true
-      def valid_entity_length?(_conn), do: false
-    end
+  defmodule EntityTooLongResource do
+    use Liberator.Resource
+    @impl true
+    def valid_entity_length?(_conn), do: false
+  end
 
+  test "returns 413 when valid_entity_length? returns false" do
     conn = conn(:get, "/", "test") |> put_req_header("content-type", "text/plain")
     conn = EntityTooLongResource.call(conn, [])
 
@@ -232,14 +232,14 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Request Entity Too Large"
   end
 
-  test "returns 200-options for an options request" do
-    defmodule OptionsResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["OPTIONS"]
-      def is_options?(_conn), do: true
-    end
+  defmodule OptionsResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["OPTIONS"]
+    def is_options?(_conn), do: true
+  end
 
+  test "returns 200-options for an options request" do
     conn = conn(:options, "/")
     conn = OptionsResource.call(conn, [])
 
@@ -248,13 +248,13 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Options"
   end
 
-  test "returns 402 when payment_required? returns true" do
-    defmodule PayGatedResource do
-      use Liberator.Resource
-      @impl true
-      def payment_required?(_conn), do: true
-    end
+  defmodule PayGatedResource do
+    use Liberator.Resource
+    @impl true
+    def payment_required?(_conn), do: true
+  end
 
+  test "returns 402 when payment_required? returns true" do
     conn = conn(:get, "/")
     conn = PayGatedResource.call(conn, [])
 
@@ -263,14 +263,14 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Payment Required"
   end
 
-  test "returns 406 when accept_exists? returns true but media_type_available? returns false" do
-    defmodule NotAcceptableResource do
-      use Liberator.Resource
-      @impl true
-      def accept_exists?(_conn), do: true
-      def media_type_available?(_conn), do: false
-    end
+  defmodule NotAcceptableResource do
+    use Liberator.Resource
+    @impl true
+    def accept_exists?(_conn), do: true
+    def media_type_available?(_conn), do: false
+  end
 
+  test "returns 406 when accept_exists? returns true but media_type_available? returns false" do
     conn = conn(:get, "/")
     conn = NotAcceptableResource.call(conn, [])
 
@@ -279,14 +279,14 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Not Acceptable"
   end
 
-  test "returns 406 when accept_language_exists? returns true but language_available? returns false" do
-    defmodule LanguageUnavailableResource do
-      use Liberator.Resource
-      @impl true
-      def accept_language_exists?(_conn), do: true
-      def language_available?(_conn), do: false
-    end
+  defmodule LanguageUnavailableResource do
+    use Liberator.Resource
+    @impl true
+    def accept_language_exists?(_conn), do: true
+    def language_available?(_conn), do: false
+  end
 
+  test "returns 406 when accept_language_exists? returns true but language_available? returns false" do
     conn = conn(:get, "/")
     conn = LanguageUnavailableResource.call(conn, [])
 
@@ -295,14 +295,14 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Not Acceptable"
   end
 
-  test "returns 406 when accept_charset_exists? returns true but charset_available? returns false" do
-    defmodule CharsetUnavailableResource do
-      use Liberator.Resource
-      @impl true
-      def accept_charset_exists?(_conn), do: true
-      def charset_available?(_conn), do: false
-    end
+  defmodule CharsetUnavailableResource do
+    use Liberator.Resource
+    @impl true
+    def accept_charset_exists?(_conn), do: true
+    def charset_available?(_conn), do: false
+  end
 
+  test "returns 406 when accept_charset_exists? returns true but charset_available? returns false" do
     conn = conn(:get, "/")
     conn = CharsetUnavailableResource.call(conn, [])
 
@@ -311,14 +311,14 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Not Acceptable"
   end
 
-  test "returns 406 when accept_encoding_exists? returns true but encoding_available? returns false" do
-    defmodule EncodingUnavailableResource do
-      use Liberator.Resource
-      @impl true
-      def accept_encoding_exists?(_conn), do: true
-      def encoding_available?(_conn), do: false
-    end
+  defmodule EncodingUnavailableResource do
+    use Liberator.Resource
+    @impl true
+    def accept_encoding_exists?(_conn), do: true
+    def encoding_available?(_conn), do: false
+  end
 
+  test "returns 406 when accept_encoding_exists? returns true but encoding_available? returns false" do
     conn = conn(:get, "/")
     conn = EncodingUnavailableResource.call(conn, [])
 
@@ -327,13 +327,13 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Not Acceptable"
   end
 
-  test "returns 422 when processable? returns false" do
-    defmodule UnprocessableResource do
-      use Liberator.Resource
-      @impl true
-      def processable?(_conn), do: false
-    end
+  defmodule UnprocessableResource do
+    use Liberator.Resource
+    @impl true
+    def processable?(_conn), do: false
+  end
 
+  test "returns 422 when processable? returns false" do
     conn = conn(:get, "/")
     conn = UnprocessableResource.call(conn, [])
 
@@ -342,13 +342,13 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Unprocessable Entity"
   end
 
-  test "returns 429 when too_many_requests? returns true" do
-    defmodule RateLimitedResource do
-      use Liberator.Resource
-      @impl true
-      def too_many_requests?(_conn), do: true
-    end
+  defmodule RateLimitedResource do
+    use Liberator.Resource
+    @impl true
+    def too_many_requests?(_conn), do: true
+  end
 
+  test "returns 429 when too_many_requests? returns true" do
     conn = conn(:get, "/")
     conn = RateLimitedResource.call(conn, [])
 
@@ -357,13 +357,13 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Too Many Requests"
   end
 
-  test "returns 451 when unavailable_for_legal_reasons? returns true" do
-    defmodule UnavailableForLegalReasonsResource do
-      use Liberator.Resource
-      @impl true
-      def unavailable_for_legal_reasons?(_conn), do: true
-    end
+  defmodule UnavailableForLegalReasonsResource do
+    use Liberator.Resource
+    @impl true
+    def unavailable_for_legal_reasons?(_conn), do: true
+  end
 
+  test "returns 451 when unavailable_for_legal_reasons? returns true" do
     conn = conn(:get, "/")
     conn = UnavailableForLegalReasonsResource.call(conn, [])
 
@@ -372,17 +372,17 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Unavailable for Legal Reasons"
   end
 
-  test "returns 404 if entity does not exist" do
-    defmodule NotFoundResource do
-      use Liberator.Resource
-      @impl true
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: false
-      def method_put?(_conn), do: false
-      def existed?(_conn), do: false
-      def post_to_missing?(_conn), do: false
-    end
+  defmodule NotFoundResource do
+    use Liberator.Resource
+    @impl true
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: false
+    def method_put?(_conn), do: false
+    def existed?(_conn), do: false
+    def post_to_missing?(_conn), do: false
+  end
 
+  test "returns 404 if entity does not exist" do
     conn = conn(:get, "/")
     conn = NotFoundResource.call(conn, [])
 
@@ -391,18 +391,18 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Not Found"
   end
 
-  test "returns 404 if entity does not exist and can't post to missing" do
-    defmodule NotFoundNoPostResource do
-      use Liberator.Resource
-      @impl true
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: false
-      def method_put?(_conn), do: false
-      def existed?(_conn), do: false
-      def post_to_missing?(_conn), do: true
-      def can_post_to_missing?(_conn), do: false
-    end
+  defmodule NotFoundNoPostResource do
+    use Liberator.Resource
+    @impl true
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: false
+    def method_put?(_conn), do: false
+    def existed?(_conn), do: false
+    def post_to_missing?(_conn), do: true
+    def can_post_to_missing?(_conn), do: false
+  end
 
+  test "returns 404 if entity does not exist and can't post to missing" do
     conn = conn(:get, "/")
     conn = NotFoundNoPostResource.call(conn, [])
 
@@ -411,20 +411,20 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Not Found"
   end
 
-  test "returns 303 if entity does not exist and we can post to missing, and have want a post redirect" do
-    defmodule PostedNotFoundRedirectResource do
-      use Liberator.Resource
-      @impl true
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: false
-      def method_put?(_conn), do: false
-      def existed?(_conn), do: false
-      def post_to_missing?(_conn), do: true
-      def can_post_to_missing?(_conn), do: true
-      def post_enacted?(_conn), do: true
-      def post_redirect?(_conn), do: true
-    end
+  defmodule PostedNotFoundRedirectResource do
+    use Liberator.Resource
+    @impl true
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: false
+    def method_put?(_conn), do: false
+    def existed?(_conn), do: false
+    def post_to_missing?(_conn), do: true
+    def can_post_to_missing?(_conn), do: true
+    def post_enacted?(_conn), do: true
+    def post_redirect?(_conn), do: true
+  end
 
+  test "returns 303 if entity does not exist and we can post to missing, and have want a post redirect" do
     conn = conn(:get, "/")
     conn = PostedNotFoundRedirectResource.call(conn, [])
 
@@ -433,21 +433,21 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "See Other"
   end
 
-  test "returns 201 if entity does not exist and we can post to missing, and create a new resource" do
-    defmodule PostedNotFoundNewResource do
-      use Liberator.Resource
-      @impl true
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: false
-      def method_put?(_conn), do: false
-      def existed?(_conn), do: false
-      def post_to_missing?(_conn), do: true
-      def can_post_to_missing?(_conn), do: true
-      def post_enacted?(_conn), do: true
-      def post_redirect?(_conn), do: false
-      def new?(_conn), do: true
-    end
+  defmodule PostedNotFoundNewResource do
+    use Liberator.Resource
+    @impl true
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: false
+    def method_put?(_conn), do: false
+    def existed?(_conn), do: false
+    def post_to_missing?(_conn), do: true
+    def can_post_to_missing?(_conn), do: true
+    def post_enacted?(_conn), do: true
+    def post_redirect?(_conn), do: false
+    def new?(_conn), do: true
+  end
 
+  test "returns 201 if entity does not exist and we can post to missing, and create a new resource" do
     conn = conn(:get, "/")
     conn = PostedNotFoundNewResource.call(conn, [])
 
@@ -456,19 +456,19 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Created"
   end
 
-  test "returns 202 if entity does not exist and we can post to missing, and post is not immediately enacted" do
-    defmodule PostedNotFoundAcceptedResource do
-      use Liberator.Resource
-      @impl true
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: false
-      def method_put?(_conn), do: false
-      def existed?(_conn), do: false
-      def post_to_missing?(_conn), do: true
-      def can_post_to_missing?(_conn), do: true
-      def post_enacted?(_conn), do: false
-    end
+  defmodule PostedNotFoundAcceptedResource do
+    use Liberator.Resource
+    @impl true
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: false
+    def method_put?(_conn), do: false
+    def existed?(_conn), do: false
+    def post_to_missing?(_conn), do: true
+    def can_post_to_missing?(_conn), do: true
+    def post_enacted?(_conn), do: false
+  end
 
+  test "returns 202 if entity does not exist and we can post to missing, and post is not immediately enacted" do
     conn = conn(:get, "/")
     conn = PostedNotFoundAcceptedResource.call(conn, [])
 
@@ -477,22 +477,22 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Accepted"
   end
 
-  test "returns 204 if entity does not exist and we can post to missing, the entity isn't new and we won't respond with entities" do
-    defmodule PostedNotFoundNoContentResource do
-      use Liberator.Resource
-      @impl true
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: false
-      def method_put?(_conn), do: false
-      def existed?(_conn), do: false
-      def post_to_missing?(_conn), do: true
-      def can_post_to_missing?(_conn), do: true
-      def post_enacted?(_conn), do: true
-      def post_redirect?(_conn), do: false
-      def new?(_conn), do: false
-      def respond_with_entity?(_conn), do: false
-    end
+  defmodule PostedNotFoundNoContentResource do
+    use Liberator.Resource
+    @impl true
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: false
+    def method_put?(_conn), do: false
+    def existed?(_conn), do: false
+    def post_to_missing?(_conn), do: true
+    def can_post_to_missing?(_conn), do: true
+    def post_enacted?(_conn), do: true
+    def post_redirect?(_conn), do: false
+    def new?(_conn), do: false
+    def respond_with_entity?(_conn), do: false
+  end
 
+  test "returns 204 if entity does not exist and we can post to missing, the entity isn't new and we won't respond with entities" do
     conn = conn(:get, "/")
     conn = PostedNotFoundNoContentResource.call(conn, [])
 
@@ -501,23 +501,23 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "No Content"
   end
 
-  test "returns 300 if entity does not exist and we can post to missing, the entity isn't new and we have multiple entity representations" do
-    defmodule PostedNotFoundMultipleRepresentationsResource do
-      use Liberator.Resource
-      @impl true
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: false
-      def method_put?(_conn), do: false
-      def existed?(_conn), do: false
-      def post_to_missing?(_conn), do: true
-      def can_post_to_missing?(_conn), do: true
-      def post_enacted?(_conn), do: true
-      def post_redirect?(_conn), do: false
-      def new?(_conn), do: false
-      def respond_with_entity?(_conn), do: true
-      def multiple_representations?(_conn), do: true
-    end
+  defmodule PostedNotFoundMultipleRepresentationsResource do
+    use Liberator.Resource
+    @impl true
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: false
+    def method_put?(_conn), do: false
+    def existed?(_conn), do: false
+    def post_to_missing?(_conn), do: true
+    def can_post_to_missing?(_conn), do: true
+    def post_enacted?(_conn), do: true
+    def post_redirect?(_conn), do: false
+    def new?(_conn), do: false
+    def respond_with_entity?(_conn), do: true
+    def multiple_representations?(_conn), do: true
+  end
 
+  test "returns 300 if entity does not exist and we can post to missing, the entity isn't new and we have multiple entity representations" do
     conn = conn(:get, "/")
     conn = PostedNotFoundMultipleRepresentationsResource.call(conn, [])
 
@@ -526,23 +526,23 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Multiple Representations"
   end
 
-  test "returns 200 if entity does not exist and we can post to missing, the entity isn't new" do
-    defmodule PostedNotFoundSingleRepresentationResource do
-      use Liberator.Resource
-      @impl true
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: false
-      def method_put?(_conn), do: false
-      def existed?(_conn), do: false
-      def post_to_missing?(_conn), do: true
-      def can_post_to_missing?(_conn), do: true
-      def post_enacted?(_conn), do: true
-      def post_redirect?(_conn), do: false
-      def new?(_conn), do: false
-      def respond_with_entity?(_conn), do: true
-      def multiple_representations?(_conn), do: false
-    end
+  defmodule PostedNotFoundSingleRepresentationResource do
+    use Liberator.Resource
+    @impl true
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: false
+    def method_put?(_conn), do: false
+    def existed?(_conn), do: false
+    def post_to_missing?(_conn), do: true
+    def can_post_to_missing?(_conn), do: true
+    def post_enacted?(_conn), do: true
+    def post_redirect?(_conn), do: false
+    def new?(_conn), do: false
+    def respond_with_entity?(_conn), do: true
+    def multiple_representations?(_conn), do: false
+  end
 
+  test "returns 200 if entity does not exist and we can post to missing, the entity isn't new" do
     conn = conn(:get, "/")
     conn = PostedNotFoundSingleRepresentationResource.call(conn, [])
 
@@ -551,17 +551,17 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "OK"
   end
 
-  test "returns 301 for permanently moved resource" do
-    defmodule MovedPermanentlyResource do
-      use Liberator.Resource
-      @impl true
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: false
-      def method_put?(_conn), do: false
-      def existed?(_conn), do: true
-      def moved_permanently?(_conn), do: true
-    end
+  defmodule MovedPermanentlyResource do
+    use Liberator.Resource
+    @impl true
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: false
+    def method_put?(_conn), do: false
+    def existed?(_conn), do: true
+    def moved_permanently?(_conn), do: true
+  end
 
+  test "returns 301 for permanently moved resource" do
     conn = conn(:get, "/")
     conn = MovedPermanentlyResource.call(conn, [])
 
@@ -570,18 +570,18 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Moved Permanently"
   end
 
-  test "returns 307" do
-    defmodule MovedTemporarilyResource do
-      use Liberator.Resource
-      @impl true
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: false
-      def method_put?(_conn), do: false
-      def existed?(_conn), do: true
-      def moved_permanently?(_conn), do: false
-      def moved_temporarily?(_conn), do: true
-    end
+  defmodule MovedTemporarilyResource do
+    use Liberator.Resource
+    @impl true
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: false
+    def method_put?(_conn), do: false
+    def existed?(_conn), do: true
+    def moved_permanently?(_conn), do: false
+    def moved_temporarily?(_conn), do: true
+  end
 
+  test "returns 307" do
     conn = conn(:get, "/")
     conn = MovedTemporarilyResource.call(conn, [])
 
@@ -590,19 +590,19 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Moved Temporarily"
   end
 
-  test "returns 410 if the resource is gone" do
-    defmodule GoneResource do
-      use Liberator.Resource
-      @impl true
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: false
-      def method_put?(_conn), do: false
-      def existed?(_conn), do: true
-      def moved_permanently?(_conn), do: false
-      def moved_temporarily?(_conn), do: false
-      def post_to_gone?(_conn), do: false
-    end
+  defmodule GoneResource do
+    use Liberator.Resource
+    @impl true
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: false
+    def method_put?(_conn), do: false
+    def existed?(_conn), do: true
+    def moved_permanently?(_conn), do: false
+    def moved_temporarily?(_conn), do: false
+    def post_to_gone?(_conn), do: false
+  end
 
+  test "returns 410 if the resource is gone" do
     conn = conn(:get, "/")
     conn = GoneResource.call(conn, [])
 
@@ -611,20 +611,20 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Gone"
   end
 
-  test "returns 410 when can't post to gone" do
-    defmodule CantPostToGoneResource do
-      use Liberator.Resource
-      @impl true
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: false
-      def method_put?(_conn), do: false
-      def existed?(_conn), do: true
-      def moved_permanently?(_conn), do: false
-      def moved_temporarily?(_conn), do: false
-      def post_to_gone?(_conn), do: true
-      def can_post_to_gone?(_conn), do: false
-    end
+  defmodule CantPostToGoneResource do
+    use Liberator.Resource
+    @impl true
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: false
+    def method_put?(_conn), do: false
+    def existed?(_conn), do: true
+    def moved_permanently?(_conn), do: false
+    def moved_temporarily?(_conn), do: false
+    def post_to_gone?(_conn), do: true
+    def can_post_to_gone?(_conn), do: false
+  end
 
+  test "returns 410 when can't post to gone" do
     conn = conn(:get, "/")
     conn = CantPostToGoneResource.call(conn, [])
 
@@ -633,24 +633,24 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Gone"
   end
 
-  test "returns 201 when resource is gone but we can post to it" do
-    defmodule NewPostToGoneResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["POST"]
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: false
-      def method_put?(_conn), do: false
-      def existed?(_conn), do: true
-      def moved_permanently?(_conn), do: false
-      def moved_temporarily?(_conn), do: false
-      def post_to_gone?(_conn), do: true
-      def can_post_to_gone?(_conn), do: true
-      def post_enacted?(_conn), do: true
-      def post_redirect?(_conn), do: false
-      def new?(_conn), do: true
-    end
+  defmodule NewPostToGoneResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["POST"]
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: false
+    def method_put?(_conn), do: false
+    def existed?(_conn), do: true
+    def moved_permanently?(_conn), do: false
+    def moved_temporarily?(_conn), do: false
+    def post_to_gone?(_conn), do: true
+    def can_post_to_gone?(_conn), do: true
+    def post_enacted?(_conn), do: true
+    def post_redirect?(_conn), do: false
+    def new?(_conn), do: true
+  end
 
+  test "returns 201 when resource is gone but we can post to it" do
     conn = conn(:post, "/")
     conn = NewPostToGoneResource.call(conn, [])
 
@@ -659,17 +659,17 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Created"
   end
 
-  test "returns 301 when put to a different url but entity doesn't exist" do
-    defmodule PutToDifferentUrlResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["PUT"]
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: false
-      def method_put?(_conn), do: true
-      def put_to_different_url?(_conn), do: true
-    end
+  defmodule PutToDifferentUrlResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["PUT"]
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: false
+    def method_put?(_conn), do: true
+    def put_to_different_url?(_conn), do: true
+  end
 
+  test "returns 301 when put to a different url but entity doesn't exist" do
     conn = conn(:put, "/")
     conn = PutToDifferentUrlResource.call(conn, [])
 
@@ -678,18 +678,18 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Moved Permanently"
   end
 
-  test "returns 501 when put to a different url but entity doesn't exist and can't put to missing" do
-    defmodule CantPutToMissingResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["PUT"]
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: false
-      def method_put?(_conn), do: true
-      def put_to_different_url?(_conn), do: false
-      def can_put_to_missing?(_conn), do: false
-    end
+  defmodule CantPutToMissingResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["PUT"]
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: false
+    def method_put?(_conn), do: true
+    def put_to_different_url?(_conn), do: false
+    def can_put_to_missing?(_conn), do: false
+  end
 
+  test "returns 501 when put to a different url but entity doesn't exist and can't put to missing" do
     conn = conn(:put, "/")
     conn = CantPutToMissingResource.call(conn, [])
 
@@ -698,19 +698,19 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Not Implemented"
   end
 
-  test "returns 409 when put to a different url but entity doesn't exist, and we can put to missing, but there's a conflict" do
-    defmodule CanPutToMissingConflictResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["PUT"]
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: false
-      def method_put?(_conn), do: true
-      def put_to_different_url?(_conn), do: false
-      def can_put_to_missing?(_conn), do: true
-      def conflict?(_conn), do: true
-    end
+  defmodule CanPutToMissingConflictResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["PUT"]
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: false
+    def method_put?(_conn), do: true
+    def put_to_different_url?(_conn), do: false
+    def can_put_to_missing?(_conn), do: true
+    def conflict?(_conn), do: true
+  end
 
+  test "returns 409 when put to a different url but entity doesn't exist, and we can put to missing, but there's a conflict" do
     conn = conn(:put, "/")
     conn = CanPutToMissingConflictResource.call(conn, [])
 
@@ -719,14 +719,14 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Conflict"
   end
 
-  test "returns 412 when entity doesn't exist but if_match_star_exists_for_missing is true" do
-    defmodule MissingMatchStarResource do
-      use Liberator.Resource
-      @impl true
-      def exists?(_conn), do: false
-      def if_match_star_exists_for_missing?(_conn), do: true
-    end
+  defmodule MissingMatchStarResource do
+    use Liberator.Resource
+    @impl true
+    def exists?(_conn), do: false
+    def if_match_star_exists_for_missing?(_conn), do: true
+  end
 
+  test "returns 412 when entity doesn't exist but if_match_star_exists_for_missing is true" do
     conn = conn(:get, "/")
     conn = MissingMatchStarResource.call(conn, [])
 
@@ -735,15 +735,15 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Precondition Failed"
   end
 
-  test "returns 412 if If-Match <etag> doesn't match an etag" do
-    defmodule MismatchedIfMatchEtagResource do
-      use Liberator.Resource
-      @impl true
-      def if_match_exists?(_conn), do: true
-      def if_match_star?(_conn), do: false
-      def etag_matches_for_if_match?(_conn), do: false
-    end
+  defmodule MismatchedIfMatchEtagResource do
+    use Liberator.Resource
+    @impl true
+    def if_match_exists?(_conn), do: true
+    def if_match_star?(_conn), do: false
+    def etag_matches_for_if_match?(_conn), do: false
+  end
 
+  test "returns 412 if If-Match <etag> doesn't match an etag" do
     conn = conn(:get, "/")
     conn = MismatchedIfMatchEtagResource.call(conn, [])
 
@@ -752,15 +752,15 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Precondition Failed"
   end
 
-  test "returns 412 if If-Unmodified-Since <date> and entity has not been modified since" do
-    defmodule UnmodifiedSinceResource do
-      use Liberator.Resource
-      @impl true
-      def if_unmodified_since_exists?(_conn), do: true
-      def if_unmodified_since_valid_date?(_conn), do: true
-      def unmodified_since?(_conn), do: true
-    end
+  defmodule UnmodifiedSinceResource do
+    use Liberator.Resource
+    @impl true
+    def if_unmodified_since_exists?(_conn), do: true
+    def if_unmodified_since_valid_date?(_conn), do: true
+    def unmodified_since?(_conn), do: true
+  end
 
+  test "returns 412 if If-Unmodified-Since <date> and entity has not been modified since" do
     conn = conn(:get, "/")
     conn = UnmodifiedSinceResource.call(conn, [])
 
@@ -769,16 +769,16 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Precondition Failed"
   end
 
-  test "returns 412 if If-None-Match <etag> etag does match" do
-    defmodule IfNoneMatchButDoesMatchResource do
-      use Liberator.Resource
-      @impl true
-      def if_none_match_exists?(_conn), do: true
-      def if_none_match_star?(_conn), do: false
-      def etag_matches_for_if_none?(_conn), do: true
-      def if_none_match?(_conn), do: false
-    end
+  defmodule IfNoneMatchButDoesMatchResource do
+    use Liberator.Resource
+    @impl true
+    def if_none_match_exists?(_conn), do: true
+    def if_none_match_star?(_conn), do: false
+    def etag_matches_for_if_none?(_conn), do: true
+    def if_none_match?(_conn), do: false
+  end
 
+  test "returns 412 if If-None-Match <etag> etag does match" do
     conn = conn(:get, "/")
     conn = IfNoneMatchButDoesMatchResource.call(conn, [])
 
@@ -787,15 +787,15 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Precondition Failed"
   end
 
-  test "returns 412 if If-None-Match * etag does match" do
-    defmodule IfNoneMatchStarButMatchesResource do
-      use Liberator.Resource
-      @impl true
-      def if_none_match_exists?(_conn), do: true
-      def if_none_match_star?(_conn), do: true
-      def if_none_match?(_conn), do: false
-    end
+  defmodule IfNoneMatchStarButMatchesResource do
+    use Liberator.Resource
+    @impl true
+    def if_none_match_exists?(_conn), do: true
+    def if_none_match_star?(_conn), do: true
+    def if_none_match?(_conn), do: false
+  end
 
+  test "returns 412 if If-None-Match * etag does match" do
     conn = conn(:get, "/")
     conn = IfNoneMatchStarButMatchesResource.call(conn, [])
 
@@ -804,16 +804,16 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Precondition Failed"
   end
 
-  test "returns 304 if If-None-Match <etag> etag does't match" do
-    defmodule NotModifiedIfNoneMatchResource do
-      use Liberator.Resource
-      @impl true
-      def if_none_match_exists?(_conn), do: true
-      def if_none_match_star?(_conn), do: false
-      def etag_matches_for_if_none?(_conn), do: true
-      def if_none_match?(_conn), do: true
-    end
+  defmodule NotModifiedIfNoneMatchResource do
+    use Liberator.Resource
+    @impl true
+    def if_none_match_exists?(_conn), do: true
+    def if_none_match_star?(_conn), do: false
+    def etag_matches_for_if_none?(_conn), do: true
+    def if_none_match?(_conn), do: true
+  end
 
+  test "returns 304 if If-None-Match <etag> etag does't match" do
     conn = conn(:get, "/")
     conn = NotModifiedIfNoneMatchResource.call(conn, [])
 
@@ -822,15 +822,15 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Not Modified"
   end
 
-  test "returns 304 if If-Modified-Since <date> and resource has not been modified" do
-    defmodule ModifiedSinceResource do
-      use Liberator.Resource
-      @impl true
-      def if_modified_since_exists?(_conn), do: true
-      def if_modified_since_valid_date?(_conn), do: true
-      def modified_since?(_conn), do: false
-    end
+  defmodule ModifiedSinceResource do
+    use Liberator.Resource
+    @impl true
+    def if_modified_since_exists?(_conn), do: true
+    def if_modified_since_valid_date?(_conn), do: true
+    def modified_since?(_conn), do: false
+  end
 
+  test "returns 304 if If-Modified-Since <date> and resource has not been modified" do
     conn = conn(:get, "/")
     conn = ModifiedSinceResource.call(conn, [])
 
@@ -839,15 +839,15 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Not Modified"
   end
 
-  test "returns 200 if method is delete" do
-    defmodule SuccessfulDeleteResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["DELETE"]
-      def method_delete?(_conn), do: true
-      def delete!(_conn), do: nil
-    end
+  defmodule SuccessfulDeleteResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["DELETE"]
+    def method_delete?(_conn), do: true
+    def delete!(_conn), do: nil
+  end
 
+  test "returns 200 if method is delete" do
     conn = conn(:delete, "/")
     conn = SuccessfulDeleteResource.call(conn, [])
 
@@ -856,16 +856,16 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "OK"
   end
 
-  test "returns 202 if method is delete but delete is not immediately enacted" do
-    defmodule DelayedDeleteResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["DELETE"]
-      def method_delete?(_conn), do: true
-      def delete!(_conn), do: nil
-      def delete_enacted?(_conn), do: false
-    end
+  defmodule DelayedDeleteResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["DELETE"]
+    def method_delete?(_conn), do: true
+    def delete!(_conn), do: nil
+    def delete_enacted?(_conn), do: false
+  end
 
+  test "returns 202 if method is delete but delete is not immediately enacted" do
     conn = conn(:delete, "/")
     conn = DelayedDeleteResource.call(conn, [])
 
@@ -874,16 +874,16 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Accepted"
   end
 
-  test "returns 204 if method is delete and no content is returned" do
-    defmodule SuccessfulDeleteNoEntityResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["DELETE"]
-      def method_delete?(_conn), do: true
-      def delete!(_conn), do: nil
-      def respond_with_entity?(_conn), do: false
-    end
+  defmodule SuccessfulDeleteNoEntityResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["DELETE"]
+    def method_delete?(_conn), do: true
+    def delete!(_conn), do: nil
+    def respond_with_entity?(_conn), do: false
+  end
 
+  test "returns 204 if method is delete and no content is returned" do
     conn = conn(:delete, "/")
     conn = SuccessfulDeleteNoEntityResource.call(conn, [])
 
@@ -892,19 +892,19 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "No Content"
   end
 
-  test "returns 200 if method is patch" do
-    defmodule SuccessfulPatchResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["PATCH"]
-      def method_delete?(_conn), do: false
-      def method_patch?(_conn), do: true
-      def patch!(_conn), do: nil
-      def patch_enacted?(_conn), do: true
-      def respond_with_entity?(_conn), do: true
-      def multiple_representations?(_conn), do: false
-    end
+  defmodule SuccessfulPatchResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["PATCH"]
+    def method_delete?(_conn), do: false
+    def method_patch?(_conn), do: true
+    def patch!(_conn), do: nil
+    def patch_enacted?(_conn), do: true
+    def respond_with_entity?(_conn), do: true
+    def multiple_representations?(_conn), do: false
+  end
 
+  test "returns 200 if method is patch" do
     conn = conn(:patch, "/")
     conn = SuccessfulPatchResource.call(conn, [])
 
@@ -913,17 +913,17 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "OK"
   end
 
-  test "returns 202 if method is patch and patch is not immediately enacted" do
-    defmodule AcceptedPatchResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["PATCH"]
-      def method_delete?(_conn), do: false
-      def method_patch?(_conn), do: true
-      def patch!(_conn), do: nil
-      def patch_enacted?(_conn), do: false
-    end
+  defmodule AcceptedPatchResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["PATCH"]
+    def method_delete?(_conn), do: false
+    def method_patch?(_conn), do: true
+    def patch!(_conn), do: nil
+    def patch_enacted?(_conn), do: false
+  end
 
+  test "returns 202 if method is patch and patch is not immediately enacted" do
     conn = conn(:patch, "/")
     conn = AcceptedPatchResource.call(conn, [])
 
@@ -932,18 +932,18 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Accepted"
   end
 
-  test "returns 204 if method is patch and no content is returned" do
-    defmodule AcceptedPatchNoContentResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["PATCH"]
-      def method_delete?(_conn), do: false
-      def method_patch?(_conn), do: true
-      def patch!(_conn), do: nil
-      def patch_enacted?(_conn), do: true
-      def respond_with_entity?(_conn), do: false
-    end
+  defmodule AcceptedPatchNoContentResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["PATCH"]
+    def method_delete?(_conn), do: false
+    def method_patch?(_conn), do: true
+    def patch!(_conn), do: nil
+    def patch_enacted?(_conn), do: true
+    def respond_with_entity?(_conn), do: false
+  end
 
+  test "returns 204 if method is patch and no content is returned" do
     conn = conn(:patch, "/")
     conn = AcceptedPatchNoContentResource.call(conn, [])
 
@@ -952,17 +952,17 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "No Content"
   end
 
-  test "returns 409 if post-to-existing has a conflict" do
-    defmodule ConflictedPostToExistingResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["POST"]
-      def method_delete?(_conn), do: false
-      def method_patch?(_conn), do: false
-      def post_to_existing?(_conn), do: true
-      def conflict?(_conn), do: true
-    end
+  defmodule ConflictedPostToExistingResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["POST"]
+    def method_delete?(_conn), do: false
+    def method_patch?(_conn), do: false
+    def post_to_existing?(_conn), do: true
+    def conflict?(_conn), do: true
+  end
 
+  test "returns 409 if post-to-existing has a conflict" do
     conn = conn(:post, "/")
     conn = ConflictedPostToExistingResource.call(conn, [])
 
@@ -971,18 +971,18 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Conflict"
   end
 
-  test "returns 409 if put-to-existing has a conflict" do
-    defmodule ConflictedPutToExistingResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["PUT"]
-      def method_delete?(_conn), do: false
-      def method_patch?(_conn), do: false
-      def post_to_existing?(_conn), do: false
-      def put_to_existing?(_conn), do: true
-      def conflict?(_conn), do: true
-    end
+  defmodule ConflictedPutToExistingResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["PUT"]
+    def method_delete?(_conn), do: false
+    def method_patch?(_conn), do: false
+    def post_to_existing?(_conn), do: false
+    def put_to_existing?(_conn), do: true
+    def conflict?(_conn), do: true
+  end
 
+  test "returns 409 if put-to-existing has a conflict" do
     conn = conn(:put, "/")
     conn = ConflictedPutToExistingResource.call(conn, [])
 
@@ -991,22 +991,22 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Conflict"
   end
 
-  test "returns 303 if post with post-redirect enabled" do
-    defmodule PostRedirectResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["POST"]
-      def exists?(_conn), do: true
-      def if_match_exists?(_conn), do: false
-      def if_unmodified_since_exists?(_conn), do: false
-      def if_none_match_exists?(_conn), do: false
-      def post_to_existing?(_conn), do: true
-      def conflict?(_conn), do: false
-      def method_post?(_conn), do: true
-      def post_enacted?(_conn), do: true
-      def post_redirect?(_conn), do: true
-    end
+  defmodule PostRedirectResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["POST"]
+    def exists?(_conn), do: true
+    def if_match_exists?(_conn), do: false
+    def if_unmodified_since_exists?(_conn), do: false
+    def if_none_match_exists?(_conn), do: false
+    def post_to_existing?(_conn), do: true
+    def conflict?(_conn), do: false
+    def method_post?(_conn), do: true
+    def post_enacted?(_conn), do: true
+    def post_redirect?(_conn), do: true
+  end
 
+  test "returns 303 if post with post-redirect enabled" do
     conn = conn(:post, "/")
     conn = PostRedirectResource.call(conn, [])
 
@@ -1015,23 +1015,23 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "See Other"
   end
 
-  test "returns 201 if post when resource is created" do
-    defmodule PostCreatedNewResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["POST"]
-      def exists?(_conn), do: true
-      def if_match_exists?(_conn), do: false
-      def if_unmodified_since_exists?(_conn), do: false
-      def if_none_match_exists?(_conn), do: false
-      def post_to_existing?(_conn), do: true
-      def conflict?(_conn), do: false
-      def method_post?(_conn), do: true
-      def post_enacted?(_conn), do: true
-      def post_redirect?(_conn), do: false
-      def new?(_conn), do: true
-    end
+  defmodule PostCreatedNewResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["POST"]
+    def exists?(_conn), do: true
+    def if_match_exists?(_conn), do: false
+    def if_unmodified_since_exists?(_conn), do: false
+    def if_none_match_exists?(_conn), do: false
+    def post_to_existing?(_conn), do: true
+    def conflict?(_conn), do: false
+    def method_post?(_conn), do: true
+    def post_enacted?(_conn), do: true
+    def post_redirect?(_conn), do: false
+    def new?(_conn), do: true
+  end
 
+  test "returns 201 if post when resource is created" do
     conn = conn(:post, "/")
     conn = PostCreatedNewResource.call(conn, [])
 
@@ -1040,24 +1040,24 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Created"
   end
 
-  test "returns 204 if post when resource is not new and we want no entity response" do
-    defmodule PostNewNoEntityResponseResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["POST"]
-      def exists?(_conn), do: true
-      def if_match_exists?(_conn), do: false
-      def if_unmodified_since_exists?(_conn), do: false
-      def if_none_match_exists?(_conn), do: false
-      def post_to_existing?(_conn), do: true
-      def conflict?(_conn), do: false
-      def method_post?(_conn), do: true
-      def post_enacted?(_conn), do: true
-      def post_redirect?(_conn), do: false
-      def new?(_conn), do: false
-      def respond_with_entity?(_conn), do: false
-    end
+  defmodule PostNewNoEntityResponseResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["POST"]
+    def exists?(_conn), do: true
+    def if_match_exists?(_conn), do: false
+    def if_unmodified_since_exists?(_conn), do: false
+    def if_none_match_exists?(_conn), do: false
+    def post_to_existing?(_conn), do: true
+    def conflict?(_conn), do: false
+    def method_post?(_conn), do: true
+    def post_enacted?(_conn), do: true
+    def post_redirect?(_conn), do: false
+    def new?(_conn), do: false
+    def respond_with_entity?(_conn), do: false
+  end
 
+  test "returns 204 if post when resource is not new and we want no entity response" do
     conn = conn(:post, "/")
     conn = PostNewNoEntityResponseResource.call(conn, [])
 
@@ -1066,25 +1066,25 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "No Content"
   end
 
-  test "returns 200 if post when resource is not new and we want an entity response with one representation" do
-    defmodule PostNewSingleEntityResponseResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["POST"]
-      def exists?(_conn), do: true
-      def if_match_exists?(_conn), do: false
-      def if_unmodified_since_exists?(_conn), do: false
-      def if_none_match_exists?(_conn), do: false
-      def post_to_existing?(_conn), do: true
-      def conflict?(_conn), do: false
-      def method_post?(_conn), do: true
-      def post_enacted?(_conn), do: true
-      def post_redirect?(_conn), do: false
-      def new?(_conn), do: false
-      def respond_with_entity?(_conn), do: true
-      def multiple_representations?(_conn), do: false
-    end
+  defmodule PostNewSingleEntityResponseResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["POST"]
+    def exists?(_conn), do: true
+    def if_match_exists?(_conn), do: false
+    def if_unmodified_since_exists?(_conn), do: false
+    def if_none_match_exists?(_conn), do: false
+    def post_to_existing?(_conn), do: true
+    def conflict?(_conn), do: false
+    def method_post?(_conn), do: true
+    def post_enacted?(_conn), do: true
+    def post_redirect?(_conn), do: false
+    def new?(_conn), do: false
+    def respond_with_entity?(_conn), do: true
+    def multiple_representations?(_conn), do: false
+  end
 
+  test "returns 200 if post when resource is not new and we want an entity response with one representation" do
     conn = conn(:post, "/")
     conn = PostNewSingleEntityResponseResource.call(conn, [])
 
@@ -1093,25 +1093,25 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "OK"
   end
 
-  test "returns 300 if post when resource is not new and we want an entity response with multiple representations" do
-    defmodule PostNewMultipleEntityResponseResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["POST"]
-      def exists?(_conn), do: true
-      def if_match_exists?(_conn), do: false
-      def if_unmodified_since_exists?(_conn), do: false
-      def if_none_match_exists?(_conn), do: false
-      def post_to_existing?(_conn), do: true
-      def conflict?(_conn), do: false
-      def method_post?(_conn), do: true
-      def post_enacted?(_conn), do: true
-      def post_redirect?(_conn), do: false
-      def new?(_conn), do: false
-      def respond_with_entity?(_conn), do: true
-      def multiple_representations?(_conn), do: true
-    end
+  defmodule PostNewMultipleEntityResponseResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["POST"]
+    def exists?(_conn), do: true
+    def if_match_exists?(_conn), do: false
+    def if_unmodified_since_exists?(_conn), do: false
+    def if_none_match_exists?(_conn), do: false
+    def post_to_existing?(_conn), do: true
+    def conflict?(_conn), do: false
+    def method_post?(_conn), do: true
+    def post_enacted?(_conn), do: true
+    def post_redirect?(_conn), do: false
+    def new?(_conn), do: false
+    def respond_with_entity?(_conn), do: true
+    def multiple_representations?(_conn), do: true
+  end
 
+  test "returns 300 if post when resource is not new and we want an entity response with multiple representations" do
     conn = conn(:post, "/")
     conn = PostNewMultipleEntityResponseResource.call(conn, [])
 
@@ -1120,23 +1120,23 @@ defmodule Liberator.ResourceDecisionTreeTest do
     assert conn.resp_body == "Multiple Representations"
   end
 
-  test "returns 201 if put when resource is new" do
-    defmodule PostNewResource do
-      use Liberator.Resource
-      @impl true
-      def allowed_methods(_conn), do: ["POST"]
-      def exists?(_conn), do: true
-      def if_match_exists?(_conn), do: false
-      def if_unmodified_since_exists?(_conn), do: false
-      def if_none_match_exists?(_conn), do: false
-      def post_to_existing?(_conn), do: true
-      def conflict?(_conn), do: false
-      def method_post?(_conn), do: true
-      def post_enacted?(_conn), do: true
-      def post_redirect?(_conn), do: false
-      def new?(_conn), do: true
-    end
+  defmodule PostNewResource do
+    use Liberator.Resource
+    @impl true
+    def allowed_methods(_conn), do: ["POST"]
+    def exists?(_conn), do: true
+    def if_match_exists?(_conn), do: false
+    def if_unmodified_since_exists?(_conn), do: false
+    def if_none_match_exists?(_conn), do: false
+    def post_to_existing?(_conn), do: true
+    def conflict?(_conn), do: false
+    def method_post?(_conn), do: true
+    def post_enacted?(_conn), do: true
+    def post_redirect?(_conn), do: false
+    def new?(_conn), do: true
+  end
 
+  test "returns 201 if put when resource is new" do
     conn = conn(:post, "/")
     conn = PostNewResource.call(conn, [])
 
