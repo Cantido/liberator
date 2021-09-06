@@ -142,22 +142,22 @@ defmodule Liberator.ResourceDefaultsTest do
     end
   end
 
+  defmodule LanguageAgnosticResource do
+    use Liberator.Resource
+    def available_languages(_conn), do: ["*"]
+  end
+
+  defmodule EnglishOnlyResource do
+    use Liberator.Resource
+    def available_languages(_conn), do: ["en"]
+  end
+
+  defmodule GermanOnlyResource do
+    use Liberator.Resource
+    def available_languages(_conn), do: ["de"]
+  end
+
   describe "language_available?/1" do
-    defmodule LanguageAgnosticResource do
-      use Liberator.Resource
-      def available_languages(_conn), do: ["*"]
-    end
-
-    defmodule EnglishOnlyResource do
-      use Liberator.Resource
-      def available_languages(_conn), do: ["en"]
-    end
-
-    defmodule GermanOnlyResource do
-      use Liberator.Resource
-      def available_languages(_conn), do: ["de"]
-    end
-
     test "returns the user's requested language if acceptable languges is *" do
       conn =
         conn(:get, "/")
@@ -242,13 +242,13 @@ defmodule Liberator.ResourceDefaultsTest do
     end
   end
 
+  defmodule Utf8EncodingAvailableResource do
+    use Liberator.Resource
+
+    def available_encodings(_), do: ["UTF-8"]
+  end
+
   describe "encoding_available?/1" do
-    defmodule Utf8EncodingAvailableResource do
-      use Liberator.Resource
-
-      def available_encodings(_), do: ["UTF-8"]
-    end
-
     test "disallows UTF-16" do
       refute Utf8EncodingAvailableResource.encoding_available?(
                conn(:get, "/")
@@ -265,13 +265,13 @@ defmodule Liberator.ResourceDefaultsTest do
     end
   end
 
+  defmodule JsonMediaTypeAvailableResource do
+    use Liberator.Resource
+
+    def available_media_types(_), do: ["application/json", "text/html"]
+  end
+
   describe "media_type_available?/1" do
-    defmodule JsonMediaTypeAvailableResource do
-      use Liberator.Resource
-
-      def available_media_types(_), do: ["application/json", "text/html"]
-    end
-
     test "disallows text/nonexistent-media-type" do
       refute MyDefaultResource.media_type_available?(
                conn(:get, "/")
@@ -330,14 +330,26 @@ defmodule Liberator.ResourceDefaultsTest do
     end
   end
 
+  defmodule CharsetUtf8AvailableResource do
+    use Liberator.Resource
+
+    def available_charsets(_), do: ["UTF-8"]
+  end
+
+  defmodule CharsetUtf16UnavailableResource do
+    use Liberator.Resource
+
+    def available_charsets(_), do: ["UTF-8"]
+  end
+
+  defmodule SetsCharsetResource do
+    use Liberator.Resource
+
+    def available_charsets(_), do: ["UTF-8"]
+  end
+
   describe "charset_available?/1" do
     test "returns true if charset is present in `available_charsets/1`" do
-      defmodule CharsetUtf8AvailableResource do
-        use Liberator.Resource
-
-        def available_charsets(_), do: ["UTF-8"]
-      end
-
       conn =
         conn(:get, "/")
         |> put_req_header("accept-charset", "UTF-8")
@@ -346,12 +358,6 @@ defmodule Liberator.ResourceDefaultsTest do
     end
 
     test "returns trfalseue if charset is not present in `available_charsets/1`" do
-      defmodule CharsetUtf16UnavailableResource do
-        use Liberator.Resource
-
-        def available_charsets(_), do: ["UTF-8"]
-      end
-
       conn =
         conn(:get, "/")
         |> put_req_header("accept-charset", "UTF-16")
@@ -360,12 +366,6 @@ defmodule Liberator.ResourceDefaultsTest do
     end
 
     test "returns a map containing the matching charset" do
-      defmodule SetsCharsetResource do
-        use Liberator.Resource
-
-        def available_charsets(_), do: ["UTF-8"]
-      end
-
       conn =
         conn(:get, "/")
         |> put_req_header("accept-charset", "UTF-8")
@@ -588,13 +588,13 @@ defmodule Liberator.ResourceDefaultsTest do
     end
   end
 
+  defmodule IfMatchModule do
+    use Liberator.Resource
+
+    def etag(_), do: "1"
+  end
+
   describe "etag_matches_for_if_match?" do
-    defmodule IfMatchModule do
-      use Liberator.Resource
-
-      def etag(_), do: "1"
-    end
-
     test "returns false by default" do
       refute MyDefaultResource.etag_matches_for_if_match?(conn(:get, "/"))
     end
@@ -608,13 +608,13 @@ defmodule Liberator.ResourceDefaultsTest do
     end
   end
 
+  defmodule IfNoneMatchModule do
+    use Liberator.Resource
+
+    def etag(_), do: "1"
+  end
+
   describe "etag_matches_for_if_none?" do
-    defmodule IfNoneMatchModule do
-      use Liberator.Resource
-
-      def etag(_), do: "1"
-    end
-
     test "returns false by default" do
       refute MyDefaultResource.etag_matches_for_if_none?(conn(:get, "/"))
     end
