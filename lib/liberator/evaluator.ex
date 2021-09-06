@@ -139,7 +139,7 @@ defmodule Liberator.Evaluator do
             |> send_resp(status, encoded_body)
         end
       true ->
-        raise Liberator.UnknownStep, {next_step, module}
+        raise Liberator.UnknownStepException, {next_step, module}
     end
   end
 
@@ -199,7 +199,7 @@ defmodule Liberator.Evaluator do
             retry_after
 
           true ->
-            raise Liberator.InvalidRetryAfterValue, {retry_after, module}
+            raise Liberator.InvalidRetryAfterValueException, {retry_after, module}
         end
 
       put_resp_header(conn, "retry-after", retry_after_value)
@@ -214,7 +214,7 @@ defmodule Liberator.Evaluator do
       HTTPDateTime.format!(last_modified_result)
     rescue
       ArgumentError ->
-        raise Liberator.InvalidLastModifiedValue, {last_modified_result, module}
+        reraise Liberator.InvalidLastModifiedValueException, {last_modified_result, module}
     else
       formatted ->
         put_resp_header(conn, "last-modified", formatted)
@@ -242,7 +242,7 @@ defmodule Liberator.Evaluator do
     |> Map.get(media_type)
     |> case do
       nil ->
-        raise Liberator.MediaTypeCodecNotFound, media_type
+        raise Liberator.MediaTypeCodecNotFoundException, media_type
       codec ->
         codec
     end
@@ -253,7 +253,7 @@ defmodule Liberator.Evaluator do
     encoded_body = mediatype_codec.encode!(body)
 
     unless is_binary(encoded_body) do
-      raise Liberator.MediaTypeCodecInvalidResult, {mediatype_codec, encoded_body}
+      raise Liberator.MediaTypeCodecInvalidResultException, {mediatype_codec, encoded_body}
     end
     encoded_body
   end
@@ -263,7 +263,7 @@ defmodule Liberator.Evaluator do
     |> Map.get(encoding)
     |> case do
       nil ->
-        raise Liberator.CompressionCodecNotFound, encoding
+        raise Liberator.CompressionCodecNotFoundException, encoding
       codec ->
         codec
     end
@@ -274,7 +274,7 @@ defmodule Liberator.Evaluator do
     compressed_body = compression_codec.encode!(body)
 
     unless is_binary(compressed_body) do
-      raise Liberator.CompressionCodecInvalidResult, {compression_codec, compressed_body}
+      raise Liberator.CompressionCodecInvalidResultException, {compression_codec, compressed_body}
     end
     compressed_body
   end
