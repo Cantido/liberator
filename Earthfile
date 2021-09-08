@@ -6,6 +6,7 @@ ARG MIX_ENV=dev
 
 all:
   BUILD +lint
+  BUILD +lint-copyright
   BUILD +test
 
 get-deps:
