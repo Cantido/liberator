@@ -1,6 +1,16 @@
+# SPDX-FileCopyrightText: 2021 Rosa Richter
+#
+# SPDX-License-Identifier: MIT
+
 .git
-.github
-_build
-deps
-*.md
-guides
+
+/_build/
+/cover/
+/deps/
+/doc/
+/.fetch
+erl_crash.dump
+*.ez
+liberator-*.tar
+.elixir_ls
+

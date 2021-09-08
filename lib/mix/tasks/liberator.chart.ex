@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Rosa Richter
+#
+# SPDX-License-Identifier: MIT
+
 defmodule Mix.Tasks.Liberator.Chart do
   @shortdoc "Generates source text for a chart of Liberator's decision tree"
 

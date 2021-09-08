@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Rosa Richter
+#
+# SPDX-License-Identifier: MIT
+
 # The directory Mix will write compiled artifacts to.
 /_build/
 
@@ -21,4 +25,6 @@ erl_crash.dump
 
 # Ignore package tarball (built via "mix hex.build").
 liberator-*.tar
+
+.elixir-ls
 

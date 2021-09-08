@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2021 Rosa Richter
+
+SPDX-License-Identifier: MIT
+-->
+
 # Decision Tree
 
 There are a lot of decision to be made before Liberator sends a response.

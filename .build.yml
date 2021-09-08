@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Rosa Richter
+#
+# SPDX-License-Identifier: MIT
+
 image: debian/stable
 repositories:
   docker: https://download.docker.com/linux/debian stretch stable 7EA0A9C3F273FCD8

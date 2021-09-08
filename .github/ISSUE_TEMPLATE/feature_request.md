@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2021 Rosa Richter
+
+SPDX-License-Identifier: MIT
+-->
+
 ---
 name: Feature request
 about: Suggest an idea for this project

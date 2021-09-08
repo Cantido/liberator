@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Rosa Richter
+#
+# SPDX-License-Identifier: MIT
+
 defmodule Liberator.ResourceCodecTest do
   # Not async because some of these tests must manipulate the Application config
   use ExUnit.Case

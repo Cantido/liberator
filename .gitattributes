@@ -1,2 +1,6 @@
+# SPDX-FileCopyrightText: 2021 Rosa Richter
+#
+# SPDX-License-Identifier: MIT
+
 # Auto detect text files and perform LF normalization
 * text=auto

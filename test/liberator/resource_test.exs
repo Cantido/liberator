@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Rosa Richter
+#
+# SPDX-License-Identifier: MIT
+
 defmodule Liberator.ResourceTest do
   use ExUnit.Case, async: true
   use Plug.Test

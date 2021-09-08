@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2021 Rosa Richter
+
+SPDX-License-Identifier: MIT
+-->
+
 # Getting Started
 
 Let's get a Liberator endpoint up and running as fast as possible.

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Rosa Richter
+#
+# SPDX-License-Identifier: MIT
+
 defmodule Liberator.HTTPDateTime do
   @moduledoc false
   @moduledoc since: "1.2"

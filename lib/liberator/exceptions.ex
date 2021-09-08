@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Rosa Richter
+#
+# SPDX-License-Identifier: MIT
+
 defmodule Liberator.UnknownStepException do
   @moduledoc """
   Liberator's decision tree evaluator encountered a step that it doesn't know what to do with.

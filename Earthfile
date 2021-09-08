@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Rosa Richter
+#
+# SPDX-License-Identifier: MIT
+
 ARG MIX_ENV=dev
 
 all:
@@ -35,6 +39,13 @@ lint:
   FROM +build
 
   RUN MIX_ENV=$MIX_ENV mix credo list
+
+lint-copyright:
+  FROM fsfe/reuse
+
+  COPY . .
+
+  RUN reuse lint
 
 sast:
   FROM +build

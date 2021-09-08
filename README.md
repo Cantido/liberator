@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2021 Rosa Richter
+
+SPDX-License-Identifier: MIT
+-->
+
 # Liberator
 
 [![Hex.pm](https://img.shields.io/hexpm/v/liberator)](https://hex.pm/packages/liberator/)

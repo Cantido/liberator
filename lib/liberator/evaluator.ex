@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Rosa Richter
+#
+# SPDX-License-Identifier: MIT
+
 defmodule Liberator.Evaluator do
   alias Liberator.Trace
   alias Liberator.HTTPDateTime
@@ -38,6 +42,7 @@ defmodule Liberator.Evaluator do
     )
   end
 
+  # sobelow_skip ["XSS.SendResp"]
   defp continue(conn, module, next_step, opts) do
     decisions = conn.private.liberator_decisions
     handlers = conn.private.liberator_handlers
