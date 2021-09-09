@@ -1,6 +1,5 @@
 # SPDX-FileCopyrightText: 2021 Rosa Richter
 #
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: CC0-1.0
 
-# Auto detect text files and perform LF normalization
-* text=auto
+CHANGELOG.md merge=union
