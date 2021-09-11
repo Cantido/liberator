@@ -47,6 +47,10 @@ lint-copyright:
   COPY . .
 
   RUN reuse lint
+
+lint-hex-licenses:
+  FROM +build
+
   RUN mix licenses.lint --reuse
 
 sast:
