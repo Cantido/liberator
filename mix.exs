@@ -25,7 +25,8 @@ defmodule Liberator.MixProject do
       licenses: ["MIT"],
       links: %{
         "GitHub" => "https://github.com/Cantido/liberator",
-        "sourcehut" => "https://sr.ht/~cosmicrose/liberator"
+        "sourcehut" => "https://sr.ht/~cosmicrose/liberator",
+        "Sponsor" => "https://liberapay.com/rosa"
       }
     ]
   end
