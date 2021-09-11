@@ -47,6 +47,7 @@ lint-copyright:
   COPY . .
 
   RUN reuse lint
+  RUN mix licenses.lint --reuse
 
 sast:
   FROM +build

@@ -22,7 +22,7 @@ defmodule Liberator.MixProject do
   defp package do
     [
       maintainers: ["Rosa Richter"],
-      licenses: ["MIT"],
+      licenses: ["MIT", "CC-BY-4.0", "CC0-1.0"],
       links: %{
         "GitHub" => "https://github.com/Cantido/liberator",
         "sourcehut" => "https://sr.ht/~cosmicrose/liberator",
@@ -91,6 +91,7 @@ defmodule Liberator.MixProject do
       {:telemetry, "~> 0.4"},
       {:timex, "~> 3.6"},
       {:credo, "~> 1.5.0-rc.2", only: [:dev, :test], runtime: false},
+      {:hex_licenses, "~> 0.2.0", only: :dev, runtime: false},
       {:sobelow, "~> 0.8", only: :dev},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false}
     ]
