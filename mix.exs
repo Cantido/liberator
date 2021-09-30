@@ -88,7 +88,7 @@ defmodule Liberator.MixProject do
       {:plug, "~> 1.0"},
       {:gettext, "~> 0.18.2"},
       {:jason, "~> 1.2"},
-      {:telemetry, "~> 0.4"},
+      {:telemetry, "~> 1.0"},
       {:timex, "~> 3.6"},
       {:credo, "~> 1.5.0-rc.2", only: [:dev, :test], runtime: false},
       {:hex_licenses, "~> 0.3.0", only: :dev, runtime: false},
