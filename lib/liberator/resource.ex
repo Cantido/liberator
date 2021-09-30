@@ -479,7 +479,30 @@ defmodule Liberator.Resource do
         def handle_locked(_conn), do: "Resource Locked"
       end
   """
+  use TelemetryRegistry
   import Plug.Conn
+
+  telemetry_event(%{
+    event: [:liberator, :request, :start],
+    description: "emitted when Liberator first starts processing a request",
+    measurements: "%{}",
+    metadata:
+      "%{request_id: String.t(), request_path: String.t(), system_time: non_neg_integer()}"
+  })
+
+  telemetry_event(%{
+    event: [:liberator, :request, :stop],
+    description: "emitted when Liberator finishes processing a request",
+    measurements: "%{duration: non_neg_integer()}",
+    metadata: "%{request_id: String.t(), request_path: String.t(), trace: []}"
+  })
+
+  telemetry_event(%{
+    event: [:liberator, :request, :exception],
+    description: "emitted when a request throws an exception",
+    measurements: "%{duration: non_neg_integer()}",
+    metadata: "%{request_id: String.t(), request_path: String.t()}"
+  })
 
   @doc """
   Returns a list of HTTP methods that this module serves.
