@@ -67,16 +67,6 @@ defmodule Liberator.HTTPDateTime do
       "Wed, 21 Oct 2015 07:28:00 GMT"
   """
   def format!(%DateTime{} = datetime) do
-    # the built-in Calendar formatter is way, WAY faster on my machine,
-    # so use it if it's available (Timex: 100 ms, Calendar: 6ms).
-    # It's only available in Elixir >= 1.11.
-    # In my opinion that's worth the extra complexity here.
-    Code.ensure_loaded(Calendar)
-
-    if function_exported?(Calendar, :strftime, 2) do
-      Calendar.strftime(datetime, @strftime_format)
-    else
-      Timex.format!(datetime, @strftime_format, :strftime)
-    end
+    Calendar.strftime(datetime, @strftime_format)
   end
 end
