@@ -166,5 +166,5 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 [Code of Conduct]: code_of_conduct.md
-[decision graph]: https://clojure-liberator.github.io/liberator/tutorial/decision-graph.html
+[decision graph]: guides/default_decision_tree.svg
 [mailing list]: https://lists.sr.ht/~cosmicrose/liberator
