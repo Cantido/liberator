@@ -11,6 +11,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## Added
+
+- The app now registers `telemetry` events with `telemetry_registry`
+
+## Changed
+
+- Required Elixir version was bumped to 1.11 so I could drop some compatibility code that was slowing datetime parsing down.
+
 ## [2.0.0]
 
 ### Changed
