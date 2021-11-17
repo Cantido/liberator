@@ -91,7 +91,7 @@ defmodule Liberator.MixProject do
       {:telemetry, "~> 1.0"},
       {:telemetry_registry, "~> 0.3"},
       {:timex, "~> 3.6"},
-      {:credo, "~> 1.5.0-rc.2", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.6.0", only: [:dev, :test], runtime: false},
       {:hex_licenses, "~> 0.3.0", only: :dev, runtime: false},
       {:sobelow, "~> 0.8", only: :dev},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false}
