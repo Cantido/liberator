@@ -83,10 +83,9 @@ defmodule Mix.Tasks.Liberator.Chart do
     handler_rank_group =
       base_module.handlers()
       |> Map.keys()
-      |> Enum.map(fn handler ->
+      |> Enum.map_join(" ", fn handler ->
         ~s("#{handler}")
       end)
-      |> Enum.join(" ")
 
     handler_shapes =
       base_module.handlers()

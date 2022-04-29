@@ -100,12 +100,11 @@ defmodule Liberator.Trace do
       # remove :start and :stop traces
       |> Enum.slice(1, Enum.count(trace) - 2)
       |> Enum.with_index()
-      |> Enum.map(fn {%{step: key, duration: duration_native} = trace, index} ->
+      |> Enum.map_join("\n", fn {%{step: key, duration: duration_native} = trace, index} ->
         val = Map.get(trace, :result, nil)
         duration_us = System.convert_time_unit(duration_native, :native, :microsecond)
         "    #{index + 1}. #{Atom.to_string(key)}: #{inspect(val)} (took #{duration_us} µs)"
       end)
-      |> Enum.join("\n")
 
     header =
       if request_id do
