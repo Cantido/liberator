@@ -81,11 +81,7 @@ defmodule Liberator.Default.ContentNegotiation do
         Enum.max_by(vals, fn {_type, params} ->
           params
           |> Map.get("q", "1.0")
-          |> Float.parse()
-          |> case do
-            {q, ""} -> q
-            _ -> 0.0
-          end
+          |> parse_quality(0.0)
         end)
 
       if type == wildcard do
@@ -96,6 +92,13 @@ defmodule Liberator.Default.ContentNegotiation do
       end
     else
       false
+    end
+  end
+
+  defp parse_quality(qstr, default) do
+    case Float.parse(qstr) do
+      {q, ""} -> q
+      _ -> default
     end
   end
 
