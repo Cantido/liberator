@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2021 Rosa Richter
+# SPDX-FileCopyrightText: 2024 Rosa Richter
 #
 # SPDX-License-Identifier: MIT
 
@@ -15,20 +15,76 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_COLOR: 1
+
     steps:
     - uses: actions/checkout@v4
-    - name: Put back the git branch into git (Earthly uses it for tagging)
-      run: |
-        branch=""
-        if [ -n "$GITHUB_HEAD_REF" ]; then
-          branch="$GITHUB_HEAD_REF"
-        else
-          branch="${GITHUB_REF##*/}"
-        fi
-        git checkout -b "$branch" || true
-    - name: Download latest earthly
-      run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
-    - name: Earthly version
-      run: earthly --version
-    - name: Run build
-      run: earthly -P +all
+    - name: Set up Elixir
+      uses: erlef/setup-beam@61e01a43a562a89bfc54c7f9a378ff67b03e4a21 # v1.16.0
+      with:
+        elixir-version: 1.17.2
+        otp-version: '27.0'
+    - name: Restore dependencies cache
+      uses: actions/cache@v3
+      with:
+        path: deps
+        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+    - name: Install dependencies
+      run: mix deps.get
+
+
+  test:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+    needs:
+      - build
+    steps:
+    - name: Run tests
+      run: mix test
+
+  credo:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+    needs:
+      - build
+    steps:
+    - name: Run credo
+      run: mix credo list
+
+  test-unlocked:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+
+    strategy:
+      matrix:
+        elixir-version:
+          - 1.17.2
+          - 1.16.3
+          - 1.15.8
+          - 1.14.5
+          - 1.13.4
+        otp-version:
+          - '27.0'
+          - 26.2.5.1
+          - 25.3.2.12
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Elixir
+      uses: erlef/setup-beam@61e01a43a562a89bfc54c7f9a378ff67b03e4a21 # v1.16.0
+      with:
+        elixir-version: ${{ matrix.elixir-version }}
+        otp-version: ${{ matrix.otp-version }}
+    - name: Restore dependencies cache
+      uses: actions/cache@v3
+      with:
+        path: deps
+        key: ${{ runner.os }}-elixir-${{ matrix.elixir-version}}-otp-${{ matrix.otp-version }}-mix-unlocked
+    - name: Install unlocked dependencies
+      run:
+      - mix deps.unlock --all
+      - mix deps.get
+    - name: Run tests
+      run: mix test
