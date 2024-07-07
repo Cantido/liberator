@@ -83,8 +83,8 @@ jobs:
         path: deps
         key: ${{ runner.os }}-elixir-${{ matrix.elixir-version}}-otp-${{ matrix.otp-version }}-mix-unlocked
     - name: Install unlocked dependencies
-      run:
-      - mix deps.unlock --all
-      - mix deps.get
+      run: |
+        mix deps.unlock --all
+        mix deps.get
     - name: Run tests
       run: mix test
