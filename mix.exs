@@ -14,7 +14,6 @@ defmodule Liberator.MixProject do
       version: "2.0.0",
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
-      compilers: [:gettext] ++ Mix.compilers(),
       deps: deps()
     ]
   end
