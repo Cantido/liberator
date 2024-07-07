@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: liberator
 Upstream-Contact: Rosa Richter <cosmic.lady.rosa@gmail.com>
-Source: https://sr.ht/~cosmicrose/liberator
+Source: https://github.com/Cantido/liberator
 
 # Sample paragraph, commented out:
 #
