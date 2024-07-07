@@ -59,16 +59,22 @@ jobs:
 
     strategy:
       matrix:
-        elixir-version:
-          - 1.17.2
-          - 1.16.3
-          - 1.15.8
-          - 1.14.5
-          - 1.13.4
-        otp-version:
-          - '27.0'
-          - 26.2.5.1
-          - 25.3.2.12
+        include:
+        - elixir-version: 1.17
+          otp-version: 27
+        - elixir-version: 1.17
+          otp-version: 26
+        - elixir-version: 1.17
+          otp-version: 25
+
+          #   - 1.16.3
+          #   - 1.15.8
+          #   - 1.14.5
+          #   - 1.13.4
+          # otp-version:
+          #   - '27.0'
+          #   - 26.2.5.1
+          #   - 25.3.2.12
 
     steps:
     - uses: actions/checkout@v4
