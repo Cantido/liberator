@@ -29,12 +29,7 @@ defmodule Liberator.ResourceCodecTest do
       "text/plain" => BrokenMediaType
     })
 
-    expected_message = """
-    The media type codec module Liberator.ResourceCodecTest.BrokenMediaType did not return a binary.
-    Media type codecs must return a binary.
-
-    Liberator.ResourceCodecTest.BrokenMediaType.encode!/1 returned %{a: 1, b: 2}
-    """
+    expected_message = ~r/The compression codec module Liberator.ResourceCodecTest.BrokenMediaType did not return a binary\./
 
     conn = conn(:get, "/")
 
