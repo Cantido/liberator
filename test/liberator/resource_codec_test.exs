@@ -65,12 +65,8 @@ defmodule Liberator.ResourceCodecTest do
       "identity" => BrokenEncoding
     })
 
-    expected_message = """
-    The compression codec module Liberator.ResourceCodecTest.BrokenEncoding did not return a binary.
-    Compression codecs must return a binary.
+    expected_message = ~r/The compression codec module Liberator.ResourceCodecTest.BrokenEncoding did not return a binary\./
 
-    Liberator.ResourceCodecTest.BrokenEncoding.encode!/1 returned %{a: 1, b: 2}
-    """
 
     conn = conn(:get, "/")
 

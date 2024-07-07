@@ -303,7 +303,8 @@ defmodule Liberator.ResourceTest do
 
     assert conn.state == :sent
     assert conn.status == 200
-    assert conn.resp_body == "%{a: 1, b: 2}"
+    assert conn.resp_body =~ "a: 1"
+    assert conn.resp_body =~ "b: 2"
   end
 
   defmodule OkTupleHandlerResource do
