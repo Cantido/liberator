@@ -270,7 +270,7 @@ defmodule Liberator.Resource do
       11. valid_content_header?: true (took 1 µs)
       12. known_content_type?: true (took 1 µs)
       13. valid_entity_length?: true (took 1 µs)
-      14. is_options?: false (took 1 µs)
+      14. method_options?: false (took 1 µs)
       15. accept_exists?: false (took 1 µs)
       16. accept_language_exists?: false (took 1 µs)
       17. accept_charset_exists?: false (took 1 µs)
@@ -368,7 +368,7 @@ defmodule Liberator.Resource do
   | `c:if_none_match_star?/1`                | Checks if header `If-None-Match` is `*`.                                       |
   | `c:if_unmodified_since_exists?/1`        | Checks if header `If-Unmodified-Since` exists.                                 |
   | `c:if_unmodified_since_valid_date?/1`    | Checks if header `If-Unmodified-Since` is a valid HTTP date.                   |
-  | `c:is_options?/1`                        | Checks if the request method is `OPTIONS`                                      |
+  | `c:method_options?/1`                        | Checks if the request method is `OPTIONS`                                      |
   | `c:method_delete?/1`                     | Checks if the request method is `DELETE`                                       |
   | `c:method_put?/1`                        | Checks if the request method is `PUT`                                          |
   | `c:method_patch?/1`                      | Checks if the request method is `PATCH`                                        |
@@ -755,7 +755,7 @@ defmodule Liberator.Resource do
   Used internally; it is not advised to override this function.
   """
   @doc since: "1.0"
-  @callback is_options?(Plug.Conn.t()) :: true | false
+  @callback method_options?(Plug.Conn.t()) :: true | false
 
   @doc """
   Check if the `Accept` header exists.
@@ -1537,7 +1537,7 @@ defmodule Liberator.Resource do
       @impl true
 
       @impl true
-      def is_options?(conn), do: conn.method == "OPTIONS"
+      def method_options?(conn), do: conn.method == "OPTIONS"
       @impl true
       def method_put?(conn), do: conn.method == "PUT"
       @impl true

@@ -240,7 +240,7 @@ defmodule Liberator.ResourceDecisionTreeTest do
     use Liberator.Resource
     @impl true
     def allowed_methods(_conn), do: ["OPTIONS"]
-    def is_options?(_conn), do: true
+    def method_options?(_conn), do: true
   end
 
   test "returns 200-options for an options request" do

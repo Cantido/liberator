@@ -49,13 +49,13 @@ defmodule Liberator.ResourceDefaultsTest do
     end
   end
 
-  describe "is_options?" do
+  describe "method_options?" do
     test "returns true for options type" do
-      assert MyDefaultResource.is_options?(conn(:options, "/"))
+      assert MyDefaultResource.method_options?(conn(:options, "/"))
     end
 
     test "returns false for non-options type" do
-      refute MyDefaultResource.is_options?(conn(:get, "/"))
+      refute MyDefaultResource.method_options?(conn(:get, "/"))
     end
   end
 

@@ -14,3 +14,7 @@ config :liberator,
     "deflate" => Liberator.Encoding.Deflate,
     "gzip" => Liberator.Encoding.Gzip
   }
+
+config :logger, :default_formatter,
+  metadata: [:request_id]
+

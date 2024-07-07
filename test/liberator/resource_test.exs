@@ -507,7 +507,7 @@ defmodule Liberator.ResourceTest do
     use Liberator.Resource
     @impl true
     def allowed_methods(_conn), do: ["OPTIONS", "HEAD", "GET"]
-    def is_options?(_conn), do: true
+    def method_options?(_conn), do: true
   end
 
   test "response headers contain contents from allowed_methods for an options request" do
