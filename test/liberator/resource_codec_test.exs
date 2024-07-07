@@ -1,6 +1,6 @@
-# SPDX-FileCopyrightText: 2021 Rosa Richter
+# SPDX-FileCopyrightText: 2024 Rosa Richter
 #
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
 defmodule Liberator.ResourceCodecTest do
   # Not async because some of these tests must manipulate the Application config

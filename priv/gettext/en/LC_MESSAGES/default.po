@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2021 Rosa Richter
+# SPDX-FileCopyrightText: 2024 Rosa Richter
 #
 # SPDX-License-Identifier: MIT
 ## "msgid"s in this file come from POT (.pot) files.

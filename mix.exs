@@ -1,6 +1,6 @@
-# SPDX-FileCopyrightText: 2021 Rosa Richter
+# SPDX-FileCopyrightText: 2024 Rosa Richter
 #
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
 defmodule Liberator.MixProject do
   use Mix.Project
@@ -21,7 +21,7 @@ defmodule Liberator.MixProject do
   defp package do
     [
       maintainers: ["Rosa Richter"],
-      licenses: ["MIT", "CC-BY-4.0", "CC0-1.0"],
+      licenses: ["AGPL-3.0-or-later", "CC-BY-4.0", "CC0-1.0"],
       links: %{
         "GitHub" => "https://github.com/Cantido/liberator",
         "sourcehut" => "https://sr.ht/~cosmicrose/liberator",
