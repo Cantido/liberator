@@ -13,20 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Changed
+
+- **BREAKING:** All exceptions have been renamed to add `Exception` to their name.
+  This is to adhere to a consistent naming convention that Credo recommends.
+- **BREAKING:** The `Liberator.Resource.is_options?/1` has been renamed to `Liberator.Resource.method_options?/1`.
+  This is to adhere to a consistent naming convention that Credo recommends.
+- **BREAKING:** The project is now licensed under the [AGPL 3.0](https://www.gnu.org/licenses/agpl-3.0.en.html) (or later) license.
+  If you wish to use this library, your project must be licensed with a compatible license.
+
 ## Added
 
 - The app now registers `telemetry` events with `telemetry_registry`
-
-## Changed
-
-- Required Elixir version was bumped to 1.11 so I could drop some compatibility code that was slowing datetime parsing down.
-
-## [2.0.0]
-
-### Changed
-
-- All exceptions have been renamed to add `Exception` to their name.
-  This is to adhere to a consistent naming convention that Credo recommends.
 
 ## [1.4.0] - 2021-03-23
 
