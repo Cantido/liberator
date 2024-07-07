@@ -29,7 +29,7 @@ defmodule Liberator.ResourceCodecTest do
       "text/plain" => BrokenMediaType
     })
 
-    expected_message = ~r/The compression codec module Liberator.ResourceCodecTest.BrokenMediaType did not return a binary\./
+    expected_message = ~r/The media type codec module Liberator.ResourceCodecTest.BrokenMediaType did not return a binary\./
 
     conn = conn(:get, "/")
 
