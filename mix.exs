@@ -85,7 +85,7 @@ defmodule Liberator.MixProject do
   defp deps do
     [
       {:plug, "~> 1.0"},
-      {:gettext, "~> 0.24.0"},
+      {:gettext, "~> 0.25.0"},
       {:jason, "~> 1.2"},
       {:telemetry, "~> 1.0"},
       {:telemetry_registry, "~> 0.3"},
